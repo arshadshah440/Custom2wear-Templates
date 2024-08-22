@@ -36,89 +36,13 @@ function astra_get_search_form_callback($search_form)
 //CTX Feed Function so It doesnt Crashes
 add_filter('woo_feed_should_apply_validate_feed_structure', '__return_true');
 
-//Barn2 Plugins Function for Product Table to work Correctly.
-
-// // Hook to add custom fields to product variations
-// add_action('cmb2_admin_init', 'add_product_variation_custom_fields');
-function add_product_variation_custom_fields()
+// register custom menu
+function register_custom_menu()
 {
-	$prefix = 'c2wear_'; // Prefix for the custom fields
-
-	$cmb = new_cmb2_box(array(
-		'id'            => $prefix . 'product_variation_metabox',
-		'title'         => __('Product Variation Custom Fields', 'cmb2'),
-		'object_types'  => array('product_variation'), // Post type for product variations
-		'context'       => 'normal',
-		'priority'      => 'high',
-		'show_names'    => true,
-	));
-
-	$group_field_id = $cmb->add_field(array(
-		'id' => $prefix . 'print_area_variation',
-		'type' => 'group',
-		'description' => __('Reusable Print Area', 'cmb2'),
-		'repeatable' => true,
-		'options' => array(
-			'group_title' => __('Print Area {#}', 'cmb2'),
-			'add_button' => __('Add Another Print Area', 'cmb2'),
-			'remove_button' => __('Remove Print Area', 'cmb2'),
-			'sortable' => true,
-		)
-	));
-	// Add fields
-	$cmb->add_group_field($group_field_id, array(
-		'name' => __('Print Type', 'cmb2'),
-		'id'   => $prefix . 'print_type',
-		'description' => 'Select A Print Type',
-		'type' => 'select',
-		'options' => array(
-			'' =>  __('Select Print Type', 'cmb2'),
-			'leather_patch' => __('Leather Patch', 'cmb2'),
-			'embroidery' =>  __('Embroidery', 'cmb2'),
-			'digital_print' =>  __('Digital Print', 'cmb2'),
-		),
-	));
-
-	$cmb->add_group_field($group_field_id, array(
-		'name' => __('Print Area', 'cmb2'),
-		'id'   => $prefix . 'print_area',
-		'description' => 'Select A Print Area',
-		'type' => 'select',
-		'options' => array(
-			'' =>  __('Select Print Area', 'cmb2'),
-			'front' => __('Front', 'cmb2'),
-			'back' =>  __('Back', 'cmb2'),
-			'left' =>  __('Left', 'cmb2'),
-			'right' =>  __('Right', 'cmb2'),
-		),
-	));
+	register_nav_menu('header_menu', __('Header Menu', 'straight-curve'));
 }
-add_action('cmb2_admin_init', 'add_product_variation_custom_fields');
+add_action('init', 'register_custom_menu');
 
-// Hook to display custom fields in the variation tab
-function show_custom_fields_in_variation($loop, $variation_data, $variation)
-{
-	$prefix = 'c2wear_';
-
-	$cmb = cmb2_get_metabox($prefix . 'product_variation_metabox', $variation->ID);
-
-	if ($cmb) {
-		$cmb->show_form();
-	}
-}
-add_action('woocommerce_product_after_variable_attributes', 'show_custom_fields_in_variation', 10, 3);
-
-// Hook to save custom fields for product variations
-function save_custom_fields_in_variation($variation_id, $i)
-{
-	$prefix = 'c2wear_';
-	$cmb = cmb2_get_metabox($prefix . 'product_variation_metabox', $variation_id);
-
-	if ($cmb) {
-		$cmb->save_fields($variation_id, 'product_variation');
-	}
-}
-add_action('woocommerce_save_product_variation', 'save_custom_fields_in_variation', 10, 2);
 
 // enque styles and scripts
 
@@ -129,6 +53,7 @@ function my_theme_enqueue_styles()
 		array('handle' => 'FontCss', 'src' => 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css', 'type' => 'style', 'dep' => array(), 'loc' => 'external'),
 		array('handle' => 'HomeCss', 'src' => '/assets/css/home.css', 'type' => 'style', 'dep' => array(), 'loc' => 'internal'),
 		array('handle' => 'woostylescss', 'src' => '/assets/css/woostyles.css', 'type' => 'style', 'dep' => array(), 'loc' => 'internal'),
+		array('handle' => 'globalsectionscss', 'src' => '/assets/css/globalsections.css', 'type' => 'style', 'dep' => array(), 'loc' => 'internal'),
 		array('handle' => 'sliderjs', 'src' => '/assets/js/sliders.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
 		array('handle' => 'archivejs', 'src' => '/assets/js/archive.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
 		array('handle' => 'mainjs', 'src' => '/assets/js/main.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
@@ -306,4 +231,58 @@ function get_the_attribute_type($attribute_name)
 		$attribute_type = $attribute->type; // Could be 'select', 'text', etc.
 		return $attribute_type;
 	}
+}
+
+add_action('acf/init', 'my_acf_op_init');
+function my_acf_op_init()
+{
+
+	// Check function exists.
+	if (function_exists('acf_add_options_page')) {
+
+		// Register options page.
+		$option_page = acf_add_options_page(array(
+			'page_title'    => __('Theme General Settings'),
+			'menu_title'    => __('Theme Settings'),
+			'menu_slug'     => 'theme-general-settings',
+			'capability'    => 'edit_posts',
+			'redirect'      => false
+		));
+	}
+}
+
+
+function footer_menu_acf($acf)
+{
+	$content = get_field($acf, 'options');
+	$links = $content['column_links'];
+?>
+	<div class="footer_menu_ar" id="<?php echo $acf; ?>_ar">
+		<div class="footer_accordian_ar">
+			<div class="footer_acc_head_ar">
+				<h2 class="font_12_700 text_white_ar"><?php echo $content['column_title']; ?></h2>
+				<div class="footer_acc_icons_ar">
+					<i class="fa-solid fa-plus" id="footer_plus_ar"></i>
+					<i class="fa-solid fa-minus" id="footer_minus_ar"></i>
+				</div>
+			</div>
+			<div class="footer_acc_body_ar">
+				<div class="menu_wraper_ar">
+					<?php
+					foreach ($links as $link) {
+					?>
+						<div class="menu_item_ar">
+							<a href="<?php echo $link['link_url']; ?>" class="font_12_400 text_white_op60_ar">
+								<?php echo $link['link_title']; ?>
+							</a>
+						</div>
+					<?php
+					}
+					?>
+				</div>
+			</div>
+		</div>
+	</div>
+<?php
+
 }

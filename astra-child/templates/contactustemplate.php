@@ -26,7 +26,7 @@ $sectioncontent = get_field('get_in_touch_section');
                 <p class="font_14_400 text_dark_op60_ar"><?php echo $sectioncontent['section_description_after_email']; ?></p>
             </div>
             <div class="col_6_mi_ar width_ar_610_px form_ar_wraper">
-                <h3 class="font_48_700"><?php echo $sectioncontent['form_section_title']; ?></h3>
+                <h3 class="font_28_700"><?php echo $sectioncontent['form_section_title']; ?></h3>
                 <p class="text_black_80 font_16_400"><?php echo $sectioncontent['form_section_tagline']; ?></p>
                 <div class="form_wrapper_ar">
                     <?php echo do_shortcode($sectioncontent['form_shortcode']); ?>

@@ -293,7 +293,7 @@ div#size_wrapper_ar,
   border: 1px solid var(--dark-shade-02) !important;
   padding: 1px;
 }
-.swatch_color_ar:has(input[type="checkbox"]:checked){
+.swatch_color_ar:has(input[type="checkbox"]:checked) {
   border-radius: 50%;
 }
 div#size_wrapper_ar .filter_acc_body_item_ar {
@@ -403,4 +403,23 @@ input[type="range"]::-moz-range-track {
   .sorting_tabs_ar {
     padding: 25px 0px;
   }
+  #customer_details,#order_review{
+    padding: 16px;
+  }
+}
+#proctochout_ar a.checkout-button,
+#place_order {
+  background: #aa1f22 !important;
+  padding: 10px 20px !important;
+  border-radius: 100px !important;
+  color: white !important;
+  transform: scale(1) !important;
+}
+#order_review .span.woocommerce-Price-amount.amount {
+  color: var(--dark-shade-02) !important;
+  font-family: var(--jakarta-fonts) !important;
+  font-size: 20px !important;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 28px;
 }

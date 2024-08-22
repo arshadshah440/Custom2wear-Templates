@@ -7,6 +7,14 @@ jQuery(document).ready(function () {
       jQuery(this).find(".accord_icons_ar i").toggle();
     }
   );
+  jQuery(".footer_wrapper_ar").on(
+    "click",
+    ".footer_acc_head_ar",
+    function () {
+      jQuery(this).siblings(".footer_acc_body_ar").slideToggle();
+      jQuery(this).find(".footer_acc_icons_ar i").toggle();
+    }
+  );
   jQuery(".filter_accordian_item_ar").on(
     "click",
     ".filter_acc_head_ar",
@@ -34,6 +42,20 @@ jQuery(document).ready(function () {
       jQuery(this).find(".filter_acc_icon_ar i").toggle();
     }
   );
+
+  jQuery("#mobile_menu_toggler_ar").on("click",function(){
+      jQuery("#mobile_nav_ar").slideToggle();
+  });
+  jQuery("#search_btn_ar").on("click",function(e){
+      e.preventDefault();
+      jQuery("#search_form_ar").css("display","flex");
+  });
+  jQuery("#close_btn_ar").on("click",function(){
+      jQuery("#mobile_nav_ar").slideToggle();
+  })
+  jQuery("#searchclose_btn_ar").on("click",function(){
+      jQuery("#search_form_ar").hide();
+  })
 
   // const slider1_ar = document.getElementById("slider1_ar");
   // const slider2_ar = document.getElementById("slider2_ar");
