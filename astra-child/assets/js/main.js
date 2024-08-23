@@ -7,14 +7,14 @@ jQuery(document).ready(function () {
       jQuery(this).find(".accord_icons_ar i").toggle();
     }
   );
-  jQuery(".footer_wrapper_ar").on(
-    "click",
-    ".footer_acc_head_ar",
-    function () {
-      jQuery(this).siblings(".footer_acc_body_ar").slideToggle();
-      jQuery(this).find(".footer_acc_icons_ar i").toggle();
-    }
-  );
+  jQuery(".footer_wrapper_ar").on("click", ".footer_acc_head_ar", function () {
+    jQuery(this).siblings(".footer_acc_body_ar").slideToggle();
+    jQuery(this).find(".footer_acc_icons_ar i").toggle();
+  });
+  jQuery(".color-thread-heading").on("click", function () {
+    jQuery(this).siblings(".color-thread-inner").slideToggle();
+    jQuery(this).find(".color-thread-accord-icon i").toggle();
+  });
   jQuery(".filter_accordian_item_ar").on(
     "click",
     ".filter_acc_head_ar",
@@ -43,57 +43,42 @@ jQuery(document).ready(function () {
     }
   );
 
-  jQuery("#mobile_menu_toggler_ar").on("click",function(){
-      jQuery("#mobile_nav_ar").slideToggle();
+  jQuery("#mobile_menu_toggler_ar").on("click", function () {
+    jQuery("#mobile_nav_ar").slideToggle();
   });
-  jQuery("#search_btn_ar").on("click",function(e){
-      e.preventDefault();
-      jQuery("#search_form_ar").css("display","flex");
+  jQuery("#search_btn_ar").on("click", function (e) {
+    e.preventDefault();
+    jQuery("#search_form_ar").css("display", "flex");
   });
-  jQuery("#close_btn_ar").on("click",function(){
-      jQuery("#mobile_nav_ar").slideToggle();
-  })
-  jQuery("#searchclose_btn_ar").on("click",function(){
-      jQuery("#search_form_ar").hide();
-  })
-
-  // const slider1_ar = document.getElementById("slider1_ar");
-  // const slider2_ar = document.getElementById("slider2_ar");
-  // const minValueLabel_ar = document.getElementById("min-value_ar");
-  // const maxValueLabel_ar = document.getElementById("max-value_ar");
-  // const sliderTrack_ar = document.getElementById("slider-track_ar");
-
-  // function updateSliderTrack_ar() {
-  //   const minVal_ar = parseInt(slider1_ar.value);
-  //   const maxVal_ar = parseInt(slider2_ar.value);
-  //   const percentageMin_ar = (minVal_ar / slider1_ar.max) * 100;
-  //   const percentageMax_ar = (maxVal_ar / slider2_ar.max) * 100;
-
-  //   sliderTrack_ar.style.left = percentageMin_ar + "%";
-  //   sliderTrack_ar.style.width = percentageMax_ar - percentageMin_ar + "%";
-  // }
-
-  // slider1_ar.addEventListener("input", () => {
-  //   const minValue_ar = Math.min(
-  //     parseInt(slider1_ar.value),
-  //     parseInt(slider2_ar.value)
-  //   );
-  //   minValueLabel_ar.textContent = `$${minValue_ar.toLocaleString()}`;
-  //   updateSliderTrack_ar();
-  // });
-
-  // slider2_ar.addEventListener("input", () => {
-  //   const maxValue_ar = Math.max(
-  //     parseInt(slider1_ar.value),
-  //     parseInt(slider2_ar.value)
-  //   );
-  //   maxValueLabel_ar.textContent = `$${maxValue_ar.toLocaleString()}`;
-  //   updateSliderTrack_ar();
-  // });
-
-  // // Initialize the slider track
-  // updateSliderTrack_ar();
+  jQuery("#close_btn_ar").on("click", function () {
+    jQuery("#mobile_nav_ar").slideToggle();
+  });
+  jQuery("#searchclose_btn_ar").on("click", function () {
+    jQuery("#search_form_ar").hide();
+  });
 });
+function openTab(evt, tabName) {
+  // Hide all tab content
+  const tabContent = document.getElementsByClassName("tab-content_ar");
+  for (let i = 0; i < tabContent.length; i++) {
+    tabContent[i].style.display = "none";
+  }
+
+  // Remove the active class from all tab links
+  const tabLinks = document.getElementsByClassName("tab-link_ar");
+  for (let i = 0; i < tabLinks.length; i++) {
+    tabLinks[i].className = tabLinks[i].className.replace(" active", "");
+  }
+
+  // Show the current tab, and add an "active" class to the button that opened the tab
+  document.getElementById(tabName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+
+// Set the default tab to be open
+// document.addEventListener("DOMContentLoaded", () => {
+//   document.getElementsByClassName(".first_tab_ar").style.display = "block";
+// });
 
 document.addEventListener("DOMContentLoaded", function () {
   const minPrice = document.getElementById("min-price");

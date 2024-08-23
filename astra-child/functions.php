@@ -13,6 +13,7 @@
  * Define Constants
  */
 define('CHILD_THEME_ASTRA_CHILD_VERSION', '1.0.0');
+include get_stylesheet_directory() . '/admin/singleproduct/singleproductfunc.php';
 
 /**
  * Enqueue styles
@@ -52,13 +53,18 @@ function my_theme_enqueue_styles()
 		array('handle' => 'GlobalCss', 'src' => '/assets/css/global.css', 'type' => 'style', 'dep' => array(), 'loc' => 'internal'),
 		array('handle' => 'FontCss', 'src' => 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css', 'type' => 'style', 'dep' => array(), 'loc' => 'external'),
 		array('handle' => 'HomeCss', 'src' => '/assets/css/home.css', 'type' => 'style', 'dep' => array(), 'loc' => 'internal'),
+		array('handle' => 'slickCss', 'src' => '/assets/css/slick.css', 'type' => 'style', 'dep' => array(), 'loc' => 'internal'),
+		array('handle' => 'singlepcustomCss', 'src' => '/assets/css/singlepcustom.css', 'type' => 'style', 'dep' => array(), 'loc' => 'internal'),
 		array('handle' => 'woostylescss', 'src' => '/assets/css/woostyles.css', 'type' => 'style', 'dep' => array(), 'loc' => 'internal'),
 		array('handle' => 'globalsectionscss', 'src' => '/assets/css/globalsections.css', 'type' => 'style', 'dep' => array(), 'loc' => 'internal'),
 		array('handle' => 'sliderjs', 'src' => '/assets/js/sliders.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
+		array('handle' => 'singlemainjs', 'src' => '/assets/js/single/main.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
+		array('handle' => 'Singleslickminjs', 'src' => '/assets/js/single/slick.min.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
 		array('handle' => 'archivejs', 'src' => '/assets/js/archive.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
 		array('handle' => 'mainjs', 'src' => '/assets/js/main.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
 		array('handle' => 'owljs', 'src' => 'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'external'),
 		array('handle' => 'owlcss', 'src' => 'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css', 'type' => 'style', 'dep' => array(), 'loc' => 'external'),
+		array('handle' => 'zoomjs', 'src' => 'https://cdnjs.cloudflare.com/ajax/libs/jquery-zoom/1.6.1/jquery.zoom.min.js', 'type' => 'script', 'dep' => array(), 'loc' => 'external'),
 	);
 
 	foreach ($enqueufiles as $enfiles) {
@@ -245,6 +251,30 @@ function my_acf_op_init()
 			'page_title'    => __('Theme General Settings'),
 			'menu_title'    => __('Theme Settings'),
 			'menu_slug'     => 'theme-general-settings',
+			'capability'    => 'edit_posts',
+			'redirect'      => false
+		));
+		// Register options page.
+		$option_page2 = acf_add_options_page(array(
+			'page_title'    => __('Products Tab Content'),
+			'menu_title'    => __('Products Tab Content'),
+			'menu_slug'     => 'product-tab-contact',
+			'capability'    => 'edit_posts',
+			'redirect'      => false
+		));
+		// Register options page.
+		$option_page3 = acf_add_options_page(array(
+			'page_title'    => __('Global Options'),
+			'menu_title'    => __('Global Options'),
+			'menu_slug'     => 'global-options',
+			'capability'    => 'edit_posts',
+			'redirect'      => false
+		));
+		// Register options page.
+		$option_page4 = acf_add_options_page(array(
+			'page_title'    => __('Tool Tips Data'),
+			'menu_title'    => __('Tool Tips Data'),
+			'menu_slug'     => 'tool-tips-data',
 			'capability'    => 'edit_posts',
 			'redirect'      => false
 		));

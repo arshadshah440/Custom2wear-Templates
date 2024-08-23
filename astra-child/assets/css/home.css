@@ -60,6 +60,7 @@
   font-family: var(--jakarta-fonts);
   font-size: var(--font-size-16);
   line-height: 20px;
+  font-weight: 700;
   text-align: left;
 }
 /* .owl-carousel  .d_flex_price_button_ar .price_ar *{
@@ -119,11 +120,18 @@
   width: 100px;
   height: 100px;
   margin: auto;
+  transition: all 0.5s ease-in-out;
 }
 .featured_image_ar {
   margin-bottom: 20px;
+  overflow: hidden;
 }
-
+.featured_image_ar img:hover{
+  transform: scale(1.2);
+}
+.product_details_ar a:hover h6{
+  color: var(--mi-primary-color);
+}
 /* wardrobe section */
 #wardrobe_right_content_ar {
   background-color: #f4f4f4;

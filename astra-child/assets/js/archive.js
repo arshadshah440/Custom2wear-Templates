@@ -144,6 +144,9 @@ function filter_products($loadmore) {
           .html(
             "<p class='text_dark_ar font_14_400'>" + response.data + "</p>"
           );
+          jQuery("#products_wrapper_ar")
+          .find(".inner_pro_wraper_ar")
+          .css("display", "block");
         jQuery("#loader_ar").hide();
         jQuery("#load_more_ar").hide();
       }
