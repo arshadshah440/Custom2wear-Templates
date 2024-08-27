@@ -18,7 +18,12 @@
 
 defined('ABSPATH') || exit;
 $delurl = get_stylesheet_directory_uri() . '/assets/img/delete.svg';
+// Display WooCommerce breadcrumbs
+if (function_exists('woocommerce_breadcrumb')) {
+	woocommerce_breadcrumb();
+} 
 do_action('woocommerce_before_cart'); ?>
+
 
 <div class="d-flex-ar-no-align">
 
@@ -141,14 +146,27 @@ do_action('woocommerce_before_cart'); ?>
 
                             <td class="product-quantity" data-title="<?php esc_attr_e('Quantity', 'woocommerce'); ?>">
                                 <?php
+                                // Get the current cart item
+                                $cart_item = $cart_item ?? [];
+
+ 
+
+                                // Retrieve the variation ID for the current cart item
+                                $variation_size = $cart_item['variation']['attribute_pa_sizes'];
+
+                                $variation_name=get_attribute_term_name_by_slug('sizes',$variation_size);
+
+                                $variationquantity=$cart_item['quantity'];
+
+                                // Get custom variations for the specific variation ID
                                 $custom_variations = WC()->session->get('custom_variates_' . $variation_id);
-                                if (!empty($custom_variations) && is_array($custom_variations)) {
-                                    foreach ($custom_variations as $variates) {
-                                        echo "<h5 class='variations_on_cart_ar'>" . esc_html($variates['size']) . " * " . esc_html($variates['quantity']) . "</h5>";
-                                    }
-                                }
+
+                                echo "<h5 class='variations_on_cart_ar'>" . esc_html($variation_name) . " * " . esc_html($variationquantity) . "</h5>";
+
+                              
                                 ?>
                             </td>
+
 
                             <td class="product-price" data-title="<?php esc_attr_e('Price', 'woocommerce'); ?>">
                                 <?php

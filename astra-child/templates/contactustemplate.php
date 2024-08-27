@@ -48,7 +48,7 @@ $sectioncontent = get_field('reason_to_contact_us_section');
                 <h2 class="font_24_700 max_width_ar_461 text_dark_ar"><?php echo $sectioncontent['section_title']; ?></h2>
             </div>
             <?php
-            if (count($sectioncontent['contact_reasons']) > 0) {
+            if (is_array($sectioncontent['contact_reasons']) && count($sectioncontent['contact_reasons']) > 0) {
             ?>
                 <div class="d_flex_reasons_ar mar_top_ar_40">
                     <?php

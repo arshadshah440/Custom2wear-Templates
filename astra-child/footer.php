@@ -55,7 +55,7 @@ $about_column = get_field('about_column', 'options');
             <div class="newsletter_ar">
                 <h2 class="font_24_800 text_white_ar text_transform_upper"><?php echo $newsletter['section_title']; ?></h2>
                 <p class="font_14_400 text_white_60_ar max_width_ar_243"><?php echo $newsletter['section_description']; ?></p>
-                <div class="sub_form_wraper">
+                <div class="sub_form_wraper" id="subscription_form_ar">
                     <?php echo do_shortcode($newsletter['subscription_form_shortcode']); ?>
                 </div>
             </div>

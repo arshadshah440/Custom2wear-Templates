@@ -89,21 +89,25 @@ $categories = $productsectheadings['category_to_display_'];
         <h3 class="font_32_700 text_white_ar text_align_left_ar"><?php echo $productsectheadings['shop_by_category_section_title']; ?></h3>
         <div class="d_flex_wrap_ar mar_top_ar_40">
             <?php
-            foreach ($categories as $index => $category) {
-                $name = get_the_category_by_ID($category);
-                $category_url = get_term_link($category, 'product_cat'); // Get category URL
-                $thumbnail_id = get_term_meta($category, 'thumbnail_id', true);
-                $category_image_url = wp_get_attachment_url($thumbnail_id);
+            if (is_array($categories)) {
+
+
+                foreach ($categories as $index => $category) {
+                    $name = get_the_category_by_ID($category);
+                    $category_url = get_term_link($category, 'product_cat'); // Get category URL
+                    $thumbnail_id = get_term_meta($category, 'thumbnail_id', true);
+                    $category_image_url = wp_get_attachment_url($thumbnail_id);
             ?>
-                <div class="cat_wrapper <?php echo $index <= 1 ? 'bigger_box_ar' : 'small_box_ar'; ?>">
-                    <div class="cat_image_ar">
-                        <img src="<?php echo $category_image_url; ?>" alt="Category image">
+                    <div class="cat_wrapper <?php echo $index <= 1 ? 'bigger_box_ar' : 'small_box_ar'; ?>">
+                        <div class="cat_image_ar">
+                            <img src="<?php echo $category_image_url; ?>" alt="Category image">
+                        </div>
+                        <div class="cat_name_ar">
+                            <a class="font_16_700 text_dark_ar" href="<?php echo $category_url; ?>"><?php echo $name; ?></a>
+                        </div>
                     </div>
-                    <div class="cat_name_ar">
-                        <a class="font_16_700 text_dark_ar" href="<?php echo $category_url; ?>"><?php echo $name; ?></a>
-                    </div>
-                </div>
             <?php
+                }
             }
             ?>
         </div>
@@ -187,7 +191,7 @@ $bullet = $wardrobe['section_bullet_points'];
             <div class="right_content_ar" id="wardrobe_right_content_ar">
                 <h3 class="font_32_700 max_width_ar_447 text_align_left_ar"><?php echo $wardrobe["section_title"]; ?></h3>
                 <?php
-                if (count($bullet) > 0) {
+                if (is_array($bullet) && count($bullet) > 0) {
                 ?>
                     <div class="bullet_wrapper_ar max_width_ar_447 mar_top_ar_40">
                         <?php

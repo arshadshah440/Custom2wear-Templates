@@ -14,6 +14,7 @@
  */
 define('CHILD_THEME_ASTRA_CHILD_VERSION', '1.0.0');
 include get_stylesheet_directory() . '/admin/singleproduct/singleproductfunc.php';
+include get_stylesheet_directory() . '/admin/automation/automationdata.php';
 
 /**
  * Enqueue styles
@@ -90,6 +91,14 @@ add_action('wp_enqueue_scripts', 'my_theme_enqueue_styles');
 
 
 
+// chane the delimiter of woocommerce breadscrumnb
+add_filter('woocommerce_breadcrumb_defaults', 'custom_woocommerce_breadcrumbs');
+function custom_woocommerce_breadcrumbs($defaults)
+{
+	// Use a Font Awesome icon as the delimiter
+	$defaults['delimiter'] = ' <i class="fas fa-chevron-right"></i> '; // Replace with the desired Font Awesome icon class
+	return $defaults;
+}
 
 function filter_products()
 {

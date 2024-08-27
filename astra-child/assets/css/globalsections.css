@@ -49,6 +49,42 @@
 .newsletter_ar {
   width: 372px;
 }
+#subscription_form_ar form {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff1a;
+  border: 1px solid #ffffff33;
+  border-radius: 4px;
+}
+#subscription_form_ar form label {
+  display: none;
+}
+#subscription_form_ar form .tnp-field {
+  margin-bottom: 0px;
+}
+#subscription_form_ar form input[type="email"] {
+  background: transparent;
+  font-family: var(--jakarta-fonts);
+  font-size: var(--font-size-14);
+  font-weight: 400;
+  line-height: 22px;
+  text-align: left;
+  color: #ffffff33;
+}
+#subscription_form_ar form input[type="submit"] {
+  background-color: transparent;
+  font-family: var(--jakarta-fonts);
+  font-size: var(--font-size-14);
+  font-weight: 400;
+  line-height: 22px;
+  text-align: right;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+#subscription_form_ar form input[type="submit"]:hover{
+  color: var(--mi-primary-color);
+}
 .footer_menu_ar {
   width: 100px;
 }
@@ -73,6 +109,23 @@
   font-size: 20px;
   color: var(--white-color-ar);
 }
+.tiktok_link {
+  width: 24px;
+  height: 24px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: black;
+}
+.tiktok_link a{
+  height: 22px;
+}
+.tiktok_link i {
+  color: black;
+  font-size: 16px;
+}
 .social_ar a:hover i {
   color: var(--mi-primary-color);
 }
@@ -85,6 +138,7 @@
 }
 .footer_acc_head_ar h2 {
   margin-bottom: 21px;
+  text-transform: uppercase;
 }
 .feature_logo_ar {
   display: none;
@@ -199,7 +253,6 @@
     text-align: right;
     padding: 20px;
     cursor: pointer;
-
   }
   #header input#search-field {
     width: 100%;

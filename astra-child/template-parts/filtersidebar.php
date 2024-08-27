@@ -95,7 +95,7 @@
                 <div id="size_wrapper_ar">
 
                     <?php
-                    $terms = get_terms('pa_size', array(
+                    $terms = get_terms('pa_sizes', array(
                         'hide_empty' => false,
                     ));
                     if (!empty($terms)) {

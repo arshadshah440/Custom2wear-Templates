@@ -724,11 +724,11 @@ function updatecolorsoffeatures(quantity) {
         .attr("valueprice")
         .text(`${premiumartsetupe}$`);
     } else {
-      jQuery("#premiumitemsrequir_ar").attr("valueprice").text(`0$`);
+      jQuery("#premiumitemsrequir_ar").attr("valueprice",`0$`);
     }
   } else if (quantity >= 24 && quantity < 36) {
-    jQuery("#freeitemsrequir_ar").find(".cross_ar").removeClass("hide_it");
-    jQuery("#freeitemsrequir_ar").find(".tick_ar").addClass("hide_it");
+    jQuery("#freeitemsrequir_ar").find(".tick_ar").removeClass("hide_it");
+    jQuery("#freeitemsrequir_ar").find(".cross_ar").addClass("hide_it");
 
     jQuery("#shippingitemsrequir_ar").find(".tick_ar").removeClass("hide_it");
     jQuery("#shippingitemsrequir_ar").find(".cross_ar").addClass("hide_it");
@@ -739,18 +739,19 @@ function updatecolorsoffeatures(quantity) {
     jQuery("#freeitemsrequir_ar").attr("valueprice", "0$");
     jQuery("#shippingitemsrequir_ar").attr("valueprice", "50$");
     if (jQuery("#premium_artwork_ar").is(":checked") && quantity < 36) {
-      jQuery("#premiumitemsrequir_ar")
-        .attr("valueprice")
-        .text(`${premiumartsetupe}$`);
+      jQuery("#premiumitemsrequir_ar").attr(
+        "valueprice",
+        `${premiumartsetupe}$`
+      );
     } else {
       jQuery("#premiumitemsrequir_ar").attr("valueprice").text(`0$`);
     }
   } else if (quantity >= 36) {
-    jQuery("#freeitemsrequir_ar").find(".cross_ar").removeClass("hide_it");
-    jQuery("#freeitemsrequir_ar").find(".tick_ar").addClass("hide_it");
+    jQuery("#freeitemsrequir_ar").find(".tick_ar").removeClass("hide_it");
+    jQuery("#freeitemsrequir_ar").find(".cross_ar").addClass("hide_it");
 
-    jQuery("#shippingitemsrequir_ar").find(".cross_ar").removeClass("hide_it");
-    jQuery("#shippingitemsrequir_ar").find(".tick_ar").addClass("hide_it");
+    jQuery("#shippingitemsrequir_ar").find(".tick_ar").removeClass("hide_it");
+    jQuery("#shippingitemsrequir_ar").find(".cross_ar").addClass("hide_it");
 
     jQuery("#premiumitemsrequir_ar").find(".tick_ar").removeClass("hide_it");
     jQuery("#premiumitemsrequir_ar").find(".cross_ar").addClass("hide_it");
@@ -758,9 +759,10 @@ function updatecolorsoffeatures(quantity) {
     jQuery("#freeitemsrequir_ar").attr("valueprice", "0$");
     jQuery("#shippingitemsrequir_ar").attr("valueprice", "0$");
     if (jQuery("#premium_artwork_ar").is(":checked") && quantity < 36) {
-      jQuery("#premiumitemsrequir_ar")
-        .attr("valueprice")
-        .text(`${premiumartsetupe}$`);
+      jQuery("#premiumitemsrequir_ar").attr(
+        "valueprice",
+        `${premiumartsetupe}$`
+      );
     } else {
       jQuery("#premiumitemsrequir_ar").attr("valueprice", "0$");
     }
@@ -778,9 +780,10 @@ function updatecolorsoffeatures(quantity) {
     jQuery("#shippingitemsrequir_ar").attr("valueprice", `0$`);
 
     if (jQuery("#premium_artwork_ar").is(":checked") && quantity < 36) {
-      jQuery("#premiumitemsrequir_ar")
-        .attr("valueprice")
-        .text(`${premiumartsetupe}$`);
+      jQuery("#premiumitemsrequir_ar").attr(
+        "valueprice",
+        `${premiumartsetupe}$`
+      );
     } else {
       jQuery("#premiumitemsrequir_ar").attr("valueprice", "0$");
     }
@@ -841,16 +844,15 @@ function gettotalprice() {
   var quantity = 0;
   var priceperproduct = 0;
   var sizesvar = []; // Initialize sizesvar as an empty array
-  var shiipingcost = jQuery("#shippingitemsrequir_ar").attr("valueprice");
+  // var shiipingcost = jQuery("#shippingitemsrequir_ar").attr("valueprice");
   var artsetupfree = jQuery("#freeitemsrequir_ar").attr("valueprice");
   var premiumartsetup = jQuery("#premiumitemsrequir_ar").attr("valueprice");
 
-  shiipingcost = shiipingcost.replace(/\$/g, "");
+  // shiipingcost = shiipingcost.replace(/\$/g, "");
   artsetupfree = artsetupfree.replace(/\$/g, "");
   premiumartsetup = premiumartsetup.replace(/\$/g, "");
 
-  var totalsetup =
-    parseInt(shiipingcost) + parseInt(artsetupfree) + parseInt(premiumartsetup);
+  var totalsetup = parseInt(artsetupfree) + parseInt(premiumartsetup);
   if (isNaN(totalsetup)) {
     totalsetup = 0;
   }
@@ -870,7 +872,6 @@ function gettotalprice() {
     });
   pa_additional_cost_ar(quantity);
   // You can log sizesvar to see the collected data
-  addextrachargesopt();
   update_progressbar();
   if (jQuery(".price_column_ar.bg-red").length > 0) {
     var pricepp = jQuery(".price_column_ar.bg-red")
@@ -885,27 +886,28 @@ function gettotalprice() {
     priceperproduct = priceppa;
   }
 
-  var extraprice = 0;
+  var additional_charges = addextrachargesopt();
 
-  jQuery(".listinsideh_ar")
-    .find("li")
-    .each(function () {
-      var extra = jQuery(this).find(".price_ar").text().replace(/\$/g, "");
-      extraprice = extraprice + parseFloat(extra);
-    });
-  if (extraprice > 0) {
-    extraprice = extraprice * quantity;
-  } else {
-    extraprice = 0;
-  }
+  // jQuery(".listinsideh_ar")
+  //   .find("li")
+  //   .each(function () {
+  //     var extra = jQuery(this).find(".price_ar").text().replace(/\$/g, "");
+  //     extraprice = extraprice + parseFloat(extra);
+  //   });
+  // var additional_charges = extraprice + totalsetup;
 
+  // if (extraprice > 0) {
+  //   extraprice = extraprice * quantity;
+  // } else {
+  //   extraprice = 0;
+  // }
   if (
     priceperproduct !== 0 &&
     priceperproduct !== "" &&
     !isNaN(priceperproduct) &&
     quantity > 0
   ) {
-    totalprice = priceperproduct * quantity + extraprice + totalsetup;
+    totalprice = priceperproduct * quantity + additional_charges;
   }
   if (
     priceperproduct !== 0 &&
@@ -940,12 +942,12 @@ function gettotalprice() {
   var totaldata = {
     quantity: quantity,
     priceperproduct: priceperproduct,
-    extraprice: extraprice,
     totalprice: totalprice,
     sizees: sizesvar,
     allareasdata: allareasdata,
     d3_puff_embroidery: d3_puff,
     add_instructions: add_instructions,
+    additional_charges: additional_charges,
   };
   if (
     quantity <= 0 ||
@@ -1011,7 +1013,7 @@ jQuery(".allprintareas").on("change", ".printcolors", function () {
         "<h6 class='warning_ar'>you can't add more than 3 print areas</h6>"
       );
     }
-    jQuery(this).val(1);
+    // jQuery(this).val(1);
   } else {
     gettotalprice();
   }
@@ -1025,7 +1027,10 @@ jQuery("#single_add_to_cart_ar").on("click", function (e) {
   var productid = jQuery(".sizes_main_div_ar_ar > .size_column_ar")
     .find("input[type='number']")
     .attr("product-id");
-
+  var enableddiscounts=false;
+  if(jQuery("#price_calculator_ar_ar").length > 0) {
+    enableddiscounts=true;
+  }
   var alldata = gettotalprice();
   var totalprice = alldata.totalprice;
   var quantity = alldata.quantity;
@@ -1042,11 +1047,13 @@ jQuery("#single_add_to_cart_ar").on("click", function (e) {
       allareasdata: alldata.allareasdata,
       add_instructions: alldata.add_instructions,
       d3_puff_embroidery: alldata.d3_puff_embroidery,
+      additional_charges: alldata.additional_charges,
+      enableddiscounts:enableddiscounts
     },
     success: function (response) {
       if (response.success) {
         // Redirect to cart page on success
-        // window.location.href = response.data.redirect_url;
+        window.location.href = response.data.redirect_url;
       } else {
         alert(response.data.message);
       }
@@ -1062,34 +1069,41 @@ jQuery("#single_add_to_cart_ar").on("click", function (e) {
 
 /****************************** function to show extra charges based on print area selections ******************************/
 function addextrachargesopt() {
+  var artsetupfree = jQuery("#freeitemsrequir_ar").attr("valueprice");
+  var premiumartsetup = jQuery("#premiumitemsrequir_ar").attr("valueprice");
+
+  // shiipingcost = shiipingcost.replace(/\$/g, "");
+  artsetupfree = artsetupfree.replace(/\$/g, "");
+  premiumartsetup = premiumartsetup.replace(/\$/g, "");
+
+  var totalsetup = parseInt(artsetupfree) + parseInt(premiumartsetup);
+  if (isNaN(totalsetup)) {
+    totalsetup = 0;
+  }
   var totalextra = 0;
-  var output = '<ul class="listinsideh_ar">';
+  var outputprice = 0;
   jQuery(".addlogo_colum").each(function (index) {
     var pptypes = jQuery(this).find("select.printtype").val();
     var ppareas = jQuery(this).find("select.printarea").val();
     var ppcolors = jQuery(this).find("select.printcolors").val();
     var ppcolorextrases = parseInt(ppcolors) - 3;
     var pppricess = parseFloat(ppcolorextras * ppcolorextrases).toFixed(2);
-    var extra = jQuery(this)
-      .find("select.printarea")
-      .find("option[value='" + ppareas + "']")
-      .attr("extra");
-    if (extra !== undefined && extra !== null && extra !== "") {
+    var extra = jQuery(this).find("select.printarea").attr("extrafee");
+
+    if (index == 0) {
       if (ppcolors > 3) {
-        extra = parseInt(extra) + parseFloat(pppricess);
+        outputprice = outputprice + parseFloat(pppricess);
       }
-      output += `<li><span>${pptypes} + ${ppareas} + ${ppcolors}</span><span class='price_ar'>${extra}$</span></li>`;
     } else {
       if (ppcolors > 3) {
-        if (ppcolors == 11) {
-          ppcolors = "full_color";
-        }
-        output += `<li><span>${pptypes} + ${ppareas} + ${ppcolors}</span><span  class='price_ar'>${pppricess}$</span></li>`;
+        outputprice = outputprice + parseInt(extra) + parseFloat(pppricess);
+      } else {
+        outputprice = outputprice + parseInt(extra);
       }
     }
   });
-  output += "</ul>";
-  jQuery("#extracharges_ar_ar").find("h2").html(output);
+  outputprice=outputprice + totalsetup;
+  return outputprice;
 }
 /****************************** function to show extra charges based on print area selections end ******************************/
 
@@ -1240,6 +1254,12 @@ function getpricelist() {
     var productid = jQuery(".sizes_main_div_ar_ar > .size_column_ar")
       .find("input[type='number']")
       .attr("product-id");
+      var enableddiscounts=false;
+      if(jQuery("#price_calculator_ar_ar").length > 0) {
+        enableddiscounts=true;
+      }
+      var additional_charges = addextrachargesopt();
+    jQuery("#totalprice_ar_product").hide();
     jQuery.ajax({
       type: "POST",
       url: "/wp-admin/admin-ajax.php",
@@ -1250,17 +1270,23 @@ function getpricelist() {
         colors: pcolor,
         sizear: sizesvar, // Pass the sizees
         notcart: true,
+        enableddiscounts:enableddiscounts,
+        additional_charges:additional_charges
       },
       success: function (response) {
         if (response.success) {
-          // Redirect to cart page on success
-          // window.location.href = response.data.redirect_url;
+          if(enableddiscounts == true) {
+            
           var id = "#" + response.data.list_id;
           jQuery(id).html(response.data.price_list);
           uodatetable(id);
+          }else{
+            jQuery("#span_ar_product").text(response.data.current_price);
+          }
         } else {
           alert(response.data.message);
         }
+        jQuery("#totalprice_ar_product").show();
       },
       error: function (xhr, status, error) {
         // Handle error

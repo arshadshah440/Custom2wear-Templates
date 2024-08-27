@@ -48,6 +48,8 @@
 .product_loop_ar .product_name_ar h6 {
   font-weight: 400;
   font-family: var(--jakarta-fonts);
+  font-size: var(--font-size-14);
+
 }
 .d_flex_price_button_ar {
   display: flex;
@@ -330,7 +332,12 @@
   margin: 30px 0px 43px 0px;
   max-width: 400px;
 }
-
+.get_in_touch_ar  .max_width_ar_536_px h2,.get_in_touch_ar  .max_width_ar_536_px p{
+  max-width: 400px;
+}
+.get_in_touch_ar  .max_width_ar_536_px p{
+  margin-top: 20px;
+}
 .email_ar {
   padding: 18px;
   background: #aa1f220d;
@@ -364,11 +371,17 @@
   border-radius: 10px;
   background: #231f2005;
 }
-.form_wrapper_ar sup{
+.form_wrapper_ar sup,.form_wrapper_ar span{
   color: var(--mi-primary-color);
   font-family: var(--jakarta-fonts);
   font-size: var(--font-size-14);
   font-weight: 400;
+}
+input.wpcf7-form-control.wpcf7-submit.has-spinner{
+  transition: all 0.3s ease-in-out;
+}
+input.wpcf7-form-control.wpcf7-submit.has-spinner:hover{
+  transform: scale(0.9) !important;
 }
 .form_ar_wraper input:not([type="submit"]),
 .form_ar_wraper textarea {
