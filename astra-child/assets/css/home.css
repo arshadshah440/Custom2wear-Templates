@@ -322,6 +322,7 @@
 
 .row_mi_ar {
   display: flex;
+  justify-content: space-between;
   gap: 95px;
 }
 .email_icon_ar {
@@ -512,6 +513,9 @@ input.wpcf7-form-control.wpcf7-submit.has-spinner:hover{
   }
   #shop_by_cate_ar {
     padding: 40px 16px;
+  }
+  #shop_by_cate_ar  h3{
+    text-align: center !important;
   }
   .cat_wrapper.bigger_box_ar,
   .cat_wrapper.small_box_ar {
