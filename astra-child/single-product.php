@@ -44,7 +44,7 @@ $terms = get_the_terms($product->get_id(), 'product_cat');
                         <img src="<?php echo $featued_image; ?>" alt="Featured_image">
                     </div>
                 </div>
-                <div class="price_list_ar <?php echo strtolower($terms[0]->name) == 't-shirts' ? 'hide_it_ar' : ''; ?>" id="move_mobile">
+                <div class="price_list_ar " id="move_mobile">
                     <?php echo do_shortcode('[cart_calculator_table]'); ?>
                 </div>
             </div>
@@ -63,6 +63,7 @@ $terms = get_the_terms($product->get_id(), 'product_cat');
                     </div>
                     <p class="font_14_400 text_dark_op60_ar mb_ar_0"><?php echo $rating_count; ?> reviews</p>
                 </div>
+                
                 <h2 class="font_28_700 text_dark_ar"><?php echo $title; ?></h2>
                 <div class="price_ar">
                     <p class="font_20_700 text_dark_ar"><?php echo $price; ?> <span class="font_16_400 text_dark_op60_ar">each item</span></p>
@@ -113,27 +114,30 @@ $terms = get_the_terms($product->get_id(), 'product_cat');
                                             </div>
                                     </div>
                                 </div>
+                                <div class='progressbarwrapper_quantity'>
+                                    <div class='progressbar_quantity'></div>
+                                </div>
                                 <div class="color-thread-checks">
                                     <div class="color-checks-inner" id="freeitemsrequir_ar" valueprice="<?php echo get_field('art_setup_fee', 'options'); ?>">
                                         <div class="tick-cross-icons">
                                             <i class="fa-regular fa-circle-check tick_ar hide_it"></i>
                                             <i class="fa-regular fa-circle-xmark cross_ar"></i>
                                         </div>
-                                        <p class="font_12_400 text_dark_op60_ar mb_ar_0">Free Artwork Setup: <span class="font_12_700"> Min 12</span></p>
+                                        <p class="font_12_400 text_dark_op60_ar mb_ar_0"> <span class="font_12_700"> 12 + Items</span> Free Artwork Setup</p>
                                     </div>
                                     <div class="color-checks-inner" id="shippingitemsrequir_ar" valueprice="0">
                                         <div class="tick-cross-icons">
                                             <i class="fa-regular fa-circle-check tick_ar hide_it"></i>
                                             <i class="fa-regular fa-circle-xmark cross_ar"></i>
                                         </div>
-                                        <p class="font_12_400 text_dark_op60_ar mb_ar_0">Free Shipping: <span class="font_12_700"> Min 24</span></p>
+                                        <p class="font_12_400 text_dark_op60_ar mb_ar_0"> <span class="font_12_700"> 24 + Items</span> Free Shipping </p>
                                     </div>
                                     <div class="color-checks-inner" id="premiumitemsrequir_ar" valueprice="<?php echo get_field('premium_artwork_setup_fee', 'options'); ?>">
                                         <div class="tick-cross-icons">
                                             <i class="fa-regular fa-circle-check tick_ar hide_it"></i>
                                             <i class="fa-regular fa-circle-xmark cross_ar"></i>
                                         </div>
-                                        <p class="font_12_400 text_dark_op60_ar mb_ar_0">Free Premium Setup: <span class="font_12_700"> Min 36</span></p>
+                                        <p class="font_12_400 text_dark_op60_ar mb_ar_0"><span class="font_12_700"> 36 + Items </span>Free Premium Setup</p>
                                     </div>
                                 </div>
 
@@ -142,12 +146,15 @@ $terms = get_the_terms($product->get_id(), 'product_cat');
                         <div class="addtocart_btn_wraper_ar" id="addtocarwrappere_ar">
                             <div class="subtotal_calc_ar">
                                 <div class="wraper_ar" id="heading_for_sub_total_ar">
-                                    <h2 class="font_20_600 text_dark_ar">Item subtotal <span class='smallerheadings_ar font_16_400 text_dark_op60_ar'> (<span class='vairation_added_ar'>0 </span> variations <span class='quantity_added_ar'>0</span> items)</span></h2>
+                                    <h2 class="font_20_600 text_dark_ar">Item subtotal <span class='smallerheadings_ar font_16_400 text_dark_op60_ar'> (<span class='vairation_added_ar'>0 </span> variations <span class='quantity_added_ar'>0</span> items) ($ <span id="freesetup_charges_ar">30</span> Artwork Setup)</span></h2>
                                 </div>
 
                                 <div class="wraper_ar" id="totalprice_ar_product">
                                     <h2 class="font_20_600 text_dark_ar" id="">$<span id="span_ar_product">0</span> </h2>
                                 </div>
+                            </div>
+                            <div class="error_placer_ar" id="error_placer_ar">
+                                <p><i class="fa-solid fa-circle-info"></i> <span id="erro_message_ar_list"></span></p>
                             </div>
                             <div class="actuall_btn_addtocart_ar disabled_ar_product" id="single_add_to_cart_ar">
                                 <a href="#"><img src="<?php echo get_stylesheet_directory_uri() . '/assets/img/Vector (29).svg'; ?>" alt=""> Add To Cart</a>
@@ -165,7 +172,7 @@ $terms = get_the_terms($product->get_id(), 'product_cat');
         </div>
 </section>
 
-<div class="customise_guide_ar">
+<div class="customise_guide_ar" id="quixk_guides_ar">
     <div class="container_mi_ar">
         <?php include get_stylesheet_directory() . '/template-parts/single/producttabs.php'; ?>
     </div>

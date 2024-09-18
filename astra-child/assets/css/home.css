@@ -416,6 +416,9 @@ input.wpcf7-form-control.wpcf7-submit.has-spinner:hover{
   .form_ar_wraper input[type="file"]::-webkit-file-upload-button {
     padding: 8px 20px;
   }
+  #wardrobe_right_content_ar h3 {
+    text-align: center;
+  }
 }
 .form_ar_wraper input[type="submit"] {
   width: 100%;
@@ -440,6 +443,12 @@ input.wpcf7-form-control.wpcf7-submit.has-spinner:hover{
   font-weight: 400;
   line-height: 24px;
   color: #130608;
+}
+@media (max-width: 1024px) and (min-width: 767px) {
+  .d_grid_space_between_ar {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+ 
 }
 @media (max-width: 1025px) {
   .max_width_ar_440 {
@@ -478,6 +487,7 @@ input.wpcf7-form-control.wpcf7-submit.has-spinner:hover{
   #home_hero_ar p {
     max-width: 248px;
     text-align: center;
+    margin: 15px auto 40px auto !important;
   }
   #section_tagline_ar {
     margin: 15px auto 40px auto;
@@ -539,7 +549,7 @@ input.wpcf7-form-control.wpcf7-submit.has-spinner:hover{
     padding: 40px 16px;
   }
   #wardrobe_right_content_ar h3 {
-    text-align: center;
+    text-align: left;
   }
   .d_flex_no_gap_ar {
     max-height: fit-content;

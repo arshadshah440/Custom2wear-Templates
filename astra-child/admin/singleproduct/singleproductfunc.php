@@ -2,10 +2,6 @@
 // Exit if accessed directly
 if (!defined('ABSPATH')) exit;
 
-
-
-
-
 // shortcode
 
 function private_products_carousel_shortcode($atts)
@@ -17,7 +13,7 @@ function private_products_carousel_shortcode($atts)
     global $product;
 
     $attachment_ids = $product->get_gallery_image_ids();
-
+    $variationimages = get_first_variation_image_by_color($product->get_id());
     // Output carousel HTML
     if (count($attachment_ids) > 0) {
 ?>
@@ -30,7 +26,13 @@ function private_products_carousel_shortcode($atts)
                     <img src="<?php echo wp_get_attachment_url($associatedimg); ?>" alt="" srcset="<?php echo wp_get_attachment_image_srcset($associatedimg); ?>">
                 </div>
             <?php    }
+            foreach ($variationimages as $color => $image_url) {
             ?>
+                <div class="item_ar vendor_loop_item" color_attr="<?php echo $color; ?>">
+                    <img src="<?php echo wp_get_attachment_url($image_url); ?>" color_attr="<?php echo $color; ?>" alt="" srcset="<?php echo wp_get_attachment_image_srcset($image_url); ?>">
+                </div>
+            <?php
+            } ?>
         </div>
         <div class="slick_carousel_nav">
             <div class="slick-next-btn">
@@ -157,13 +159,15 @@ function get_price_table_ar_all($product_id)
     $fixed_amount_discount = get_field('fixed_amount_discount', 'options');
     $discount_location = get_field('apply_this_discount_to_all_products', 'options');
     $select_your_product = get_field('select_your_product', 'options');
+    $d3_puff_embroidery = get_field('3d_puff_embroidery', 'options');
+    $extra_area_fee = get_field('extra_area_fee', 'options');
     $pricearray = array();
     if ($discount_location == 'yes') {
         $pricearray = get_pricing_listing();
     } else {
         $commonItems = array_intersect($category_ids, $select_your_product);
-
         if (count($commonItems) > 0) {
+
             $pricearray = get_pricing_listing();
         }
     }
@@ -195,9 +199,9 @@ function get_price_table_ar_all($product_id)
                 <div class="price_column_ar">
                     <div class="range_ar"> 288 Item</div>
                 </div>
-                <div class="price_column_ar">
+                <!-- <div class="price_column_ar">
                     <div class="range_ar"> 432 Item</div>
-                </div>
+                </div> -->
             </div>
             <?php
             foreach ($pricearray as $arrayskey => $value) {
@@ -231,7 +235,55 @@ function get_price_table_ar_all($product_id)
 
             <?php
             }
+            $discounted_array = null;
+            if (trim($discount_type) == 'percentage') {
+                $discounted_array = get_percentage_discount($d3_puff_embroidery, $percentage_discount);
+            } else {
+                $discounted_array = get_fixed_discount($d3_puff_embroidery, $fixed_amount_discount);
+            }
             ?>
+            <div class="grid_tem_ar8" id="d_3d_ar">
+                <div class="title_ar_table">
+                    <h6>3d Puff Fee</h6>
+                </div>
+                <?php
+                foreach ($discounted_array as $key => $value) {
+                    $numberindex = explode("_", $key)[1];
+
+                ?>
+                    <div class="price_column_ar" quantity-id="<?php echo $numberindex; ?>">
+                        <div class="range_price_ar"><?php echo (!empty($value) ? "$ " . $value : ""); ?></div>
+                    </div>
+                <?php
+
+                }
+                ?>
+            </div>
+            <?php
+            $discounted_array = null;
+            if (trim($discount_type) == 'percentage') {
+                $discounted_array = get_percentage_discount($extra_area_fee, $percentage_discount);
+            } else {
+                $discounted_array = get_fixed_discount($extra_area_fee, $fixed_amount_discount);
+            }
+            ?>
+            <div class="grid_tem_ar8" id="extra_area_fee_ar">
+                <div class="title_ar_table">
+                    <h6>Extra Area Fee </h6>
+                </div>
+                <?php
+                foreach ($discounted_array as $key => $value) {
+                    $numberindex = explode("_", $key)[1];
+
+                ?>
+                    <div class="price_column_ar" quantity-id="<?php echo $numberindex; ?>">
+                        <div class="range_price_ar"><?php echo (!empty($value) ? "$ " . $value : ""); ?></div>
+                    </div>
+                <?php
+
+                }
+                ?>
+            </div>
         </div>
     <?php
     }
@@ -245,15 +297,15 @@ function get_percentage_discount($price, $percentages)
     $item96 = $percentages['enter_the_discount_percentage_for_96_item'];
     $item144 = $percentages['enter_the_discount_percentage_for_144_item'];
     $item288 = $percentages['enter_the_discount_percentage_for_288_item'];
-    $item432 = $percentages['enter_the_discount_percentage_for_432_item'];
+    // $item432 = $percentages['enter_the_discount_percentage_for_432_item'];
     $percentage_discounts = [
         'item_1' => calculate_discount_percentage($price, $item1),
         'item_12' => calculate_discount_percentage($price, $item12),
         'item_48' => calculate_discount_percentage($price, $item48),
         'item_96' => calculate_discount_percentage($price, $item96),
-        'item1_44' => calculate_discount_percentage($price, $item144),
+        'item1_144' => calculate_discount_percentage($price, $item144),
         'item_288' => calculate_discount_percentage($price, $item288),
-        'item_432' => calculate_discount_percentage($price, $item432),
+        // 'item_432' => calculate_discount_percentage($price, $item432),
     ];
     return $percentage_discounts;
 }
@@ -272,7 +324,7 @@ function get_fixed_discount($price, $percentages)
     $item96 = $percentages['enter_the_fixed_amount_discount_for_96_item'];
     $item144 = $percentages['enter_the_fixed_amount_discount_for_144_item'];
     $item288 = $percentages['enter_the_fixed_amount_discount_for_288_item'];
-    $item432 = $percentages['enter_the_fixed_amount_discount_for_432_item'];
+    // $item432 = $percentages['enter_the_fixed_amount_discount_for_432_item'];
     $fixed_discounts = [
         'item_1' => calculate_fixed_percentage($price, $item1),
         'item_12' => calculate_fixed_percentage($price, $item12),
@@ -280,13 +332,16 @@ function get_fixed_discount($price, $percentages)
         'item_96' => calculate_fixed_percentage($price, $item96),
         'item_144' => calculate_fixed_percentage($price, $item144),
         'item_288' => calculate_fixed_percentage($price, $item288),
-        'item_432' => calculate_fixed_percentage($price, $item432),
+        // 'item_432' => calculate_fixed_percentage($price, $item432),
     ];
     return $fixed_discounts;
 }
 function calculate_fixed_percentage($price, $fixamount)
 {
     $newprice = $price - ($fixamount);
+    if ($newprice < 0) {
+        $newprice = 0;
+    }
     return $newprice;
 }
 // get swatches 
@@ -295,29 +350,55 @@ function get_swatches_ar($color)
 {
     global $product;
     $currentid = $product->get_id();
+    $activeswatch = '';
+    $defaultcolor = '';
+    if ($product->is_type('variable')) {
+        // Get the default attributes for the product
+        $default_attributes = $product->get_default_attributes();
 
+
+        // Output default attributes
+        if (!empty($default_attributes) && is_array($default_attributes) && count($default_attributes) > 0) {
+            $defaultcolor = $default_attributes['pa_color'];
+        }
+    }
     $color_terms = $product->get_attribute("$color");
     if (!empty($color_terms)) {
-        $output = "<div class='swatches_ar'> <h5>Color</h5><div class='innerwrap'>";
+        $output = "<div class='swatches_ar'> <h5>Color <span id='color_selector_wrap_ar'></span></h5><div class='innerwrap'>";
 
         $detailed_terms = array();
         $color_termsa_ar =  explode(",", $color_terms);
         $type = get_the_attribute_type("$color");
 
-        foreach ($color_termsa_ar as $color_term) {
+        foreach ($color_termsa_ar as $index => $color_term) {
             $term = get_term_by('name', $color_term, 'pa_color'); // Use 'pa_' prefix for WooCommerce attributes
-            $image = wp_get_attachment_image_url(get_term_meta($term->term_id)['attribute_image']);
-            $backdound = "";
-            $swatehcs = get_term_meta($term->term_id)['product_attribute_color'][0];
-            if (!empty($image)) {
-                $backdound = "background-image:url('$image')";
-            } else {
-                $backdound = "background-color:$swatehcs";
-            }
-            $name = $type == "color" ? '' : "<span>$term->name</span>";
 
-            if ($term) {
-                $output .= "<div class='swatch_ar' pid='" . $currentid . "' attr-name='" . $term->slug . "' style='" . $backdound . "'> $name</div>";
+            $hasvairation = has_a_variation($term->slug, "attribute_pa_color");
+
+            if ($hasvairation) {
+
+                if (!empty($defaultcolor) && $term->slug == $defaultcolor) {
+                    $activeswatch = "active_swatch_ar";
+                } else {
+                    if ($index == 0) {
+                        $activeswatch = "active_swatch_ar";
+                    } else {
+                        $activeswatch = '';
+                    }
+                }
+                $image = wp_get_attachment_image_url(get_term_meta($term->term_id)['attribute_image']);
+                $backdound = "";
+                $swatehcs = get_term_meta($term->term_id)['cfvsw_color'][0];
+                if (!empty($image)) {
+                    $backdound = "background-image:url('$image')";
+                } else {
+                    $backdound = "background-color:$swatehcs";
+                }
+                $name = $type == "color" ? '' : "<span>$term->name</span>";
+
+                if ($term) {
+                    $output .= "<div class='swatchwothlabel_ar'><div class='swatch_ar $activeswatch' pid='" . $currentid . "' attr-name='" . $term->slug . "' style='" . $backdound . "'> $name</div> <span>$term->name</span></div>";
+                }
             }
         }
 
@@ -369,8 +450,8 @@ function get_sizes_with_quantity()
     $sizes = $product->get_attribute('sizes');
     // Check if the product is a variable product
 
-    $infoicon = get_stylesheet_directory_uri() . '/assets/info.svg';
-    $tooltipicon = get_stylesheet_directory_uri() . '/assets/arrowtip.svg';
+    $infoicon = get_stylesheet_directory_uri() . '/assets/img/info.svg';
+    $tooltipicon = get_stylesheet_directory_uri() . '/assets/img/arrowtip.svg';
     $premiumsetupfee = get_field('premium_artwork_setup_fee', 'options');
     if (!empty($sizes)) {
 
@@ -396,7 +477,7 @@ function get_sizes_with_quantity()
         }
 
         // freesetup
-        $freeartss = "<div class='freeoptions_progress_wrap'> <div class='progressbarwrapper_head'><h3 id='addmore_headings_arprg'>Add more <span id='quan_left_progress_ar'>36</span> to avail offer</h3> <div class='tooltip_info_ar'><img src='$infoicon' alt='' id='infoicon_ar_premium_setup'> <div class='tooltip_data_ar' id='tooltip_data_ar_premium_setup'><img src='$tooltipicon' alt='' class='tooltip_arrow_ar'> <p id='premium_setup_tooltop_para_ar'>Premium Artwork Setup $30 (Digital Mockup, Unlimited Revisions, Photo of physical patch sent for approval)    </p></div></div>  </div> <div class='progressbarwrapper_quantity'> <div class='progressbar_quantity'></div></div> <div class='progress_footer_arr'><h2 id='heading_of_free_feature_ar'>Free Premium Artwork Setup <span>$$premiumsetupfee</span> </h2></div> </div>";
+        $freeartss = "<div class='freeoptions_progress_wrap'> <div class='progressbarwrapper_head'><h3 id='addmore_headings_arprg'>Add more <span id='quan_left_progress_ar'>36</span> to avail offer</h3> <div class='tooltip_info_ar'><img src='$infoicon' alt='' id='infoicon_ar_premium_setup'> <div class='tooltip_data_ar' id='tooltip_data_ar_premium_setup'><img src='$tooltipicon' alt='' class='tooltip_arrow_ar'> <p id='premium_setup_tooltop_para_ar'>Premium Artwork Setup $30 (Digital Mockup, Unlimited Revisions, Photo of physical patch sent for approval)    </p></div></div>  </div> <div class='progressbarwrapper_quantity_ar'> <div class='progressbar_quantity_ar'></div></div> <div class='progress_footer_arr'><h2 id='heading_of_free_feature_ar'>Free Premium Artwork Setup <span>$$premiumsetupfee</span> </h2></div> </div>";
         $output .= "</div> $freeartss  </div></div>";
         echo $output;
     } else {
@@ -434,19 +515,29 @@ function has_a_variation($attribute, $variation_type)
 function getlogo_print()
 {
     global $product;
+    $defaultprinttype = '';
+    if ($product->is_type('variable')) {
+        // Get the default attributes for the product
+        $default_attributes = $product->get_default_attributes();
 
+
+        // Output default attributes
+        if (!empty($default_attributes) && is_array($default_attributes) && count($default_attributes) > 0) {
+            $defaultprinttype = $default_attributes['pa_print-types'];
+        }
+    }
     $terms = get_the_terms($product->get_id(), 'product_cat');
     $delurl = get_stylesheet_directory_uri() . '/assets/img/delete.svg';
     $tooltipicon = get_stylesheet_directory_uri() . '/assets/img/arrowtip.svg';
     $infoicon = get_stylesheet_directory_uri() . '/assets/img/info.svg';
-
-    if (have_rows("print_area")) {
+    $sides = get_field('print_sides');
+    if (is_array($sides) && count($sides) > 0) {
         // $count = count(get_field("printer_type_options_available"));
         // $arease = get_field_object("field_664db377bdc5d");
     ?>
         <div class="addlogo_ar">
             <div class="d-flex-between-spac-ar heading_main_logo_ar">
-                <h5>Add Print Area</h5>
+                <h5>Select Print Area</h5>
                 <h4 id="see_guide_ar"><a href="#quixk_guides_ar">Quick Guide</a></h4>
             </div>
             <div class="allprintareas">
@@ -494,7 +585,7 @@ function getlogo_print()
                         <div class='sizes_quantity custom_dropdown_wrapper_ar_ar'><select name='print_type' class='printtype' current-cat='<?php echo $terms[0]->name; ?>'>
                                 <?php get_print_type_attribute(); ?>
                             </select>
-                            <div class="d_flex_justify_between_ar_ar custom_dropdown_ar_ar">
+                            <div class="d_flex_justify_between_ar_ar custom_dropdown_ar_ar first_print_types_wrapper_ar" defaultval="<?php echo $defaultprinttype; ?>">
                                 <h6>Choose</h6>
                                 <img src="<?php echo get_stylesheet_directory_uri() . '/assets/img/dropdown.svg'; ?>" alt="">
 
@@ -506,14 +597,14 @@ function getlogo_print()
                         <div class='size_name '>
                             <h6> Print Area<span>*</span></h6>
                         </div>
-                        <div class='sizes_quantity custom_dropdown_wrapper_ar_ar'><select name='printarea' class='printarea' current-cat='<?php echo $terms[0]->name; ?>' extrafee='<?php echo get_field('extra_area_fee', 'options'); ?>'>
-                                <?php acf_select_options('field_664db3ff9bd11', 'print_sides'); ?>
+                        <div class='sizes_quantity custom_dropdown_wrapper_ar_ar first_print_areas_wrapper_ar'><select name='printarea' class='printarea' current-cat='<?php echo $terms[0]->name; ?>' extrafee='<?php echo get_field('extra_area_fee', 'options'); ?>'>
+                                <?php acf_select_options_sides('print_sides'); ?>
                             </select>
-                            <div class="d_flex_justify_between_ar_ar custom_dropdown_ar_ar disabled_ar_options_ar">
-                                <h6>Front</h6>
-                                <img src="<?php echo get_stylesheet_directory_uri() . '/assets/dropdown.svg'; ?>" alt="">
+                            <div class="d_flex_justify_between_ar_ar custom_dropdown_ar_ar <?php echo $terms[0]->name == 'headwear' ? ' disabled_ar_options_ar' : ''; ?>">
+                                <h6><?php echo $terms[0]->name == 'headwear' ? 'Front' : 'Select'; ?></h6>
+                                <img src="<?php echo get_stylesheet_directory_uri() . '/assets/img/dropdown.svg'; ?>" alt="">
                             </div>
-                            <?php acf_select_options_custom('field_664db3ff9bd11', 'print_sides'); ?>
+                            <?php acf_select_options_custom('print_sides'); ?>
                         </div>
                     </div>
                     <div class='size_column_ar hidethis_ar'>
@@ -533,7 +624,7 @@ function getlogo_print()
                                         <p> <span class='selcted_shape_ar_ar'> Square</span> | <span class='selcted_color_ar_ar'> Yellow </span></p>
                                     </div>
                                     <div class="dropdown_icons_ar_shapes">
-                                        <img src="<?php echo get_stylesheet_directory_uri() . '/assets/dropdown.svg'; ?>" alt="">
+                                        <img src="<?php echo get_stylesheet_directory_uri() . '/assets/img/dropdown.svg'; ?>" alt="">
                                     </div>
                                 </div>
                             </div>
@@ -577,7 +668,7 @@ function getlogo_print()
                             </select>
                             <div class="d_flex_justify_between_ar_ar custom_dropdown_ar_ar">
                                 <h6>Choose</h6>
-                                <img src="<?php echo get_stylesheet_directory_uri() . '/assets/dropdown.svg'; ?>" alt="">
+                                <img src="<?php echo get_stylesheet_directory_uri() . '/assets/img/dropdown.svg'; ?>" alt="">
 
                             </div>
                             <div class="custom_options_ar">
@@ -620,7 +711,7 @@ function getlogo_print()
 
                 <div id="drag-and-drop-zone">
                     <button id="closerdrop_ar">&times;</button>
-                    <label for="file-input" class="file_input_ar_ar"> <img src="<?php echo get_stylesheet_directory_uri() . '/assets/cloud.svg' ?>" alt=""> <span class="heading_label_ar"> Drag and drop your files here </span><span class="subheading_label_ar">(Maximum file size is 5MB)</span> <span class="subheading_label_ar">(Please Check the checkbox below to enable the uploader)</span></label>
+                    <label for="file-input" class="file_input_ar_ar"> <img src="<?php echo get_stylesheet_directory_uri() . '/assets/cloud.svg' ?>" alt=""> <span class="heading_label_ar"> Drag and drop your files here </span><span class="subheading_label_ar">(Maximum file size is 5MB)</span> <span class="subheading_label_ar">(Verbiage : Please Check the checkbox below to enable the uploader)</span></label>
                     <input type="file" id="file-input" name="file-input" disabled>
                     <div class="copyrightcheck_ar">
                         <input type="checkbox" name="copyright_art_ar" id="copyright_art_ar"> <label for="copyright_art_ar"> I OWN THE RIGHTS TO THE ARTWORK BEING USED OR HAVE PERMISSION FROM THE OWNER TO USE IT
@@ -632,7 +723,7 @@ function getlogo_print()
 
             <div class="addanotherone_ar">
                 <div class="icons">
-                    <img src="<?php echo get_stylesheet_directory_uri(); ?>/assets/Mask group.svg" class="img-fluid ?>" alt="">
+                    <img src="<?php echo get_stylesheet_directory_uri(); ?>/assets/img/Mask group.svg" class="img-fluid ?>" alt="">
                 </div>
                 <div class="texticons">
                     <h6>Add another print area</h6>
@@ -711,8 +802,25 @@ function acf_select_options($fieldkey, $subfield)
             if (in_array($value, $printtypes)) {
         ?>
                 <option value="<?php echo $value; ?>" product-id="<?php echo $currentid; ?>"><?php echo $label; ?></option>
-    <?php
+        <?php
             }
+        }
+    }
+}
+function acf_select_options_sides($subfield)
+{
+    $currentid = get_the_ID();
+    $arease = get_field("$subfield");
+
+    if (count($arease) > 0) {
+        ?>
+        <option value="">Choose</option>
+        <?php
+        foreach ($arease as $index => $value) {
+        ?>
+            <option value="<?php echo $value['value']; ?>" product-id="<?php echo $currentid; ?>"><?php echo $value['label']; ?></option>
+    <?php
+
         }
     }
 }
@@ -724,13 +832,13 @@ function get_print_type_attribute()
     $currentid = get_the_ID();
     $print_types = $product->get_attribute('print-types');
     $sizes_ar =  explode(",", $print_types);
+
     ?>
     <option value="" product-id="<?php echo $currentid; ?>">Choose</option>
     <?php
 
     if (count($sizes_ar) > 1) {
-
-        foreach ($sizes_ar as $size) {
+        foreach ($sizes_ar as  $size) {
             $size_slug = sanitize_title(trim($size));
             $variation = has_a_variation($size_slug, 'attribute_pa_print-types');
 
@@ -761,7 +869,8 @@ function get_print_type_attribute_custom_options()
     $sizes_ar =  explode(",", $print_types);
     if (count($sizes_ar) > 1) {
         ?>
-        <div class="custom_options_ar" value="">
+
+        <div class="custom_options_ar first_print_types_ar" value="">
             <?php
 
             foreach ($sizes_ar as $size) {
@@ -780,28 +889,20 @@ function get_print_type_attribute_custom_options()
     }
 }
 
-function acf_select_options_custom($fieldkey, $subfield)
+function acf_select_options_custom($subfield)
 {
     $currentid = get_the_ID();
-    $arease = get_field_object("$fieldkey");
+    $arease = get_field("$subfield");
 
-    if (have_rows("print_area")) {
-        while (have_rows("print_area")) {
-            the_row();
-            $printtypes = get_sub_field("$subfield");
-        }
-    }
 
     if (count($arease) > 0) {
     ?>
         <div class="custom_options_ar" value="">
             <?php
-            foreach ($arease['choices'] as $value => $label) {
-                if (in_array($value, $printtypes)) {
+            foreach ($arease as $index => $value) {
             ?>
-                    <h6 values="<?php echo $value; ?>" product-id="<?php echo $currentid; ?>"><?php echo $label; ?></h6>
+                <h6 values="<?php echo $value['value']; ?>" product-id="<?php echo $currentid; ?>"><?php echo $value['label']; ?></h6>
             <?php
-                }
             }
             ?>
         </div>
@@ -830,32 +931,32 @@ function fetchpatchshapes()
     }
 }
 
-function changetheareas()
-{
-    if (isset($_POST['depid']) && !empty($_POST['depid'])) {
-        $currenttype = $_POST['depid'];
-        $pid = intval($_POST['pid']);
-        $getfield = '';
-        if (have_rows('print_area', $pid)) {
-            while (have_rows('print_area', $pid)) {
-                the_row();
-                $printtypes = get_sub_field('print_types');
-                $print_sides = get_sub_field('print_sides');
-                $print_area_extra_charges = get_sub_field('print_area_extra_charges');
+// function changetheareas()
+// {
+//     if (isset($_POST['depid']) && !empty($_POST['depid'])) {
+//         $currenttype = $_POST['depid'];
+//         $pid = intval($_POST['pid']);
+//         $getfield = '';
+//         if (have_rows('print_area', $pid)) {
+//             while (have_rows('print_area', $pid)) {
+//                 the_row();
+//                 $printtypes = get_sub_field('print_types');
+//                 $print_sides = get_sub_field('print_sides');
+//                 $print_area_extra_charges = get_sub_field('print_area_extra_charges');
 
-                if ($printtypes == $currenttype) {
-                    $getfield = $print_area_extra_charges;
-                }
-            }
-        }
-    }
+//                 if ($printtypes == $currenttype) {
+//                     $getfield = $print_area_extra_charges;
+//                 }
+//             }
+//         }
+//     }
 
-    echo $getfield;
-    die();
-}
+//     echo $getfield;
+//     die();
+// }
 
-add_action("wp_ajax_changetheareas", "changetheareas");
-add_action("wp_ajax_nopriv_changetheareas", "changetheareas");
+// add_action("wp_ajax_changetheareas", "changetheareas");
+// add_action("wp_ajax_nopriv_changetheareas", "changetheareas");
 
 function addtocartar()
 {
@@ -869,6 +970,7 @@ function addtocartar()
     $quantity = isset($_POST['quantity']) ? intval($_POST['quantity']) : 1;
     $extracharges = isset($_POST['additional_charges']) ? intval($_POST['additional_charges']) : 0;
     $custom_price = isset($_POST['price']) ? floatval($_POST['price']) : 0;
+    $extraareafee = isset($_POST['extraareafee']) ? floatval($_POST['extraareafee']) : 0;
     $prod_color = isset($_POST['colors']) ? ($_POST['colors']) : '';
     $prod_var = isset($_POST['sizear']) ? ($_POST['sizear']) : '';
     $prod_allareasdata = isset($_POST['allareasdata']) ? ($_POST['allareasdata']) : '';
@@ -876,7 +978,11 @@ function addtocartar()
     $d3_puff_embroidery = isset($_POST['d3_puff_embroidery']) ? ($_POST['d3_puff_embroidery']) : '';
     $notcart = isset($_POST['notcart']) ? ($_POST['notcart']) : false;
     $enableddiscounts = isset($_POST['enableddiscounts']) ? ($_POST['enableddiscounts']) : false;
+    $extracolorsfee = isset($_POST['extracolorsfee']) ? floatval($_POST['extracolorsfee']) : 0;
 
+    if (count($prod_allareasdata) > 1) {
+        $extraareafee = $extraareafee * (count($prod_allareasdata) - 1);
+    }
     // Validate product ID
     if (!$product_id) {
         wp_send_json_error(array('message' => 'Invalid product ID.'));
@@ -937,7 +1043,11 @@ function addtocartar()
                 if ($notcart && $discounted_array !== null) {
                     // Display the custom price per product
                     $title = str_replace("-", " ", $print_type);
-                    $output .= "<div class='title_ar_table'><h6>" . $title . "</h6> </div>";
+                    if (count($prod_var) > 1) {
+                        $output .= "<div class='title_ar_table'><h6>" . $title . "(" . $prod['size'] . ")</h6> </div>";
+                    } else {
+                        $output .= "<div class='title_ar_table'><h6>" . $title . "</h6> </div>";
+                    }
                     foreach ($discounted_array as $key => $value) {
                         $numberindex = explode("_", $key)[1];
                         $output .= "<div class='price_column_ar' quantity-id='" . $numberindex . "'> <div class='range_price_ar'> $ " . $value . "</div></div>";
@@ -953,7 +1063,6 @@ function addtocartar()
 
                     if (count($commonItems) > 0) {
 
-
                         // Extract the indices from the array keys
                         foreach ($discounted_array as $key => $value) {
                             $numberindex = (int) explode("_", $key)[1];
@@ -965,8 +1074,8 @@ function addtocartar()
                         foreach ($indexofarray as $index => $value) {
                             // Check if quantity is between current and next index value
                             if ($quantity > $value && ($index + 1 == $size || $quantity <= $indexofarray[$index + 1])) {
-                                $currentprice = $discounted_array["item_{$indexofarray[$index + 1]}"];
-                                $currentindex = "item_{$indexofarray[$index + 1]}";
+                                $currentprice = $discounted_array["item_{$indexofarray[$index]}"];
+                                $currentindex = "item_{$indexofarray[$index]}";
                                 break; // Exit loop once the correct range is found
                             }
                         }
@@ -976,9 +1085,9 @@ function addtocartar()
                             $currentprice = $discounted_array["item_{$indexofarray[0]}"];
                             $currentindex = "item_{$indexofarray[0]}";
                         }
-                        $currentprice = $currentprice + $extracharges;
+                        $currentprice = $currentprice + $extracharges + $d3_puff_embroidery + $extraareafee + $extracolorsfee;
                     } else {
-                        $currentprice = $price + $extracharges;
+                        $currentprice = $price + $extracharges + $d3_puff_embroidery + $extraareafee + $extracolorsfee;
                     }
 
                     // Store custom details in the session
@@ -988,6 +1097,27 @@ function addtocartar()
                     WC()->session->set('custom_areas_' . $variation_id, $prod_allareasdata);
                     WC()->session->set('custom_instructions_' . $variation_id, $add_instructions);
                     WC()->session->set('custom_d3_embroidery_' . $variation_id, $d3_puff_embroidery);
+
+                    $puffclass = $d3_puff_embroidery ? "(3D Puff)" : "";
+
+
+                    if (!empty($prod_allareasdata) && is_array($prod_allareasdata)) {
+                        $output = "<div class='printareas_cart_ar'> <div class='size_attr_ar_cart'><h6>Print Areas : </h6>";
+                        foreach ($prod_allareasdata as $area) {
+                            $printtype = !empty($area['printtype']) ? "<span>" . $area['printtype'] . "$puffclass</span> + " : "";
+                            $printarea = !empty($area['areavalue']) ? "<span>" . $area['areavalue'] . "</span> + " : "";
+                            $printcolor = !empty($area['printcolors']) ? "<span>" . $area['printcolors'] . " colors </span>  " : "";
+                            $artwork = !empty($area['artworkurl']) ? " + <a href='" . esc_url($area['artworkurl']) . "' target='_blank'>View Artwork</a></h6>" : "";
+
+                            $output .= "<h6>" . $printtype . $printarea . $printcolor . $artwork . "</h6>";
+                        }
+                        $output .= "</div></div>";
+                    }
+                    if (!empty($add_instructions)) {
+                        $output .= "<div class='instructionshere'><h6>Additional Instructions: : </h6><p>" . $add_instructions . "</p></div>";
+                    }
+
+                    update_field("product_extra_details", $output, $product_id);
 
                     // remove the product if already in cart
                     // Loop through the cart to find the product or variation
@@ -1010,8 +1140,8 @@ function addtocartar()
                     $result = WC()->cart->add_to_cart($product_id, $quantity, $variation_id, array(
                         'attribute_pa_color' => $prod_color,
                         'attribute_pa_sizes' => $prod_size,
-                        'attribute_pa_print-types' => $print_type
-                    ));
+                        'attribute_pa_print-types' => $print_type,
+                    ),array("extracharges" => $extracharges));
                     $cart_item_count = WC()->cart->get_cart_contents_count();
 
                     if ($result) {
@@ -1376,4 +1506,45 @@ function get_attribute_term_name_by_slug($attribute_slug, $term_slug)
     }
 
     return null; // Term not found
+}
+
+
+add_action('woocommerce_order_item_meta_end', 'custom_function_after_order_item_meta', 10, 2);
+
+function custom_function_after_order_item_meta($item_id, $item)
+{
+    $product_id = $item->get_product_id();
+
+    // Assuming the custom field is stored with a meta key '_custom_field'
+    $custom_field = get_field('product_extra_details', $product_id); // Replace '_custom_field' with your custom field key
+
+    if (!empty($custom_field)) {
+        echo '<div class="product_ar_order_details"><p>' . ($custom_field) . '</p></div>';
+        if (stripos($custom_field, '<a') !== false) {
+            echo '<div class="product_ar_order_details"><h6>Discalimer: i own the rights to the artwork being used or have permission from the owner to use it
+            </h6></div>';
+        }
+    }
+}
+
+// Add the custom field data to the custom column in the order items table
+add_action('woocommerce_admin_order_item_values', 'display_custom_field_data_in_order_items', 10, 3);
+
+function display_custom_field_data_in_order_items($product, $item, $item_id)
+{
+
+    $product_id = $product->parent_id; // Get the product ID
+
+    $custom_field = get_field('product_extra_details', $product_id);
+    if (!empty($custom_field)) {
+        echo '<td class="product_ar_order_details">' . ($custom_field) . '';
+        if (stripos($custom_field, '<a') !== false) {
+            echo '<div class="product_ar_order_details"><h6>disclaimer : I own the rights to the artwork being used or have permission from the owner to use it
+            </h6></div> </td>';
+        } else {
+            echo "</td>";
+        }
+    } else {
+        echo '<td class="custom-field-data">—</td>'; // Display a dash if no custom data is present
+    }
 }

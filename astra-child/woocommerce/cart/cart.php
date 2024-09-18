@@ -20,8 +20,8 @@ defined('ABSPATH') || exit;
 $delurl = get_stylesheet_directory_uri() . '/assets/img/delete.svg';
 // Display WooCommerce breadcrumbs
 if (function_exists('woocommerce_breadcrumb')) {
-	woocommerce_breadcrumb();
-} 
+    woocommerce_breadcrumb();
+}
 do_action('woocommerce_before_cart'); ?>
 
 
@@ -39,6 +39,7 @@ do_action('woocommerce_before_cart'); ?>
                     <th class="product-name"><?php esc_html_e('Products', 'woocommerce'); ?></th>
                     <th class="product-quantity"><?php esc_html_e('Quantity', 'woocommerce'); ?></th>
                     <th class="product-price"><?php esc_html_e('Price', 'woocommerce'); ?></th>
+                    <th class="product-subtotal"><?php esc_html_e('Subtotal', 'woocommerce'); ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -46,6 +47,7 @@ do_action('woocommerce_before_cart'); ?>
 
                 <?php
                 foreach (WC()->cart->get_cart() as $cart_item_key => $cart_item) {
+
                     $_product   = apply_filters('woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key);
                     $product_id = apply_filters('woocommerce_cart_item_product_id', $cart_item['product_id'], $cart_item, $cart_item_key);
                     $variation_id = $cart_item['variation_id'];
@@ -112,27 +114,32 @@ do_action('woocommerce_before_cart'); ?>
 
                                             <div class="printareas_cart_ar">
                                                 <?php
-                                                if (!empty($custom_areas) && is_array($custom_areas)) {
-                                                    $output = "<div class='size_attr_ar_cart'><h6>Print Areas : </h6>";
-                                                    foreach ($custom_areas as $area) {
-                                                        $printtype = !empty($area['printtype']) ? "<span>" . $area['printtype'] . "$puffclass</span> + " : "";
-                                                        $printarea = !empty($area['areavalue']) ? "<span>" . $area['areavalue'] . "</span> + " : "";
-                                                        $printcolor = !empty($area['printcolors']) ? "<span>" . $area['printcolors'] . " colors </span>  " : "";
-                                                        $artwork = !empty($area['artworkurl']) ? " + <a href='" . esc_url($area['artworkurl']) . "' target='_blank'>View Artwork</a></h6>" : "";
+                                                $pdetails = get_field("product_extra_details", $product_id);
+                                                echo $pdetails;
+                                                // if (!empty($custom_areas) && is_array($custom_areas)) {
+                                                //     $output = "<div class='size_attr_ar_cart'><h6>Print Areas : </h6>";
+                                                //     foreach ($custom_areas as $area) {
+                                                //         $printtype = !empty($area['printtype']) ? "<span>" . $area['printtype'] . "$puffclass</span> + " : "";
+                                                //         $printarea = !empty($area['areavalue']) ? "<span>" . $area['areavalue'] . "</span> + " : "";
+                                                //         $printcolor = !empty($area['printcolors']) ? "<span>" . $area['printcolors'] . " colors </span>  " : "";
+                                                //         $artwork = !empty($area['artworkurl']) ? " + <a href='" . esc_url($area['artworkurl']) . "' target='_blank'>View Artwork</a></h6>" : "";
 
-                                                        $output .= "<h6>" . $printtype . $printarea . $printcolor . $artwork . "</h6>";
-                                                    }
-                                                    $output .= "</div>";
-                                                    echo $output;
-                                                }
+                                                //         $output .= "<h6>" . $printtype . $printarea . $printcolor . $artwork . "</h6>";
+                                                //     }
+                                                //     $output .= "</div>";
+                                                //     echo $output;
+                                                // }
                                                 ?>
                                             </div>
-                                            <?php if (!empty($intruct)) { ?>
+                                            <!-- <?php //if (!empty($intruct)) { 
+                                                    ?>
                                                 <div class="instructionshere">
                                                     <h6>Additional Instructions:</h6>
-                                                    <p><?php echo esc_html($intruct); ?></p>
+                                                    <p><?php //echo esc_html($intruct); 
+                                                        ?></p>
                                                 </div>
-                                            <?php } ?>
+                                            <?php // } 
+                                            ?> -->
                                         </div>
                                     </div>
                                 </div>
@@ -149,21 +156,21 @@ do_action('woocommerce_before_cart'); ?>
                                 // Get the current cart item
                                 $cart_item = $cart_item ?? [];
 
- 
+
 
                                 // Retrieve the variation ID for the current cart item
                                 $variation_size = $cart_item['variation']['attribute_pa_sizes'];
 
-                                $variation_name=get_attribute_term_name_by_slug('sizes',$variation_size);
+                                $variation_name = get_attribute_term_name_by_slug('sizes', $variation_size);
 
-                                $variationquantity=$cart_item['quantity'];
+                                $variationquantity = $cart_item['quantity'];
 
                                 // Get custom variations for the specific variation ID
                                 $custom_variations = WC()->session->get('custom_variates_' . $variation_id);
 
                                 echo "<h5 class='variations_on_cart_ar'>" . esc_html($variation_name) . " * " . esc_html($variationquantity) . "</h5>";
 
-                              
+
                                 ?>
                             </td>
 
@@ -171,6 +178,12 @@ do_action('woocommerce_before_cart'); ?>
                             <td class="product-price" data-title="<?php esc_attr_e('Price', 'woocommerce'); ?>">
                                 <?php
                                 echo apply_filters('woocommerce_cart_item_price', WC()->cart->get_product_price($_product), $cart_item, $cart_item_key); // PHPCS: XSS ok.
+                                ?>
+                                <p><?php echo $cart_item['extracharges'] ? "including setup fee($" . number_format($cart_item['extracharges'], 2) . ")" : ""; ?></p>
+                            </td>
+                            <td class="product-subtotal" data-title="<?php esc_attr_e('line_subtotal', 'woocommerce'); ?>">
+                                <?php
+                                echo "$" . number_format($cart_item['line_total'], 2);  // PHPCS: XSS ok.
                                 ?>
                             </td>
                         </tr>

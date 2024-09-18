@@ -1,0 +1,14 @@
+#hidden_product_details_forcart {
+  display: none;
+}
+.product_ar_order_details h6 {
+  margin-bottom: 5px;
+  margin-top: 5px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.product_ar_order_details h6:has(span) {
+  margin-bottom: 15px !important;
+  margin-top: 5px;
+  font-weight: 400 !important;
+}

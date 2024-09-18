@@ -80,7 +80,7 @@ function filter_products($loadmore) {
     jQuery("#selected_filter_numbers_ar").find("h6").text("0");
   }
   
-  var currentpage = $loadmore ? jQuery("#load_more_ar").attr("currentpage") : 2;
+  var currentpage = $loadmore ? jQuery("#load_more_ar").attr("currentpage") : 1;
 
   var currentarch = jQuery("#products_wrapper_ar").attr("currentarc");
   jQuery.ajax({

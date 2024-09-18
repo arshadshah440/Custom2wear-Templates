@@ -70,17 +70,8 @@ div#pr_image_vslider {
 .active_swatch_ar {
   position: relative;
 }
-.active_swatch_ar::before {
+.swatch_ar::before {
   content: "";
-  width: 112%;
-  height: 112%;
-  position: absolute;
-  background: white;
-  z-index: -1;
-  border: 1px solid black;
-  border-radius: 50%;
-  top: -6%;
-  left: -6%;
 }
 
 @media (min-width: 1025px) {
@@ -93,6 +84,7 @@ div#pr_image_vslider {
 }
 .slick-slide img {
   height: 100%;
+  object-fit: contain;
 }
 
 #product_main_image_ae {
@@ -112,6 +104,24 @@ div#pr_image_vslider {
   border-color: rgba(35, 31, 32, 0.05);
   border-radius: 10px;
   background-color: #231f2005;
+  overflow: auto;
+}
+.normal_price_table_ar_all::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  background-color: #f5f5f5;
+}
+
+.normal_price_table_ar_all::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+  background-color: #f5f5f5;
+}
+
+.normal_price_table_ar_all::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color: #555;
 }
 #price_calculator_ar_ar {
   color: #000000;
@@ -143,7 +153,12 @@ div#pr_image_vslider {
 }
 .grid_tem_ar8 {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
+  grid-template-columns: repeat(7, 1fr);
+  /* display: flex;
+  flex-wrap: nowrap; */
+}
+.grid_tem_ar8:not(:has(.bg-red)) > :nth-child(n + 8) {
+  display: none !important;
 }
 .title_ar_table h6 {
   font-family: "Plus Jakarta Sans";
@@ -153,7 +168,7 @@ div#pr_image_vslider {
   text-transform: capitalize;
 }
 .title_ar_table {
-  width: 110px;
+  min-width: 130px;
   align-self: center;
   padding: 13px 5px !important;
   height: 100%;
@@ -187,6 +202,9 @@ div#pr_image_vslider {
 }
 .title_ar_table {
   text-align: left;
+}
+.price_column_ar {
+  min-width: 75px;
 }
 .price_column_ar:first-child .range_price_ar {
   border-radius: 0px 0px 0px 10px;
@@ -223,6 +241,7 @@ div#pr_image_vslider {
   background-position: center;
   background-repeat: no-repeat;
   cursor: pointer;
+  border: 1px solid #231f201a;
 }
 .swatch_ar:has(span) {
   width: fit-content;
@@ -245,6 +264,7 @@ div#pr_image_vslider {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 .swatches_ar .innerwrap {
   flex-wrap: wrap;
@@ -486,9 +506,9 @@ button#closerdrop_ar {
     top: calc(50% - 35.5px);
     left: 0px;
     height: 73px !important;
-
   }
-  .slick-next-btn img,.slick-prev-btn img{
+  .slick-next-btn img,
+  .slick-prev-btn img {
     transform: rotate(-90deg);
   }
   .slick-prev-btn {
@@ -552,6 +572,7 @@ span {
   font-weight: 400;
   line-height: 44px;
   color: rgba(0, 0, 0, 0.8);
+  pointer-events: none;
 }
 /* #drag-and-drop-zone input[disabled] {
   opacity: 0.6;
@@ -665,7 +686,7 @@ span {
   margin-top: 5px;
 }
 .addanotherone_ar {
-  width: 30%;
+  width: fit-content;
 }
 @media (max-width: 768px) {
   .addanotherone_ar {
@@ -862,6 +883,7 @@ span {
 }
 .freeoptions_progress_wrap {
   width: 230px;
+  display: none;
 }
 #addmore_headings_arprg {
   font-family: "Plus Jakarta Sans";
@@ -876,7 +898,7 @@ span {
   width: 100%;
   border-radius: 9px;
   height: 6px;
-  margin: 5px 0px 11px 0px;
+  margin: 20px 0px 0px 0px;
 }
 .progressbar_quantity {
   width: 0%;
@@ -896,6 +918,7 @@ span {
   display: flex;
   justify-content: space-between;
   gap: 15px;
+  flex-wrap: wrap;
 }
 .tooltip_data_ar {
   display: none;
@@ -1205,6 +1228,23 @@ span {
 .breadcrumbs_ar a {
   text-decoration: underline;
 }
-.hide_it_ar{
+.hide_it_ar {
+  display: none;
+}
+
+/* //error  */
+.error_placer_ar p {
+  color: red;
+  fill: red;
+  margin-bottom: 10px;
+  font-family: "Plus Jakarta Sans";
+  font-size: 16px;
+  font-style: normal;
+  line-height: 20px;
+}
+.error_placer_ar i {
+  margin-right: 05px;
+}
+.error_placer_ar {
   display: none;
 }

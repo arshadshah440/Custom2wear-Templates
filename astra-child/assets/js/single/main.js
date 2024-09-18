@@ -1,10 +1,14 @@
 // global variable
-var artsetupfreeze = jQuery("#freeitemsrequir_ar")
-  .attr("valueprice")
-  .replace(/\$/g, "");
-var premiumartsetupe = jQuery("#premiumitemsrequir_ar")
-  .attr("valueprice")
-  .replace(/\$/g, "");
+var artsetupfreeze = jQuery("#freeitemsrequir_ar").attr("valueprice");
+
+if (artsetupfreeze) {
+  jQuery("#freeitemsrequir_ar").attr("valueprice").replace(/\$/g, "");
+}
+var premiumartsetupe = jQuery("#premiumitemsrequir_ar").attr("valueprice");
+
+if (premiumartsetupe) {
+  jQuery("#premiumitemsrequir_ar").attr("valueprice").replace(/\$/g, "");
+}
 
 var greeniconsvg =
   '<svg aria-hidden="true" class="e-font-icon-svg e-far-check-circle" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M256 8C119.033 8 8 119.033 8 256s111.033 248 248 248 248-111.033 248-248S392.967 8 256 8zm0 48c110.532 0 200 89.451 200 200 0 110.532-89.451 200-200 200-110.532 0-200-89.451-200-200 0-110.532 89.451-200 200-200m140.204 130.267l-22.536-22.718c-4.667-4.705-12.265-4.736-16.97-.068L215.346 303.697l-59.792-60.277c-4.667-4.705-12.265-4.736-16.97-.069l-22.719 22.536c-4.705 4.667-4.736 12.265-.068 16.971l90.781 91.516c4.667 4.705 12.265 4.736 16.97.068l172.589-171.204c4.704-4.668 4.734-12.266.067-16.971z"></path></svg>';
@@ -18,6 +22,74 @@ var ppcolorextras = jQuery(
 jQuery(document).ready(function ($) {
   // zoom effect
   jQuery("#product_main_image_ae").zoom();
+  // deffault values for print type
+
+  if (jQuery(".first_print_types_ar").length > 0) {
+    var defaultprtint = jQuery(".first_print_types_wrapper_ar").attr(
+      "defaultval"
+    );
+    if (
+      defaultprtint == "" ||
+      defaultprtint == null ||
+      defaultprtint == undefined
+    ) {
+      jQuery(".first_print_types_ar").find("h6:first-child").trigger("click");
+      var firsttype = jQuery(".first_print_types_ar")
+        .find("h6:first-child")
+        .attr("values");
+      localStorage.setItem("pptype", firsttype);
+    } else {
+      jQuery(".first_print_types_ar")
+        .find(`h6[values='${defaultprtint}']`)
+        .trigger("click");
+      localStorage.setItem("pptype", defaultprtint);
+    }
+  }
+
+  // default values for the print area
+
+  if (jQuery(".first_print_areas_wrapper_ar").length > 0) {
+    var defaultarea = jQuery(".first_print_areas_wrapper_ar")
+      .find("select")
+      .attr("current-cat");
+    console.log(defaultarea);
+    if (defaultarea == "" || defaultarea == null || defaultarea == undefined) {
+      jQuery(".first_print_areas_wrapper_ar")
+        .find(".custom_options_ar")
+        .find("h6:first-child")
+        .trigger("click");
+    } else {
+      if (
+        jQuery(".first_print_areas_wrapper_ar").find(`h6[values='front']`)
+          .length > 0
+      ) {
+        jQuery(".first_print_areas_wrapper_ar")
+          .find(`h6[values='front']`)
+          .trigger("click");
+      }
+      // if (defaultarea.toLowerCase() == "headwear") {
+      //   jQuery(".first_print_areas_wrapper_ar")
+      //     .find(`h6[values='front']`)
+      //     .trigger("click");
+      // } else {
+      //   jQuery(".first_print_areas_wrapper_ar")
+      //     .find(".custom_options_ar")
+      //     .find("h6:first-child")
+      //     .trigger("click");
+      //   jQuery(".first_print_areas_wrapper_ar")
+      //     .find("select.printarea")
+      //     .val(
+      //       jQuery(".first_print_areas_wrapper_ar")
+      //         .find("select.printarea")
+      //         .find("option:nth-child(2)")
+      //         .val()
+      //     );
+      //   console.log(
+      //     jQuery(".first_print_areas_wrapper_ar").find("select.printarea").val()
+      //   );
+      // }
+    }
+  }
 
   /****************************** drage and drop zone sections ******************************/
 
@@ -152,7 +224,7 @@ jQuery(document).ready(function ($) {
     jQuery("#move_mobile").appendTo("#append_mobile");
   }
 
-  jQuery(".sizes_ar").on("change", 'input[type="number"]', function (e) {
+  jQuery(".sizes_ar").on("input", 'input[type="number"]', function (e) {
     e.preventDefault();
     var quantity = 0;
     $(".sizes_ar")
@@ -169,15 +241,18 @@ jQuery(document).ready(function ($) {
     var ptype = localStorage.getItem("pptype");
 
     if (ptype !== "" && ptype !== null) {
-      if (ptype == "leather-patch") {
-        uodatetable("#leather-patch");
-      } else if (ptype == "embroidery") {
-        uodatetable("#embroidery");
-      } else if (ptype == "digital-print") {
-        uodatetable("#digital-print");
-      } else if (ptype == "normal") {
-        uodatetable("#normal");
-      }
+      uodatetable(`#${ptype}`);
+      // if (ptype == "leather-patch") {
+      //   uodatetable("#leather-patch");
+      // } else if (ptype == "embroidery") {
+      //   uodatetable("#embroidery");
+      // } else if (ptype == "digital-print") {
+      //   uodatetable("#digital-print");
+      // } else if (ptype == "normal") {
+      //   uodatetable("#normal");
+      // }
+      gettotalprice();
+    } else {
       gettotalprice();
     }
   });
@@ -191,31 +266,45 @@ jQuery(document).ready(function ($) {
     jQuery(".swatch_ar").removeClass("active_swatch_ar");
     jQuery(this).addClass("active_swatch_ar");
     var value = jQuery(this).attr("attr-name");
+    var colortext = jQuery(this).siblings("span").text();
+    jQuery("#color_selector_wrap_ar").text(`(${colortext})`);
     var pid = jQuery(this).attr("pid");
-    jQuery.ajax({
-      type: "POST",
-      url: "/wp-admin/admin-ajax.php",
-      data: {
-        action: "get_variations_price_image",
-        color: value,
-        product_id: pid,
-      },
-      success: function (response) {
-        var responseData = JSON.parse(response);
-        if (responseData["image_url"] !== "") {
-          jQuery("#product_main_image_ae")
-            .find("img")
-            .attr("src", responseData["image_url"]);
-          jQuery("#product_main_image_ae")
-            .find("img")
-            .attr("srcset", responseData["image_srcset"]);
-        }
-      },
-      error: function (xhr, status, error) {
-        // Handle error
-        console.error("Error generating PDF");
-      },
-    });
+    console.log(
+      jQuery("#pr_image_vslider").find("div[color_attr=" + value + "]")
+    );
+    if (
+      jQuery("#pr_image_vslider").find("div[color_attr=" + value + "]").length >
+      0
+    ) {
+      jQuery("#pr_image_vslider")
+        .find('div[color_attr="' + value + '"]:first')
+        .trigger("click");
+    } else {
+      jQuery.ajax({
+        type: "POST",
+        url: "/wp-admin/admin-ajax.php",
+        data: {
+          action: "get_variations_price_image",
+          color: value,
+          product_id: pid,
+        },
+        success: function (response) {
+          var responseData = JSON.parse(response);
+          if (responseData["image_url"] !== "") {
+            jQuery("#product_main_image_ae")
+              .find("img")
+              .attr("src", responseData["image_url"]);
+            jQuery("#product_main_image_ae")
+              .find("img")
+              .attr("srcset", responseData["image_srcset"]);
+          }
+        },
+        error: function (xhr, status, error) {
+          // Handle error
+          console.error("Error generating PDF");
+        },
+      });
+    }
 
     gettotalprice();
   });
@@ -230,6 +319,7 @@ jQuery(document).ready(function ($) {
       var value = jQuery(this).find("select.printarea").val();
       arrayval.push(value);
     });
+    console.log(arrayval);
     var quantity = parseInt(localStorage.getItem("totalquantity"));
     var firstvaluecat = jQuery(".addlogo_colum:first-child")
       .find("select.printtype")
@@ -261,22 +351,34 @@ jQuery(document).ready(function ($) {
         jQuery(".addlogo_colum:last-child")
           .find("select.printtype")
           .val(firstvalue);
-        jQuery(".addlogo_colum:last-child")
-          .find("select.printtype")
-          .attr("disabled", true);
+        // jQuery(".addlogo_colum:last-child")
+        //   .find("select.printtype")
+        //   .attr("disabled", true);
       } else {
         show_patch_fields(
           firstvaluecat,
           jQuery(".addlogo_colum:last-child").find(".printcolors")
         );
-        jQuery(".addlogo_colum:last-child")
-          .find(".printcolors")
-          .find("option[value='11']")
-          .hide();
-        jQuery(".addlogo_colum:last-child")
-          .find(".custom_options_ar")
-          .find("h6[values='11']")
-          .hide();
+        if (firstvalue == "digital-print") {
+          jQuery(".addlogo_colum:last-child")
+            .find(".printcolors")
+            .find("option[value='11']")
+            .show();
+          jQuery(".addlogo_colum:last-child")
+            .find(".custom_options_ar")
+            .find("h6[values='11']")
+            .show();
+        } else {
+          jQuery(".addlogo_colum:last-child")
+            .find(".printcolors")
+            .find("option[value='11']")
+            .hide();
+          jQuery(".addlogo_colum:last-child")
+            .find(".custom_options_ar")
+            .find("h6[values='11']")
+            .hide();
+        }
+
         jQuery(".addlogo_colum:last-child")
           .find(".printcolors")
           .siblings(".custom_dropdown_ar_ar")
@@ -285,38 +387,87 @@ jQuery(document).ready(function ($) {
         jQuery(".addlogo_colum:last-child")
           .find("select.printtype")
           .val("embroidery");
-        jQuery(".addlogo_colum:last-child")
-          .find("select.printtype")
-          .attr("disabled", true);
+        // jQuery(".addlogo_colum:last-child")
+        //   .find("select.printtype")
+        //   .attr("disabled", true);
         jQuery(".addlogo_colum:last-child")
           .find("select.printarea")
           .attr("disabled", false);
+        jQuery(".addlogo_colum:last-child")
+          .find("select.printarea")
+          .val(
+            jQuery(".addlogo_colum:last-child")
+              .find("select.printarea option")
+              .first()
+              .attr("value")
+          );
         jQuery(".addlogo_colum:last-child")
           .find("select.printtype")
           .siblings(".custom_options_ar")
           .find("h6[values='embroidery']")
           .trigger("click");
-        jQuery(".addlogo_colum:last-child")
-          .find("select.printtype")
-          .siblings(".custom_dropdown_ar_ar")
-          .addClass("disabled_ar_options_ar");
+        // jQuery(".addlogo_colum:last-child")
+        //   .find("select.printtype")
+        //   .siblings(".custom_dropdown_ar_ar")
+        //   .addClass("disabled_ar_options_ar");
         jQuery(".addlogo_colum:last-child")
           .find("select.printarea")
           .siblings(".custom_dropdown_ar_ar")
           .removeClass("disabled_ar_options_ar");
+        jQuery(".addlogo_colum:last-child")
+          .find("select.printarea")
+          .siblings(".custom_dropdown_ar_ar")
+          .find("h6:first-child")
+          .trigger("click");
       }
       jQuery(".addlogo_colum:last-child")
         .find("select.printarea option")
-        .each(function () {
+        .each(function (index, element) {
           if (arrayval.includes(jQuery(this).val())) {
             jQuery(this).attr("disabled", true);
+
             jQuery(".addlogo_colum:last-child")
               .find("select.printarea")
               .siblings(".custom_options_ar")
               .find("h6[values='" + jQuery(this).val() + "']")
               .addClass("disabled_ar_options_ar");
+
+            // Check if this is the last option in the list
+            var $options = jQuery(".addlogo_colum:last-child").find(
+              "select.printarea option"
+            );
+
+            if (index === $options.length - 1) {
+              // If current option is the last, find the first valid option
+              $options.each(function () {
+                var optionVal = jQuery(this).val();
+                if (optionVal && !jQuery(this).is(":disabled")) {
+                  jQuery(".addlogo_colum:last-child")
+                    .find("select.printarea")
+                    .val(optionVal); // Set the first valid option
+                  jQuery(".addlogo_colum:last-child")
+                    .find("select.printarea")
+                    .siblings(".custom_options_ar")
+                    .find("h6[values='" + optionVal + "']")
+                    .trigger("click"); // Trigger the click on the corresponding h6
+                  return false; // Break the loop
+                }
+              });
+            } else {
+              // For non-last options, set the next option
+              jQuery(".addlogo_colum:last-child")
+                .find("select.printarea")
+                .siblings(".custom_options_ar")
+                .find("h6[values='" + jQuery(this).next().val() + "']")
+                .trigger("click");
+
+              jQuery(".addlogo_colum:last-child")
+                .find("select.printarea")
+                .val(jQuery(this).next().val());
+            }
           }
         });
+
       jQuery(".addlogo_colum:last-child")
         .find(".printcolors")
         .attr("disabled", false);
@@ -329,9 +480,9 @@ jQuery(document).ready(function ($) {
       if (arrayval.length == 2) {
         jQuery(".addanotherone_ar").hide();
       }
-      jQuery(".addlogo_colum:last-child").find(".printarea").val("");
       gettotalprice();
     } else {
+      // console.log(arrayval.length);
       if (arrayval.length == 3) {
         if (jQuery(".warning_ar").length <= 0) {
           jQuery(".sizes_ar").append(
@@ -456,14 +607,72 @@ jQuery(document).ready(function ($) {
         jQuery("#d_3d_ar").hide();
         jQuery("#d_puff_embroidery_wrapper").hide();
         localStorage.setItem("d_puff_embroidery", 0);
-      } else if (value == "normal") {
-        uodatetable("#normal");
+      } else if (value == "blank") {
+        uodatetable("#blank");
+        jQuery(this)
+          .closest(".addlogo_colum")
+          .find(".printcolors")
+          .find("option[value='11']")
+          .hide();
+        jQuery(this)
+          .closest(".addlogo_colum")
+          .find(".printcolors")
+          .siblings(".custom_options_ar")
+          .find("h6[values='11']")
+          .hide();
       }
       localStorage.setItem("pptype", value);
       gettotalprice();
     }
   );
+  jQuery(".allprintareas").on(
+    "change",
+    ".addlogo_colum:not(:first-child) select.printtype",
+    function (e) {
+      e.preventDefault();
+      // console.log("yes");
+      var value = jQuery(this).val();
+      show_patch_fields(value, jQuery(this));
 
+      if (value == "embroidery") {
+        jQuery(this)
+          .closest(".addlogo_colum")
+          .find(".printcolors")
+          .find("option[value='11']")
+          .hide();
+        jQuery(this)
+          .closest(".addlogo_colum")
+          .find(".printcolors")
+          .siblings(".custom_options_ar")
+          .find("h6[values='11']")
+          .hide();
+      } else if (value == "digital-print") {
+        jQuery(this)
+          .closest(".addlogo_colum")
+          .find(".printcolors")
+          .find("option[value='11']")
+          .show();
+        jQuery(this)
+          .closest(".addlogo_colum")
+          .find(".printcolors")
+          .siblings(".custom_options_ar")
+          .find("h6[values='11']")
+          .show();
+      } else {
+        jQuery(this)
+          .closest(".addlogo_colum")
+          .find(".printcolors")
+          .find("option[value='11']")
+          .hide();
+        jQuery(this)
+          .closest(".addlogo_colum")
+          .find(".printcolors")
+          .siblings(".custom_options_ar")
+          .find("h6[values='11']")
+          .hide();
+      }
+    }
+  );
   /****************************** listen to change in first row of the print logo area  end******************************/
 
   // jQuery(".allprintareas .addlogo_colum:not(:first-child)").on(
@@ -642,6 +851,8 @@ jQuery(document).ready(function ($) {
 
   // setting patches shapes and colors
 
+  jQuery(".active_swatch_ar").trigger("click");
+
   var imgsrc = jQuery(".patch-shape-colors-main")
     .find(".patch-shape-img-text:first-child")
     .find(".patch_shape_masking_ar_ar")
@@ -693,7 +904,6 @@ jQuery(document).ready(function ($) {
       .attr("disabled", true);
   }
 
-  localStorage.setItem("pptype", "");
   localStorage.setItem("totalquantity", 0);
   localStorage.setItem("checked_premium", false);
   localStorage.setItem("d_puff_embroidery", 0);
@@ -708,6 +918,7 @@ jQuery(document).ready(function ($) {
 function updatecolorsoffeatures(quantity) {
   check_premiumupdate(quantity);
   if (quantity >= 12 && quantity < 24) {
+    jQuery("#freesetup_charges_ar").text("0");
     jQuery("#freeitemsrequir_ar").find(".tick_ar").removeClass("hide_it");
     jQuery("#freeitemsrequir_ar").find(".cross_ar").addClass("hide_it");
 
@@ -720,11 +931,12 @@ function updatecolorsoffeatures(quantity) {
     jQuery("#freeitemsrequir_ar").attr("valueprice", "0$");
     jQuery("#shippingitemsrequir_ar").attr("valueprice", `50$`);
     if (jQuery("#premium_artwork_ar").is(":checked") && quantity < 36) {
-      jQuery("#premiumitemsrequir_ar")
-        .attr("valueprice")
-        .text(`${premiumartsetupe}$`);
+      jQuery("#premiumitemsrequir_ar").attr(
+        "valueprice",
+        `${premiumartsetupe}$`
+      );
     } else {
-      jQuery("#premiumitemsrequir_ar").attr("valueprice",`0$`);
+      jQuery("#premiumitemsrequir_ar").attr("valueprice", `0$`);
     }
   } else if (quantity >= 24 && quantity < 36) {
     jQuery("#freeitemsrequir_ar").find(".tick_ar").removeClass("hide_it");
@@ -744,7 +956,7 @@ function updatecolorsoffeatures(quantity) {
         `${premiumartsetupe}$`
       );
     } else {
-      jQuery("#premiumitemsrequir_ar").attr("valueprice").text(`0$`);
+      jQuery("#premiumitemsrequir_ar").attr("valueprice", "0$");
     }
   } else if (quantity >= 36) {
     jQuery("#freeitemsrequir_ar").find(".tick_ar").removeClass("hide_it");
@@ -767,6 +979,8 @@ function updatecolorsoffeatures(quantity) {
       jQuery("#premiumitemsrequir_ar").attr("valueprice", "0$");
     }
   } else {
+    jQuery("#freesetup_charges_ar").text(`${artsetupfreeze}`);
+
     jQuery("#freeitemsrequir_ar").find(".cross_ar").removeClass("hide_it");
     jQuery("#freeitemsrequir_ar").find(".tick_ar").addClass("hide_it");
 
@@ -809,6 +1023,11 @@ jQuery("#premium_artwork_ar").on("click", function () {
 });
 /****************************** function visualize the d_puff_embroidery end******************************/
 jQuery("#d_puff_embroidery").on("click", function () {
+  if (jQuery(this).is(":checked")) {
+    localStorage.setItem("d_puff_embroidery", jQuery(this).val());
+  } else {
+    localStorage.setItem("d_puff_embroidery", 0);
+  }
   gettotalprice();
 });
 /****************************** function visualize the orderedthislogo_ar end******************************/
@@ -838,6 +1057,7 @@ jQuery("#add_instrution_ar").on("click", function () {
 
 function gettotalprice() {
   puffEmbroid("#d_3d_ar");
+
   getpricelist(totaldata);
 
   var totalprice = 0;
@@ -886,8 +1106,23 @@ function gettotalprice() {
     priceperproduct = priceppa;
   }
 
-  var additional_charges = addextrachargesopt();
+  var additional_fee = addextrachargesopt();
+  var additional_charges = parseFloat(additional_fee.outputpricefee);
 
+  var extraareafee = 0;
+  if (
+    jQuery("#extra_area_fee_ar").find(".price_column_ar.bg-red .range_price_ar")
+      .length > 0
+  ) {
+    extraareafee = jQuery("#extra_area_fee_ar")
+      .find(".price_column_ar.bg-red .range_price_ar")
+      .text();
+    extraareafee = parseFloat(extraareafee.replace(/\$/g, ""));
+  }
+  // if (extraareafee > 0) {
+  //   additional_charges =
+  //     additional_charges - parseFloat(extraareafee) * quantity;
+  // }
   // jQuery(".listinsideh_ar")
   //   .find("li")
   //   .each(function () {
@@ -920,23 +1155,41 @@ function gettotalprice() {
   }
 
   var d3_puff = localStorage.getItem("d_puff_embroidery");
-  totalprice = totalprice + parseFloat(d3_puff);
-  totalprice = totalprice.toFixed(2);
+  totalprice = totalprice + parseFloat(d3_puff) * quantity;
+  totalprice = parseFloat(totalprice).toFixed(2);
   if (!isNaN(totalprice)) {
-    jQuery("#totalprice_ar_product").find("#span_ar_product").text(totalprice);
-    jQuery("#sticky_price_sector_ar_ar")
-      .find(".span_ar_product")
-      .text(totalprice);
-    jQuery("#sticky_price_sector_ar_ar_mb")
-      .find(".span_ar_product")
-      .text(totalprice);
+    if (quantity > 12) {
+      jQuery("#totalprice_ar_product")
+        .find("#span_ar_product")
+        .text(totalprice);
+    } else {
+      if (totalprice > 30) {
+        jQuery("#totalprice_ar_product")
+          .find("#span_ar_product")
+          .text((totalprice - artsetupfree).toFixed(2));
+      } else {
+        jQuery("#totalprice_ar_product")
+          .find("#span_ar_product")
+          .text(totalprice);
+      }
+    }
+
+    // jQuery("#sticky_price_sector_ar_ar")
+    //   .find(".span_ar_product")
+    //   .text(totalprice.toFixed(2));
+
+    // jQuery("#sticky_price_sector_ar_ar_mb")
+    //   .find(".span_ar_product")
+    //   .text(totalprice.toFixed(2));
   }
+
   var output = "";
   for (var i = 0; i < sizesvar.length; i++) {
     output += sizesvar[i].size + " : " + sizesvar[i].quantity + ", ";
   }
   jQuery("#quanitiy_ar_ar").find("h2").html(output);
   var allareasdata = gettheprintareaarray();
+
   var add_instructions = jQuery("#add_instrution_ar_text").val();
 
   var totaldata = {
@@ -947,7 +1200,9 @@ function gettotalprice() {
     allareasdata: allareasdata,
     d3_puff_embroidery: d3_puff,
     add_instructions: add_instructions,
-    additional_charges: additional_charges,
+    extraareafee: extraareafee,
+    extracolorsfee: additional_fee.colorsricefee,
+    additional_charges: additional_fee.totalsetupfee,
   };
   if (
     quantity <= 0 ||
@@ -961,6 +1216,8 @@ function gettotalprice() {
     jQuery("#single_add_to_cart_ar").removeClass("disabled_ar_product");
     jQuery("#sticky_add_to_cart_ar_ar").removeClass("disabled_ar_product");
   }
+  showerrormessaes(quantity, jQuery(".active_swatch_ar").length, allareasdata);
+
   jQuery("#heading_for_sub_total_ar")
     .find("h2")
     .find(".vairation_added_ar")
@@ -1002,15 +1259,17 @@ jQuery(".allprintareas").on("change", ".printcolors", function () {
     .find(".printarea")
     .val();
 
+  // console.log(printtype, printarea);
+
   if (printtype == "" || printarea == "") {
     if (jQuery(".warning_ar").length <= 0) {
       jQuery(".sizes_ar").append(
-        "<h6 class='warning_ar'>you can't add more than 3 print areas</h6>"
+        "<h6 class='warning_ar'>Kindly Select the Print Type and Print Area</h6>"
       );
     } else {
       jQuery(".warning_ar").remove();
       jQuery(".sizes_ar").append(
-        "<h6 class='warning_ar'>you can't add more than 3 print areas</h6>"
+        "<h6 class='warning_ar'>Kindly Select the Print Type and Print Area</h6>"
       );
     }
     // jQuery(this).val(1);
@@ -1027,9 +1286,9 @@ jQuery("#single_add_to_cart_ar").on("click", function (e) {
   var productid = jQuery(".sizes_main_div_ar_ar > .size_column_ar")
     .find("input[type='number']")
     .attr("product-id");
-  var enableddiscounts=false;
-  if(jQuery("#price_calculator_ar_ar").length > 0) {
-    enableddiscounts=true;
+  var enableddiscounts = false;
+  if (jQuery("#price_calculator_ar_ar").length > 0) {
+    enableddiscounts = true;
   }
   var alldata = gettotalprice();
   var totalprice = alldata.totalprice;
@@ -1048,7 +1307,9 @@ jQuery("#single_add_to_cart_ar").on("click", function (e) {
       add_instructions: alldata.add_instructions,
       d3_puff_embroidery: alldata.d3_puff_embroidery,
       additional_charges: alldata.additional_charges,
-      enableddiscounts:enableddiscounts
+      extracolorsfee: alldata.extracolorsfee,
+      extraareafee: alldata.extraareafee,
+      enableddiscounts: enableddiscounts,
     },
     success: function (response) {
       if (response.success) {
@@ -1080,30 +1341,48 @@ function addextrachargesopt() {
   if (isNaN(totalsetup)) {
     totalsetup = 0;
   }
+  var quantity = parseInt(localStorage.getItem("totalquantity"));
+
   var totalextra = 0;
   var outputprice = 0;
+  var colorsrice = 0.0;
+
   jQuery(".addlogo_colum").each(function (index) {
     var pptypes = jQuery(this).find("select.printtype").val();
     var ppareas = jQuery(this).find("select.printarea").val();
     var ppcolors = jQuery(this).find("select.printcolors").val();
     var ppcolorextrases = parseInt(ppcolors) - 3;
     var pppricess = parseFloat(ppcolorextras * ppcolorextrases).toFixed(2);
-    var extra = jQuery(this).find("select.printarea").attr("extrafee");
 
+    colorsrice = parseFloat(colorsrice + parseFloat(pppricess));
+    pppricess = parseFloat(pppricess) * parseFloat(quantity);
+
+    var extras = jQuery(this).find("select.printarea").attr("extrafee");
+    var extra = jQuery("#extra_area_fee_ar")
+      .find(".price_column_ar.bg-red .range_price_ar")
+      .text();
+    extra = extra.replace(/\$/g, "");
+    extra = parseFloat(extra) * parseInt(quantity);
     if (index == 0) {
       if (ppcolors > 3) {
         outputprice = outputprice + parseFloat(pppricess);
       }
     } else {
       if (ppcolors > 3) {
-        outputprice = outputprice + parseInt(extra) + parseFloat(pppricess);
+        outputprice = outputprice + parseFloat(extra) + parseFloat(pppricess);
       } else {
-        outputprice = outputprice + parseInt(extra);
+        outputprice = outputprice + parseFloat(extra);
       }
     }
   });
-  outputprice=outputprice + totalsetup;
-  return outputprice;
+  outputprice = outputprice + totalsetup;
+  var extrafeearray = {
+    totalsetupfee: totalsetup,
+    outputpricefee: outputprice,
+    colorsricefee: colorsrice,
+  };
+  // console.log(extrafeearray);
+  return extrafeearray;
 }
 /****************************** function to show extra charges based on print area selections end ******************************/
 
@@ -1182,7 +1461,9 @@ function gettheprintareaarray() {
         printareasall.push(newarea);
       }
     });
-
+  if (printareasall.length > 1) {
+    extrafeeUpdate("#extra_area_fee_ar");
+  }
   return printareasall;
 }
 
@@ -1198,8 +1479,12 @@ jQuery(".allprintareas").on("click", ".removerlist_ar_area", function () {
 
 function uodatetable(selector) {
   var quantity = parseInt(localStorage.getItem("totalquantity"));
-  jQuery(".title_ar_table").removeClass("bg-red");
+  // console.log(selector);
+  jQuery(".grid_tem_ar8:not('#d_3d_ar , #extra_area_fee_ar')")
+    .find(".title_ar_table")
+    .removeClass("bg-red");
   jQuery(`${selector}`).find(".title_ar_table").addClass("bg-red");
+
   jQuery(`${selector}`)
     .find(".price_column_ar")
     .each(function () {
@@ -1207,17 +1492,26 @@ function uodatetable(selector) {
       var nextElement = jQuery(this)
         .next(".price_column_ar")
         .attr("quantity-id");
-
-      if (quantity > currentElement && quantity < nextElement) {
-        jQuery(".price_column_ar").removeClass("bg-red");
-        jQuery(this).next(".price_column_ar").addClass("bg-red");
+      if (quantity >= currentElement && quantity < nextElement) {
+        jQuery(".grid_tem_ar8:not('#d_3d_ar , #extra_area_fee_ar')")
+          .find(".price_column_ar")
+          .removeClass("bg-red");
+        // jQuery(".price_column_ar").removeClass("bg-red");
+        jQuery(this).find(".price_column_ar").addClass("bg-red");
+        jQuery(`${selector}`)
+          .find(`.price_column_ar[quantity-id='${currentElement}']`)
+          .addClass("bg-red");
         return;
       } else if (
         nextElement == "" ||
         quantity == currentElement ||
         (nextElement == undefined && quantity >= currentElement)
       ) {
-        jQuery(".price_column_ar").removeClass("bg-red");
+        // jQuery(".price_column_ar").removeClass("bg-red");
+        jQuery(".grid_tem_ar8:not('#d_3d_ar , #extra_area_fee_ar')")
+          .find(".price_column_ar")
+          .removeClass("bg-red");
+
         jQuery(this).addClass("bg-red");
         return;
       } else if (quantity == 0) {
@@ -1254,11 +1548,29 @@ function getpricelist() {
     var productid = jQuery(".sizes_main_div_ar_ar > .size_column_ar")
       .find("input[type='number']")
       .attr("product-id");
-      var enableddiscounts=false;
-      if(jQuery("#price_calculator_ar_ar").length > 0) {
-        enableddiscounts=true;
-      }
-      var additional_charges = addextrachargesopt();
+    var enableddiscounts = false;
+    if (jQuery("#price_calculator_ar_ar").length > 0) {
+      enableddiscounts = true;
+    }
+    var additional_fee = addextrachargesopt();
+    var additional_charges = parseFloat(additional_fee.totalsetupfee);
+    var quantity = parseInt(localStorage.getItem("totalquantity"));
+    var extraareafee = 0;
+    if (
+      jQuery("#extra_area_fee_ar").find(
+        ".price_column_ar.bg-red .range_price_ar"
+      ).length > 0
+    ) {
+      extraareafee = jQuery("#extra_area_fee_ar")
+        .find(".price_column_ar.bg-red .range_price_ar")
+        .text();
+      extraareafee = parseFloat(extraareafee.replace(/\$/g, ""));
+    }
+    // if (extraareafee > 0) {
+    //   additional_charges = parseInt(
+    //     additional_charges - parseFloat(extraareafee) * quantity
+    //   );
+    // }
     jQuery("#totalprice_ar_product").hide();
     jQuery.ajax({
       type: "POST",
@@ -1270,17 +1582,18 @@ function getpricelist() {
         colors: pcolor,
         sizear: sizesvar, // Pass the sizees
         notcart: true,
-        enableddiscounts:enableddiscounts,
-        additional_charges:additional_charges
+        enableddiscounts: enableddiscounts,
+        extracolorsfee: additional_fee.colorsricefee,
+        extraareafee: extraareafee,
+        additional_charges: additional_charges,
       },
       success: function (response) {
         if (response.success) {
-          if(enableddiscounts == true) {
-            
-          var id = "#" + response.data.list_id;
-          jQuery(id).html(response.data.price_list);
-          uodatetable(id);
-          }else{
+          if (enableddiscounts == true) {
+            var id = "#" + response.data.list_id;
+            jQuery(id).html(response.data.price_list);
+            uodatetable(id);
+          } else {
             jQuery("#span_ar_product").text(response.data.current_price);
           }
         } else {
@@ -1332,9 +1645,12 @@ function puffEmbroid(selector) {
         var nextElement = jQuery(this)
           .next(".price_column_ar")
           .attr("quantity-id");
-        if (quantity > currentElement && quantity < nextElement) {
+        if (quantity >= currentElement && quantity < nextElement) {
           jQuery(`${selector}`).find(".price_column_ar").removeClass("bg-red");
-          jQuery(this).next(".price_column_ar").addClass("bg-red");
+          jQuery(this).find(".price_column_ar").addClass("bg-red");
+          jQuery(`${selector}`)
+            .find(`.price_column_ar[quantity-id='${currentElement}']`)
+            .addClass("bg-red");
           return;
         } else if (nextElement == "" || quantity == currentElement) {
           jQuery(`${selector}`).find(".price_column_ar").removeClass("bg-red");
@@ -1357,6 +1673,36 @@ function puffEmbroid(selector) {
   }
 }
 
+/***************************   Extra fee based on print areas price table update start */
+function extrafeeUpdate(selector) {
+  var quantity = parseInt(localStorage.getItem("totalquantity"));
+  jQuery(`${selector}`).find(".title_ar_table").addClass("bg-red");
+
+  jQuery(`${selector}`)
+    .find(".price_column_ar")
+    .each(function () {
+      var currentElement = parseInt(jQuery(this).attr("quantity-id"));
+
+      var nextElement = jQuery(this)
+        .next(".price_column_ar")
+        .attr("quantity-id");
+      if (quantity >= currentElement && quantity < nextElement) {
+        jQuery(`${selector}`).find(".price_column_ar").removeClass("bg-red");
+        jQuery(this).find(".price_column_ar").addClass("bg-red");
+        jQuery(`${selector}`)
+          .find(`.price_column_ar[quantity-id='${currentElement}']`)
+          .addClass("bg-red");
+        return;
+      } else if (nextElement == "" || quantity == currentElement) {
+        jQuery(`${selector}`).find(".price_column_ar").removeClass("bg-red");
+        jQuery(this).addClass("bg-red");
+        return;
+      } else if (quantity == 0) {
+        jQuery(`${selector}`).find(".title_ar_table").removeClass("bg-red");
+        jQuery(`${selector}`).find(".price_column_ar").removeClass("bg-red");
+      }
+    });
+}
 function show_patch_fields(patches, thisis) {
   if (patches == "leather-patch") {
     thisis
@@ -1367,6 +1713,9 @@ function show_patch_fields(patches, thisis) {
       .closest(".addlogo_colum")
       .find(".size_column_ar:has(.patchshape)")
       .removeClass("hidethis_ar");
+    // console.log(
+    //   thisis.closest(".addlogo_colum").find(".size_column_ar:has(.patchshape)")
+    // );
     thisis
       .closest(".addlogo_colum")
       .find(".size_column_ar:has(.printcolors)")
@@ -1427,9 +1776,9 @@ jQuery(".allprintareas").on(
 
 /******************************** handle the patch size and colors selections */
 
-jQuery(".patch-shape-colors-main").on(
+jQuery(".allprintareas").on(
   "click",
-  ".patch-shape-img-text",
+  ".patch-shape-colors-main .patch-shape-img-text",
   function () {
     var imgsrc = jQuery(this)
       .find(".patch_shape_masking_ar_ar")
@@ -1466,9 +1815,9 @@ jQuery(".patch-shape-colors-main").on(
   }
 );
 
-jQuery(".patch_colors_selection_list_ar").on(
+jQuery(".allprintareas").on(
   "click",
-  ".swatch_ar",
+  ".patch_colors_selection_list_ar .swatch_ar",
   function () {
     var imgsrc = jQuery(this)
       .closest(".sizes_quantity")
@@ -1540,6 +1889,7 @@ jQuery(".allprintareas").on("click", ".custom_options_ar h6", function (e) {
   e.preventDefault();
   var values = jQuery(this).attr("values");
   var text = jQuery(this).text();
+  // console.log(values, text);
   jQuery(this)
     .closest(".custom_dropdown_wrapper_ar_ar")
     .find(".custom_dropdown_ar_ar h6")
@@ -1617,3 +1967,22 @@ jQuery(".floating_icons_viewer").on("click", function (e) {
     jQuery("#showmeonscroll_ar_ar").slideUp();
   }
 });
+
+function showerrormessaes(quantity, color, printtypes) {
+  if (quantity == 0) {
+    jQuery("#error_placer_ar")
+      .find("span")
+      .text(`Please Select The Quantity..`);
+    jQuery("#error_placer_ar").show();
+  } else if (Array.isArray(printtypes) && printtypes.length == 0) {
+    jQuery("#error_placer_ar")
+      .find("span")
+      .text(`Please Select The Print Type..`);
+    jQuery("#error_placer_ar").show();
+  } else if (color <= 0) {
+    jQuery("#error_placer_ar").find("span").text(`Please Select The Color..`);
+    jQuery("#error_placer_ar").show();
+  } else {
+    jQuery("#error_placer_ar").hide();
+  }
+}
