@@ -303,7 +303,7 @@ function get_percentage_discount($price, $percentages)
         'item_12' => calculate_discount_percentage($price, $item12),
         'item_48' => calculate_discount_percentage($price, $item48),
         'item_96' => calculate_discount_percentage($price, $item96),
-        'item1_144' => calculate_discount_percentage($price, $item144),
+        'item_144' => calculate_discount_percentage($price, $item144),
         'item_288' => calculate_discount_percentage($price, $item288),
         // 'item_432' => calculate_discount_percentage($price, $item432),
     ];
@@ -464,7 +464,7 @@ function get_sizes_with_quantity()
                 $variation = has_a_variation($size_slug, 'attribute_pa_sizes');
 
                 if ($variation) {
-                    $output .= "<div class='size_column_ar'> <div class='size_name'> <h6>" . $size . "</h6></div> <div class='sizes_quantity'><input type='number' placeholder='0' min='0' value='0' name='input_sizes' product-id='" . $product->get_id() . "'></div></div>";
+                    $output .= "<div class='size_column_ar'> <div class='size_name'> <h6>" . $size . "</h6></div> <div class='sizes_quantity'><input type='number' step='1' placeholder='0' min='0' value='0' cursize='" . $size . "' name='input_sizes' product-id='" . $product->get_id() . "'></div></div>";
                 }
             }
         } else {
@@ -472,7 +472,7 @@ function get_sizes_with_quantity()
             $size_slug = sanitize_title($size);
             $variation = has_a_variation($size_slug, 'attribute_pa_sizes');
             if ($variation) {
-                $output .= "<div class='size_column_ar'> <div class='size_name'> <h6>" . $size . "</h6></div> <div class='sizes_quantity'><input type='number' placeholder='0' min='0' value='0' name='input_sizes' product-id='" . $product->get_id() . "'></div></div>";
+                $output .= "<div class='size_column_ar'> <div class='size_name'> <h6>" . $size . "</h6></div> <div class='sizes_quantity'><input type='number' placeholder='0' step='1' min='0' value='0' cursize='" . $size . "' name='input_sizes' product-id='" . $product->get_id() . "'></div></div>";
             }
         }
 
@@ -1050,7 +1050,7 @@ function addtocartar()
                     }
                     foreach ($discounted_array as $key => $value) {
                         $numberindex = explode("_", $key)[1];
-                        $output .= "<div class='price_column_ar' quantity-id='" . $numberindex . "'> <div class='range_price_ar'> $ " . $value . "</div></div>";
+                        $output .= "<div class='price_column_ar' cursize='" . $prod['size'] . "' quantity-id='" . $numberindex . "'> <div class='range_price_ar'> $ " . $value . "</div></div>";
                     }
                 } else {
                     // Calculate the custom price per product
@@ -1073,7 +1073,7 @@ function addtocartar()
 
                         foreach ($indexofarray as $index => $value) {
                             // Check if quantity is between current and next index value
-                            if ($quantity > $value && ($index + 1 == $size || $quantity <= $indexofarray[$index + 1])) {
+                            if ($quantity >= $value && ($index + 1 == $size || $quantity < $indexofarray[$index + 1])) {
                                 $currentprice = $discounted_array["item_{$indexofarray[$index]}"];
                                 $currentindex = "item_{$indexofarray[$index]}";
                                 break; // Exit loop once the correct range is found
@@ -1141,7 +1141,7 @@ function addtocartar()
                         'attribute_pa_color' => $prod_color,
                         'attribute_pa_sizes' => $prod_size,
                         'attribute_pa_print-types' => $print_type,
-                    ),array("extracharges" => $extracharges));
+                    ), array("extracharges" => $extracharges));
                     $cart_item_count = WC()->cart->get_cart_contents_count();
 
                     if ($result) {
@@ -1163,6 +1163,7 @@ function addtocartar()
             wp_send_json_success(array(
                 'message' => 'Product(s) added to cart.',
                 'redirect_url' =>  wc_get_cart_url(),
+                'p_details' => $added_to_cart
             ));
         } else {
             wp_send_json_error(array('message' => $prod_var));
