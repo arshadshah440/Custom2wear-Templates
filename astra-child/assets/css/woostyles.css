@@ -887,3 +887,6 @@ ul.payment_methods li[class*="payment_method"] input[name="payment_method"] {
   text-transform: capitalize;
   color: #000;
 }
+.margin_bottom_0px{
+  margin: 0px !important;
+}

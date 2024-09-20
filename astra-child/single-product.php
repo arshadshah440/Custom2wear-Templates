@@ -141,7 +141,7 @@ $terms = get_the_terms($product->get_id(), 'product_cat');
                                     </div>
                                 </div>
 
-                            </div>
+                            </div> 
                         </div>
                         <div class="addtocart_btn_wraper_ar" id="addtocarwrappere_ar">
                             <div class="subtotal_calc_ar">

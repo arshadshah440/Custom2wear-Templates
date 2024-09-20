@@ -160,6 +160,7 @@ function get_price_table_ar_all($product_id)
     $discount_location = get_field('apply_this_discount_to_all_products', 'options');
     $select_your_product = get_field('select_your_product', 'options');
     $d3_puff_embroidery = get_field('3d_puff_embroidery', 'options');
+    $extra_color_fee = get_field('extra_color_fee', 'options');
     $extra_area_fee = get_field('extra_area_fee', 'options');
     $pricearray = array();
     if ($discount_location == 'yes') {
@@ -270,6 +271,32 @@ function get_price_table_ar_all($product_id)
             <div class="grid_tem_ar8" id="extra_area_fee_ar">
                 <div class="title_ar_table">
                     <h6>Extra Area Fee </h6>
+                </div>
+                <?php
+                foreach ($discounted_array as $key => $value) {
+                    $numberindex = explode("_", $key)[1];
+
+                ?>
+                    <div class="price_column_ar" quantity-id="<?php echo $numberindex; ?>">
+                        <div class="range_price_ar"><?php echo (!empty($value) ? "$ " . $value : ""); ?></div>
+                    </div>
+                <?php
+
+                }
+                ?>
+            </div>
+             <!-- extra color fee pricetable -->
+            <?php
+            $discounted_array = null;
+            if (trim($discount_type) == 'percentage') {
+                $discounted_array = get_percentage_discount($extra_color_fee, $percentage_discount);
+            } else {
+                $discounted_array = get_fixed_discount($extra_color_fee, $fixed_amount_discount);
+            }
+            ?>
+            <div class="grid_tem_ar8" id="extra_color_fee_ar">
+                <div class="title_ar_table">
+                    <h6>Extra Color Fee </h6>
                 </div>
                 <?php
                 foreach ($discounted_array as $key => $value) {
@@ -967,13 +994,15 @@ function addtocartar()
 
     // Retrieve data from the AJAX request
     $product_id = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
-    $quantity = isset($_POST['quantity']) ? intval($_POST['quantity']) : 1;
+    $totalquantity = isset($_POST['quantity']) ? intval($_POST['quantity']) : 1;
     $extracharges = isset($_POST['additional_charges']) ? intval($_POST['additional_charges']) : 0;
     $custom_price = isset($_POST['price']) ? floatval($_POST['price']) : 0;
     $extraareafee = isset($_POST['extraareafee']) ? floatval($_POST['extraareafee']) : 0;
     $prod_color = isset($_POST['colors']) ? ($_POST['colors']) : '';
     $prod_var = isset($_POST['sizear']) ? ($_POST['sizear']) : '';
     $prod_allareasdata = isset($_POST['allareasdata']) ? ($_POST['allareasdata']) : '';
+    $orderedthislogo_ar = isset($_POST['orderedthislogo_ar']) ? ($_POST['orderedthislogo_ar']) : '';
+    $premiumartsetupfee = isset($_POST['premiumartsetupfee']) ? ($_POST['premiumartsetupfee']) : '';
     $add_instructions = isset($_POST['add_instructions']) ? ($_POST['add_instructions']) : '';
     $d3_puff_embroidery = isset($_POST['d3_puff_embroidery']) ? ($_POST['d3_puff_embroidery']) : '';
     $notcart = isset($_POST['notcart']) ? ($_POST['notcart']) : false;
@@ -1073,7 +1102,7 @@ function addtocartar()
 
                         foreach ($indexofarray as $index => $value) {
                             // Check if quantity is between current and next index value
-                            if ($quantity >= $value && ($index + 1 == $size || $quantity < $indexofarray[$index + 1])) {
+                            if ($totalquantity >= $value && ($index + 1 == $size || $totalquantity < $indexofarray[$index + 1])) {
                                 $currentprice = $discounted_array["item_{$indexofarray[$index]}"];
                                 $currentindex = "item_{$indexofarray[$index]}";
                                 break; // Exit loop once the correct range is found
@@ -1081,10 +1110,10 @@ function addtocartar()
                         }
 
                         // If the quantity is less than the first index value, select the first index
-                        if ($quantity <= $indexofarray[0]) {
-                            $currentprice = $discounted_array["item_{$indexofarray[0]}"];
-                            $currentindex = "item_{$indexofarray[0]}";
-                        }
+                        // if ($quantity <= $indexofarray[0]) {
+                        //     $currentprice = $discounted_array["item_{$indexofarray[0]}"];
+                        //     $currentindex = "item_{$indexofarray[0]}";
+                        // }
                         $currentprice = $currentprice + $extracharges + $d3_puff_embroidery + $extraareafee + $extracolorsfee;
                     } else {
                         $currentprice = $price + $extracharges + $d3_puff_embroidery + $extraareafee + $extracolorsfee;
@@ -1099,7 +1128,7 @@ function addtocartar()
                     WC()->session->set('custom_d3_embroidery_' . $variation_id, $d3_puff_embroidery);
 
                     $puffclass = $d3_puff_embroidery ? "(3D Puff)" : "";
-
+ 
 
                     if (!empty($prod_allareasdata) && is_array($prod_allareasdata)) {
                         $output = "<div class='printareas_cart_ar'> <div class='size_attr_ar_cart'><h6>Print Areas : </h6>";
@@ -1112,6 +1141,16 @@ function addtocartar()
                             $output .= "<h6>" . $printtype . $printarea . $printcolor . $artwork . "</h6>";
                         }
                         $output .= "</div></div>";
+                    }
+                    if(!empty($premiumartsetupfee)) {
+                        $enableornot=$premiumartsetupfee == "true" ? "Enabled" : "Not Enabled";
+                        $output .= "<div class='instructionshere'><h6>Primum Art Setup : </h6><p>" . $enableornot . "</p></div>";
+  
+                    }
+                    if(!empty($orderedthislogo_ar)) {
+                        $enableornot=$orderedthislogo_ar == "true" ? "Yes" : "No";
+                        $output .= "<div class='instructionshere'><h6>Have Ordered This Logo Before : </h6><p>" . $enableornot . "</p></div>";
+  
                     }
                     if (!empty($add_instructions)) {
                         $output .= "<div class='instructionshere'><h6>Additional Instructions: : </h6><p>" . $add_instructions . "</p></div>";

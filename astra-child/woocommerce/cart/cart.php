@@ -141,7 +141,7 @@ do_action('woocommerce_before_cart'); ?>
                                             <?php // } 
                                             ?> -->
                                         </div>
-                                    </div>
+                                    </div> 
                                 </div>
                                 <?php
                                 // Backorder notification.
@@ -168,7 +168,7 @@ do_action('woocommerce_before_cart'); ?>
                                 // Get custom variations for the specific variation ID
                                 $custom_variations = WC()->session->get('custom_variates_' . $variation_id);
 
-                                echo "<h5 class='variations_on_cart_ar'>" . esc_html($variation_name) . " * " . esc_html($variationquantity) . "</h5>";
+                                echo "<h5 class='variations_on_cart_ar margin_bottom_0px'>" . esc_html($variation_name) . " * " . esc_html($variationquantity) . "</h5>";
 
 
                                 ?>
@@ -179,7 +179,7 @@ do_action('woocommerce_before_cart'); ?>
                                 <?php
                                 echo apply_filters('woocommerce_cart_item_price', WC()->cart->get_product_price($_product), $cart_item, $cart_item_key); // PHPCS: XSS ok.
                                 ?>
-                                <p><?php echo $cart_item['extracharges'] ? "including setup fee($" . number_format($cart_item['extracharges'], 2) . ")" : ""; ?></p>
+                                <?php echo $cart_item['extracharges'] ? "<p>including setup fee($" . number_format($cart_item['extracharges'], 2) . ")</p>" : ""; ?>
                             </td>
                             <td class="product-subtotal" data-title="<?php esc_attr_e('line_subtotal', 'woocommerce'); ?>">
                                 <?php
