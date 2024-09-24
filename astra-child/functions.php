@@ -13,7 +13,7 @@
  * Define Constants
  */
 define('CHILD_THEME_ASTRA_CHILD_VERSION', '1.0.0');
-define( 'WC_MAX_LINKED_VARIATIONS', 1500 );
+define('WC_MAX_LINKED_VARIATIONS', 1500);
 
 include get_stylesheet_directory() . '/admin/singleproduct/singleproductfunc.php';
 include get_stylesheet_directory() . '/admin/automation/automationdata.php';
@@ -62,6 +62,10 @@ function my_theme_enqueue_styles()
 		array('handle' => 'globalsectionscss', 'src' => '/assets/css/globalsections.css', 'type' => 'style', 'dep' => array(), 'loc' => 'internal'),
 		array('handle' => 'sliderjs', 'src' => '/assets/js/sliders.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
 		array('handle' => 'singlemainjs', 'src' => '/assets/js/single/main.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
+		array('handle' => 'draganddropjs', 'src' => '/assets/js/single/draganddrop.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
+		array('handle' => 'wooscriptsjs', 'src' => '/assets/js/single/wooscripts.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
+		array('handle' => 'slickcarouseljs', 'src' => '/assets/js/single/slickcarousel.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
+		array('handle' => 'setdefaultvaluesjs', 'src' => '/assets/js/single/setdefaultvalues.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
 		array('handle' => 'Singleslickminjs', 'src' => '/assets/js/single/slick.min.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
 		array('handle' => 'archivejs', 'src' => '/assets/js/archive.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
 		array('handle' => 'mainjs', 'src' => '/assets/js/main.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
@@ -92,17 +96,18 @@ function my_theme_enqueue_styles()
 add_action('wp_enqueue_scripts', 'my_theme_enqueue_styles');
 
 
-function my_custom_admin_styles() {
-    // Register the style like this:
-    wp_register_style(
-        'custom_admin_css', // Handle name for the style.
-        get_stylesheet_directory_uri() . '/assets/css/admin/style.css', // Path to the CSS file.
-        false, // Dependencies.
-        '1.0.0' // Version number.
-    );
+function my_custom_admin_styles()
+{
+	// Register the style like this:
+	wp_register_style(
+		'custom_admin_css', // Handle name for the style.
+		get_stylesheet_directory_uri() . '/assets/css/admin/style.css', // Path to the CSS file.
+		false, // Dependencies.
+		'1.0.0' // Version number.
+	);
 
-    // Enqueue the style.
-    wp_enqueue_style('custom_admin_css');
+	// Enqueue the style.
+	wp_enqueue_style('custom_admin_css');
 }
 add_action('admin_enqueue_scripts', 'my_custom_admin_styles');
 // chane the delimiter of woocommerce breadscrumnb
@@ -340,43 +345,60 @@ function footer_menu_acf($acf)
 
 }
 
-function get_first_variation_image_by_color( $product_id ) {
-    // Get the product object
-    $product = wc_get_product( $product_id );
+function get_first_variation_image_by_color($product_id)
+{
+	// Get the product object
+	$product = wc_get_product($product_id);
 
-    // Ensure the product has variations
-    if ( ! $product || ! $product->is_type( 'variable' ) ) {
-        return [];
-    }
+	// Ensure the product has variations
+	if (! $product || ! $product->is_type('variable')) {
+		return [];
+	}
 
-    // Get all available variations
-    $available_variations = $product->get_available_variations();
+	// Get all available variations
+	$available_variations = $product->get_available_variations();
 
-    // Initialize an array to store the first variation image for each color
-    $color_variation_images = [];
+	// Initialize an array to store the first variation image for each color
+	$color_variation_images = [];
 
-    // Loop through each variation
-    foreach ( $available_variations as $variation ) {
-        // Get variation attributes
-        $attributes = $variation['attributes'];
-        
-        // Assuming 'pa_color' is the color attribute slug
-        if ( isset( $attributes['attribute_pa_color'] ) ) {
-            $color = $attributes['attribute_pa_color'];
-            
-            // If we haven't already stored an image for this color
-            if ( ! isset( $color_variation_images[ $color ] ) ) {
-                // Get the image ID of the variation
-                $image_id = $variation['image_id'];
-                
-                // Get the image URL using the image ID
-                $image_url = wp_get_attachment_url( $image_id );
+	// Loop through each variation
+	foreach ($available_variations as $variation) {
+		// Get variation attributes
+		$attributes = $variation['attributes'];
 
-                // Store the image URL with the color as the key
-                $color_variation_images[ $color ] = $image_id;
-            }
-        }
-    }
+		// Assuming 'pa_color' is the color attribute slug
+		if (isset($attributes['attribute_pa_color'])) {
+			$color = $attributes['attribute_pa_color'];
 
-    return $color_variation_images;
+			// If we haven't already stored an image for this color
+			if (! isset($color_variation_images[$color])) {
+				// Get the image ID of the variation
+				$image_id = $variation['image_id'];
+
+				// Get the image URL using the image ID
+				$image_url = wp_get_attachment_url($image_id);
+
+				// Store the image URL with the color as the key
+				$color_variation_images[$color] = $image_id;
+			}
+		}
+	}
+
+	return $color_variation_images;
+}
+
+// Add an extra fee if the cart quantity is less than 12
+add_action('woocommerce_cart_calculate_fees', 'add_extra_fee_for_minimum_quantity');
+function add_extra_fee_for_minimum_quantity()
+{
+	$minimum_quantity = 12;
+	$extra_fee_amount = intval(get_field('art_setup_fee', 'options')); // Set your extra fee amount here
+
+	// Get the total quantity of items in the cart
+	$cart_quantity = WC()->cart->get_cart_contents_count();
+
+	// Apply the fee if the quantity is less than the minimum
+	if ($cart_quantity < $minimum_quantity) {
+		WC()->cart->add_fee('Setup Fee', $extra_fee_amount, true);
+	}
 }

@@ -73,118 +73,9 @@ jQuery(document).ready(function ($) {
 
   /****************************** drage and drop zone sections ******************************/
 
-  var artwork = 0;
-  var dropZone = $("#drag-and-drop-zone");
-
-  dropZone.on("dragover", function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-    $(this).addClass("dragover");
-  });
-
-  dropZone.on("dragleave", function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-    $(this).removeClass("dragover");
-  });
-
-  dropZone.on("drop", function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-    $(this).removeClass("dragover");
-
-    var files = e.originalEvent.dataTransfer.files;
-    if ($("#copyright_art_ar").is(":checked")) {
-      handleFiles(files);
-    } else {
-      alert("Please check the checkbox first!!");
-    }
-  });
-
-  $("#drag-and-drop-zone").on("change", "#file-input", function (e) {
-    var filesr = this.files;
-    if ($("#copyright_art_ar").is(":checked")) {
-      if (this.files[0].size > 5242880) {
-        alert("File size should be less than 5 MB");
-      } else {
-        handleFiles(filesr);
-      }
-    } else {
-      alert("Please check the checkbox first!!");
-    }
-  });
-  jQuery("#closerdrop_ar").on("click", function (e) {
-    jQuery(".drag_drop_zone_wrapper").css("display", "none");
-  });
-  jQuery("#copyright_art_ar").on("click", function (e) {
-    if ($("#copyright_art_ar").is(":checked")) {
-      jQuery("#file-input").removeAttr("disabled");
-    } else {
-      jQuery("#file-input").attr("disabled", "disabled");
-    }
-  });
-  function handleFiles(files) {
-    jQuery("#loader_mi_ar").css("display", "flex");
-    var id = jQuery(".drag_drop_zone_wrapper").attr("classtoadd");
-    var iid = `#${id}`;
-    var formData = new FormData();
-    $.each(files, function (i, file) {
-      formData.append("files[]", file);
-    });
-
-    formData.append("action", "file_upload");
-
-    $.ajax({
-      url: "/wp-admin/admin-ajax.php",
-      type: "POST",
-      data: formData,
-      contentType: false,
-      processData: false,
-      success: function (response) {
-        response = JSON.parse(response);
-
-        if (response.uploaded.length > 0) {
-          $.each(response.uploaded, function (index, url) {
-            jQuery(iid).find("img").attr("src", url);
-          });
-          jQuery(".drag_drop_zone_wrapper").css("display", "none");
-          jQuery("#loader_mi_ar").css("display", "none");
-        }
-
-        if (response.failed.length > 0) {
-          $.each(response.failed, function (index, error) {
-            uploadStatus.append("<p>Error: " + error + "</p>");
-          });
-        }
-      },
-    });
-  }
-
-  jQuery(".allprintareas").on("click", ".size_name_upload", function () {
-    jQuery(".drag_drop_zone_wrapper").attr("classtoadd", `input_ar_${artwork}`);
-    jQuery(".drag_drop_zone_wrapper").find("input[type='file']").val("");
-    jQuery(this).attr("id", `input_ar_${artwork}`);
-    jQuery(".drag_drop_zone_wrapper").css("display", "flex");
-    artwork = artwork + 1;
-  });
-
   /****************************** drage and drop zone sections end ******************************/
   // file ajax end ------------------------------------------------
   /****************************** checkout page address sections wrapping in a div ******************************/
-  var city = jQuery("#billing_city_field");
-  var state = jQuery("#billing_state_field");
-  var postcode = jQuery("#billing_postcode_field");
-  var phone = jQuery("#billing_phone_field");
-
-  setTimeout(function () {
-    jQuery(
-      "<div class='checkout_grid_ar' id='checkout_grid_ar'></div>"
-    ).insertBefore("#billing_city_field");
-    jQuery("#checkout_grid_ar").append(city);
-    jQuery("#checkout_grid_ar").append(state);
-    jQuery("#checkout_grid_ar").append(postcode);
-    jQuery("#checkout_grid_ar").append(phone);
-  }, 2000);
 
   /****************************** checkout page address sections wrapping in a div end ******************************/
 
@@ -222,11 +113,8 @@ jQuery(document).ready(function ($) {
 
     if (ptype !== "" && ptype !== null) {
       uodatetable(`#${ptype}`);
-
-      gettotalprice();
-    } else {
-      gettotalprice();
     }
+    gettotalprice();
   });
 
   /****************************** singple product page quantity change end ******************************/
@@ -249,33 +137,7 @@ jQuery(document).ready(function ($) {
       jQuery("#pr_image_vslider")
         .find('div[color_attr="' + value + '"]:first')
         .trigger("click");
-    } else {
-      jQuery.ajax({
-        type: "POST",
-        url: "/wp-admin/admin-ajax.php",
-        data: {
-          action: "get_variations_price_image",
-          color: value,
-          product_id: pid,
-        },
-        success: function (response) {
-          var responseData = JSON.parse(response);
-          if (responseData["image_url"] !== "") {
-            jQuery("#product_main_image_ae")
-              .find("img")
-              .attr("src", responseData["image_url"]);
-            jQuery("#product_main_image_ae")
-              .find("img")
-              .attr("srcset", responseData["image_srcset"]);
-          }
-        },
-        error: function (xhr, status, error) {
-          // Handle error
-          console.error("Error generating PDF");
-        },
-      });
     }
-
     gettotalprice();
   });
 
@@ -284,351 +146,228 @@ jQuery(document).ready(function ($) {
   /****************************** add a new print area list on click ******************************/
 
   jQuery(".addanotherone_ar").on("click", function (e) {
-    var arrayval = [];
-    jQuery(".addlogo_colum").each(function () {
-      var value = jQuery(this).find("select.printarea").val();
-      arrayval.push(value);
+    let arrayval = [];
+    let $addlogoColum = jQuery(".addlogo_colum");
+
+    // Collect values from printarea selects
+    $addlogoColum.each(function () {
+      arrayval.push(jQuery(this).find("select.printarea").val());
     });
 
-    var quantity = parseInt(localStorage.getItem("totalquantity"));
-    var firstvaluecat = jQuery(".addlogo_colum:first-child")
+    let quantity = parseInt(localStorage.getItem("totalquantity"));
+    let $firstColum = $addlogoColum.first();
+    let firstValueCat = $firstColum
       .find("select.printtype")
       .attr("current-cat");
-    var firstvalue = jQuery(".addlogo_colum:first-child")
-      .find("select.printtype")
-      .val();
-    var firstvaluearea = jQuery(".addlogo_colum:first-child")
-      .find("select.printarea")
-      .val();
-    if (
-      arrayval.length < 4 &&
-      firstvalue !== "" &&
-      firstvaluecat !== null &&
-      firstvalue !== undefined &&
-      firstvaluearea !== undefined &&
-      firstvaluearea !== "" &&
-      firstvaluearea !== null
-    ) {
-      jQuery(".addlogo_colum:last-child").clone().appendTo(".allprintareas");
+    let firstValue = $firstColum.find("select.printtype").val();
+    let firstValueArea = $firstColum.find("select.printarea").val();
 
-      jQuery(".addlogo_colum:not(:last-child)").each(function () {
-        jQuery(this)
-          .find("select.printarea")
-          .siblings(".custom_dropdown_ar_ar")
-          .addClass("disabled_ar_options_ar");
-      });
+    // Validation: if conditions are met
+    if (arrayval.length < 4 && firstValue && firstValueCat && firstValueArea) {
+      let $newColum = $addlogoColum.last().clone();
+      $newColum.appendTo(".allprintareas");
 
-      if (firstvaluecat == "polos" || firstvaluecat == "t-shirt") {
-        if (firstvalue !== "digital-print") {
-          jQuery(".addlogo_colum:last-child")
-            .find(".printcolors")
-            .find("option[value='11']")
-            .hide();
+      // Disable areas for all but the last child
+      $addlogoColum
+        .not(":last-child")
+        .find("select.printarea")
+        .siblings(".custom_dropdown_ar_ar")
+        .addClass("disabled_ar_options_ar");
+
+      // Handle specific category conditions
+      if (firstValueCat === "polos" || firstValueCat === "t-shirt") {
+        if (firstValue !== "digital-print") {
+          $newColum.find(".printcolors option[value='11']").hide();
         }
-        jQuery(".addlogo_colum:last-child")
-          .find("select.printtype")
-          .val(firstvalue);
+        $newColum.find("select.printtype").val(firstValue);
       } else {
-        show_patch_fields(
-          firstvaluecat,
-          jQuery(".addlogo_colum:last-child").find(".printcolors")
-        );
-        if (firstvalue == "digital-print") {
-          jQuery(".addlogo_colum:last-child")
-            .find(".printcolors")
-            .find("option[value='11']")
-            .show();
-          jQuery(".addlogo_colum:last-child")
-            .find(".custom_options_ar")
-            .find("h6[values='11']")
-            .show();
+        show_patch_fields(firstValueCat, $newColum.find(".printcolors"));
+
+        if (firstValue === "digital-print") {
+          $newColum.find(".printcolors option[value='11']").show();
+          $newColum.find(".custom_options_ar h6[values='11']").show();
         } else {
-          jQuery(".addlogo_colum:last-child")
-            .find(".printcolors")
-            .find("option[value='11']")
-            .hide();
-          jQuery(".addlogo_colum:last-child")
-            .find(".custom_options_ar")
-            .find("h6[values='11']")
-            .hide();
+          $newColum.find(".printcolors option[value='11']").hide();
+          $newColum.find(".custom_options_ar h6[values='11']").hide();
         }
 
-        jQuery(".addlogo_colum:last-child")
-          .find(".printcolors")
-          .siblings(".custom_dropdown_ar_ar")
-          .find("h6")
-          .text("Choose");
-        jQuery(".addlogo_colum:last-child")
-          .find("select.printtype")
-          .val("embroidery");
-        jQuery(".addlogo_colum:last-child")
-          .find("select.printarea")
-          .attr("disabled", false);
-        jQuery(".addlogo_colum:last-child")
-          .find("select.printarea")
-          .val(
-            jQuery(".addlogo_colum:last-child")
-              .find("select.printarea option")
-              .first()
-              .attr("value")
-          );
-        jQuery(".addlogo_colum:last-child")
-          .find("select.printtype")
-          .siblings(".custom_options_ar")
-          .find("h6[values='embroidery']")
-          .trigger("click");
-        jQuery(".addlogo_colum:last-child")
-          .find("select.printarea")
-          .siblings(".custom_dropdown_ar_ar")
-          .removeClass("disabled_ar_options_ar");
-        jQuery(".addlogo_colum:last-child")
-          .find("select.printarea")
-          .siblings(".custom_dropdown_ar_ar")
-          .find("h6:first-child")
-          .trigger("click");
+        resetSelectState($newColum);
+
+        $newColum.find("select.printtype").val("embroidery");
+        selectFirstValidOption($newColum, arrayval);
       }
-      jQuery(".addlogo_colum:last-child")
-        .find("select.printarea option")
-        .each(function (index, element) {
-          if (arrayval.includes(jQuery(this).val())) {
-            jQuery(this).attr("disabled", true);
 
-            jQuery(".addlogo_colum:last-child")
-              .find("select.printarea")
-              .siblings(".custom_options_ar")
-              .find("h6[values='" + jQuery(this).val() + "']")
-              .addClass("disabled_ar_options_ar");
-
-            // Check if this is the last option in the list
-            var $options = jQuery(".addlogo_colum:last-child").find(
-              "select.printarea option"
-            );
-
-            if (index === $options.length - 1) {
-              // If current option is the last, find the first valid option
-              $options.each(function () {
-                var optionVal = jQuery(this).val();
-                if (optionVal && !jQuery(this).is(":disabled")) {
-                  jQuery(".addlogo_colum:last-child")
-                    .find("select.printarea")
-                    .val(optionVal); // Set the first valid option
-                  jQuery(".addlogo_colum:last-child")
-                    .find("select.printarea")
-                    .siblings(".custom_options_ar")
-                    .find("h6[values='" + optionVal + "']")
-                    .trigger("click"); // Trigger the click on the corresponding h6
-                  return false; // Break the loop
-                }
-              });
-            } else {
-              // For non-last options, set the next option
-              jQuery(".addlogo_colum:last-child")
-                .find("select.printarea")
-                .siblings(".custom_options_ar")
-                .find("h6[values='" + jQuery(this).next().val() + "']")
-                .trigger("click");
-
-              jQuery(".addlogo_colum:last-child")
-                .find("select.printarea")
-                .val(jQuery(this).next().val());
-            }
-          }
-        });
-
-      jQuery(".addlogo_colum:last-child")
-        .find(".printcolors")
-        .attr("disabled", false);
-      jQuery(".addlogo_colum:last-child")
+      // Enable the colors select in the new column
+      $newColum.find(".printcolors").prop("disabled", false);
+      $newColum
         .find(".size_name_upload > img")
         .attr(
           "src",
           "https://custom2wear.mi6.global/wp-content/uploads/2024/05/Frame-1000005041.svg"
         );
+
       if (arrayval.length == 2) {
         jQuery(".addanotherone_ar").hide();
       }
+
       gettotalprice();
     } else {
-      // console.log(arrayval.length);
-      if (arrayval.length == 3) {
-        if (jQuery(".warning_ar").length <= 0) {
-          jQuery(".sizes_ar").append(
-            "<h6 class='warning_ar'>you can't add more than 3 print areas</h6>"
-          );
-        } else {
-          jQuery(".warning_ar").remove();
-          jQuery(".sizes_ar").append(
-            "<h6 class='warning_ar'>you can't add more than 3 print areas</h6>"
-          );
-        }
-      } else if (
-        firstvalue == "" ||
-        firstvaluecat == null ||
-        firstvalue == undefined ||
-        firstvaluearea == undefined ||
-        firstvaluearea == "" ||
-        firstvaluearea == null
-      ) {
-        if (jQuery(".warning_ar").length <= 0) {
-          jQuery(".sizes_ar").append(
-            "<h6 class='warning_ar'>Please Select the all the values in first area..</h6>"
-          );
-        } else {
-          jQuery(".warning_ar").remove();
-          jQuery(".sizes_ar").append(
-            "<h6 class='warning_ar'>Please Select the all the values in first area..</h6>"
-          );
-        }
-      }
+      showWarning(arrayval.length, firstValue, firstValueCat, firstValueArea);
     }
   });
+
+  // Helper function to reset select state
+  function resetSelectState($colum) {
+    $colum.find("select.printarea").prop("disabled", false);
+    let $firstOption = $colum.find("select.printarea option").first();
+    $colum.find("select.printarea").val($firstOption.val());
+    $colum.find(".custom_dropdown_ar_ar").removeClass("disabled_ar_options_ar");
+    $colum.find("h6[values='embroidery']").trigger("click");
+    $colum.find("h6:first-child").trigger("click");
+  }
+
+  // Helper function to select the first valid option in the new column
+  function selectFirstValidOption($colum, arrayval) {
+    $colum.find("select.printarea option").each(function (index, element) {
+      if (arrayval.includes(jQuery(this).val())) {
+        jQuery(this).prop("disabled", true);
+        $colum
+          .find("h6[values='" + jQuery(this).val() + "']")
+          .addClass("disabled_ar_options_ar");
+
+        let $options = $colum.find("select.printarea option");
+        if (index === $options.length - 1) {
+          // Set the first valid option if this is the last option
+          $options.each(function () {
+            if (!jQuery(this).prop("disabled")) {
+              $colum.find("select.printarea").val(jQuery(this).val());
+              $colum
+                .find("h6[values='" + jQuery(this).val() + "']")
+                .trigger("click");
+              return false; // break
+            }
+          });
+        } else {
+          // Set the next option if not the last
+          $colum.find("select.printarea").val(jQuery(this).next().val());
+          $colum
+            .find("h6[values='" + jQuery(this).next().val() + "']")
+            .trigger("click");
+        }
+      }
+    });
+  }
+
+  // Helper function to show appropriate warnings
+  function showWarning(arrayLength, firstValue, firstValueCat, firstValueArea) {
+    let $sizesAr = jQuery(".sizes_ar");
+    if (arrayLength == 3) {
+      displayMessage($sizesAr, "You can't add more than 3 print areas");
+    } else if (!firstValue || !firstValueCat || !firstValueArea) {
+      displayMessage(
+        $sizesAr,
+        "Please select all the values in the first area."
+      );
+    }
+  }
+
+  // Function to display a message in the sizes area
+  function displayMessage($target, message) {
+    jQuery(".warning_ar").remove(); // Remove existing warning
+    $target.append("<h6 class='warning_ar'>" + message + "</h6>");
+  }
 
   /****************************** add a new print area list on click end ******************************/
 
   /****************************** listen to change in first row of the print logo area ******************************/
 
+  // Helper function to handle print type specific logic
+  // Helper function to handle print type specific logic
+  function handlePrintTypeChange(printType, $colum, isFirstChild = false) {
+    let isDisabled = false;
+    let showOption11 = false;
+    let showThreadColors = false;
+    let show3D = false;
+    let showPuffEmbroidery = false;
+
+    // Display patch fields based on the print type
+    show_patch_fields(printType, $colum);
+
+    if (printType === "leather-patch") {
+      if (isFirstChild) uodatetable("#leather-patch");
+      isDisabled = true;
+      localStorage.setItem("d_puff_embroidery", 0);
+    } else if (printType === "embroidery") {
+      if (isFirstChild) uodatetable("#embroidery");
+      showThreadColors = true;
+      show3D = true;
+      showPuffEmbroidery = true;
+
+      let valex = jQuery("#d_puff_embroidery_wrapper")
+        .find("input[type='checkbox']")
+        .val();
+      localStorage.setItem(
+        "d_puff_embroidery",
+        jQuery("#d_puff_embroidery_wrapper")
+          .find("input[type='checkbox']")
+          .is(":checked")
+          ? valex
+          : 0
+      );
+    } else if (printType === "digital-print") {
+      if (isFirstChild) uodatetable("#digital-print");
+      showOption11 = true;
+    } else if (printType === "blank") {
+      if (isFirstChild) uodatetable("#blank");
+    }
+
+    // Update the UI based on the print type
+    $colum
+      .find(".printcolors")
+      .attr("disabled", isDisabled)
+      .find("option[value='11']")
+      .toggle(showOption11);
+    $colum
+      .find(".custom_options_ar")
+      .find("h6[values='11']")
+      .toggle(showOption11);
+    jQuery("#thread_colors_ar_ar_ar").toggle(showThreadColors);
+    jQuery("#d_3d_ar").toggle(show3D);
+    jQuery("#d_puff_embroidery_wrapper").css(
+      "display",
+      showPuffEmbroidery ? "flex" : "none"
+    );
+
+    localStorage.setItem("pptype", printType);
+    gettotalprice();
+  }
+
+  // Event handler for first child column
   jQuery(".allprintareas .addlogo_colum:first-child").on(
     "change",
     "select.printtype",
     function (e) {
       e.preventDefault();
-      var value = jQuery(this).val();
-      show_patch_fields(value, jQuery(this));
-      if (value == "leather-patch") {
-        uodatetable("#leather-patch");
-        jQuery("#thread_colors_ar_ar_ar").hide();
-        jQuery("#d_puff_embroidery_wrapper").hide();
-        jQuery("#d_3d_ar").hide();
-        jQuery(this)
-          .closest(".addlogo_colum")
-          .find(".printcolors")
-          .attr("disabled", true);
-        localStorage.setItem("d_puff_embroidery", 0);
-        jQuery(this)
-          .closest(".addlogo_colum")
-          .find(".printcolors")
-          .find("option[value='11']")
-          .hide();
-      } else if (value == "embroidery") {
-        jQuery(this)
-          .closest(".addlogo_colum")
-          .find(".printcolors")
-          .find("option[value='11']")
-          .hide();
-        jQuery(this)
-          .closest(".addlogo_colum")
-          .find(".printcolors")
-          .siblings(".custom_options_ar")
-          .find("h6[values='11']")
-          .hide();
-        uodatetable("#embroidery");
-        jQuery(this)
-          .closest(".addlogo_colum")
-          .find(".printcolors")
-          .attr("disabled", false);
-        jQuery("#thread_colors_ar_ar_ar").show();
-        jQuery("#d_3d_ar").css("display", "grid");
-        jQuery("#d_puff_embroidery_wrapper").css("display", "flex");
-        var valex = jQuery("#d_puff_embroidery_wrapper")
-          .find("input[type='checkbox']")
-          .val();
-        if (
-          jQuery("#d_puff_embroidery_wrapper")
-            .find("input[type='checkbox']")
-            .is(":checked")
-        ) {
-          localStorage.setItem("d_puff_embroidery", valex);
-        } else {
-          localStorage.setItem("d_puff_embroidery", 0);
-        }
-      } else if (value == "digital-print") {
-        uodatetable("#digital-print");
-        jQuery(this)
-          .closest(".addlogo_colum")
-          .find(".printcolors")
-          .attr("disabled", false);
-        jQuery(this)
-          .closest(".addlogo_colum")
-          .find(".printcolors")
-          .find("option[value='11']")
-          .show();
-        jQuery(this)
-          .closest(".addlogo_colum")
-          .find(".printcolors")
-          .siblings(".custom_options_ar")
-          .find("h6[values='11']")
-          .show();
-        jQuery("#thread_colors_ar_ar_ar").hide();
-        jQuery("#d_3d_ar").hide();
-        jQuery("#d_puff_embroidery_wrapper").hide();
-        localStorage.setItem("d_puff_embroidery", 0);
-      } else if (value == "blank") {
-        uodatetable("#blank");
-        jQuery(this)
-          .closest(".addlogo_colum")
-          .find(".printcolors")
-          .find("option[value='11']")
-          .hide();
-        jQuery(this)
-          .closest(".addlogo_colum")
-          .find(".printcolors")
-          .siblings(".custom_options_ar")
-          .find("h6[values='11']")
-          .hide();
-      }
-      localStorage.setItem("pptype", value);
-      gettotalprice();
+      let value = jQuery(this).val();
+      handlePrintTypeChange(
+        value,
+        jQuery(this).closest(".addlogo_colum"),
+        true
+      );
     }
   );
+
+  // Event handler for other columns
   jQuery(".allprintareas").on(
     "change",
     ".addlogo_colum:not(:first-child) select.printtype",
     function (e) {
       e.preventDefault();
-      // console.log("yes");
-      var value = jQuery(this).val();
-      show_patch_fields(value, jQuery(this));
-
-      if (value == "embroidery") {
-        jQuery(this)
-          .closest(".addlogo_colum")
-          .find(".printcolors")
-          .find("option[value='11']")
-          .hide();
-        jQuery(this)
-          .closest(".addlogo_colum")
-          .find(".printcolors")
-          .siblings(".custom_options_ar")
-          .find("h6[values='11']")
-          .hide();
-      } else if (value == "digital-print") {
-        jQuery(this)
-          .closest(".addlogo_colum")
-          .find(".printcolors")
-          .find("option[value='11']")
-          .show();
-        jQuery(this)
-          .closest(".addlogo_colum")
-          .find(".printcolors")
-          .siblings(".custom_options_ar")
-          .find("h6[values='11']")
-          .show();
-      } else {
-        jQuery(this)
-          .closest(".addlogo_colum")
-          .find(".printcolors")
-          .find("option[value='11']")
-          .hide();
-        jQuery(this)
-          .closest(".addlogo_colum")
-          .find(".printcolors")
-          .siblings(".custom_options_ar")
-          .find("h6[values='11']")
-          .hide();
-      }
-      gettotalprice();
+      let value = jQuery(this).val();
+      handlePrintTypeChange(value, jQuery(this).closest(".addlogo_colum"));
     }
   );
+
   /****************************** listen to change in first row of the print logo area  end******************************/
 
   /****************************** listen to change in print area input  of the print logo area ******************************/
@@ -644,247 +383,77 @@ jQuery(document).ready(function ($) {
       jQuery(this).find(`option[value='${value}']`).attr("product-id")
     );
     var quantity = localStorage.getItem("totalquantity");
-
     gettotalprice();
   });
 
   /****************************** function to add vertical slider ******************************/
-  function slickslideroptcl(selector) {
-    jQuery(selector).slick({
-      arrows: false,
-      dots: false,
-      speed: 300,
-      slidesToShow: 5,
-      slidesToScroll: 3,
-      verticalSwiping: true,
-      infinite: true,
-      vertical: true,
-      responsive: [
-        {
-          breakpoint: 1024,
-          settings: {
-            slidesToShow: 5,
-            slidesToScroll: 3,
-            dots: true,
-          },
-        },
-        {
-          breakpoint: 600,
-          settings: {
-            slidesToShow: 4,
-            slidesToScroll: 4,
-            vertical: true,
-          },
-        },
-        {
-          breakpoint: 480,
-          settings: {
-            slidesToShow: 4,
-            slidesToScroll: 4,
-            vertical: false,
-          },
-        },
-      ],
-    });
-    $(".slick-prev-btn").click(function () {
-      $(selector).slick("slickPrev");
-    });
-
-    $(".slick-next-btn").click(function () {
-      $(selector).slick("slickNext");
-    });
-    $(".slick-prev-btn").addClass("slick-disabled");
-    $(selector).on("afterChange", function () {
-      if ($(".slick-prev").hasClass("slick-disabled")) {
-        $(".slick-prev-btn").addClass("slick-disabled");
-      } else {
-        $(".slick-prev-btn").removeClass("slick-disabled");
-      }
-      if ($(".slick-next").hasClass("slick-disabled")) {
-        $(".slick-next-btn").addClass("slick-disabled");
-      } else {
-        $(".slick-next-btn").removeClass("slick-disabled");
-      }
-    });
-    jQuery(selector).css("display", "block");
-  }
-
-  //   for example
-  slickslideroptcl("#pr_image_vslider");
 
   /****************************** function to add vertical slider end ******************************/
 
   /****************************** setting default values ******************************/
-
-  // setting patches shapes and colors
-
-  jQuery(".active_swatch_ar").trigger("click");
-
-  var imgsrc = jQuery(".patch-shape-colors-main")
-    .find(".patch-shape-img-text:first-child")
-    .find(".patch_shape_masking_ar_ar")
-    .css("mask-image");
-  var shapname = jQuery(".patch-shape-colors-main")
-    .find(".patch-shape-img-text:first-child")
-    .find("p")
-    .text();
-  var bgsrc = jQuery(".patch-shape-colors-main")
-    .find(".patch_colors_selection_list_ar")
-    .find(".swatch_ar:first-child")
-    .attr("attr-name");
-  var selectname = jQuery(".patch-shape-colors-main")
-    .find(".patch_colors_selection_list_ar")
-    .find(".swatch_ar:first-child")
-    .attr("attr-name");
-  jQuery(".patch_colors_selection_ar")
-    .find(".selcted_shape_ar_ar")
-    .text(shapname);
-  jQuery(".patch_colors_selection_ar")
-    .find(".selected_shaped_color_rect")
-    .css("mask-image", imgsrc);
-  jQuery(".patch_colors_selection_ar")
-    .find(".selected_shaped_color_rect")
-    .css("background-color", bgsrc);
-  jQuery(".patch_colors_selection_ar")
-    .find(".selcted_color_ar_ar")
-    .text(selectname);
-  jQuery(".patch-shape-colors-main")
-    .find(".patch_colors_selection_list_ar")
-    .find(".swatch_ar:first-child")
-    .addClass("active_shapes_wraper");
-  jQuery(".patch-shape-colors-main")
-    .find(".patch-shape-img-text:first-child")
-    .find("img")
-    .addClass("active_shapes_wraper");
-
-  if (
-    jQuery(".allprintareas > .addlogo_colum")
-      .find(".printarea")
-      .find("option[value='front']").length > 0
-  ) {
-    jQuery(".allprintareas > .addlogo_colum").find(".printarea").val("front");
-    jQuery(".allprintareas > .addlogo_colum")
-      .find(".printarea")
-      .attr("disabled", true);
-    jQuery(".allprintareas > .addlogo_colum")
-      .find(".printcolors")
-      .attr("disabled", true);
-  }
-
-  localStorage.setItem("totalquantity", 0);
-  localStorage.setItem("checked_premium", false);
-  localStorage.setItem("d_puff_embroidery", 0);
-  jQuery(".sizes_ar").find("input[type='number']").val(0);
-  if (jQuery("#price_calculator_ar_ar").length <= 0) {
-    jQuery("#freeartworksetup_ar_ar").find("h2").text("0$");
-  }
 });
 
 /****************************** function visualize the free features based on quantity ******************************/
 
 function updatecolorsoffeatures(quantitys) {
-  var quantity = parseInt(quantitys);
+  const quantity = parseInt(quantitys);
   check_premiumupdate(quantity);
-  console.log(quantity);
+
+  const $freeItems = jQuery("#freeitemsrequir_ar");
+  const $shippingItems = jQuery("#shippingitemsrequir_ar");
+  const $premiumItems = jQuery("#premiumitemsrequir_ar");
+
+  // Common settings
+  const setVisibility = (element, showTick) => {
+    element.find(".tick_ar").toggleClass("hide_it", !showTick);
+    element.find(".cross_ar").toggleClass("hide_it", showTick);
+  };
+
+  const setValuePrice = (element, value) => {
+    element.attr("valueprice", value);
+  };
+
+  const handlePremiumArtwork = () => {
+    if (jQuery("#premium_artwork_ar").is(":checked") && quantity < 36) {
+      setValuePrice($premiumItems, `${premiumartsetupe}$`);
+    } else {
+      setValuePrice($premiumItems, "0$");
+    }
+  };
+
+  // Reset prices and setup charges
+  setValuePrice($freeItems, "0$");
+  setValuePrice($shippingItems, "50$");
+  setValuePrice($premiumItems, "0$");
+  jQuery("#freesetup_charges_ar").text("0");
+
   if (quantity >= 12 && quantity < 24) {
-    console.log("in 12");
-
-    jQuery("#freesetup_charges_ar").text("0");
-    jQuery("#freeitemsrequir_ar").find(".tick_ar").removeClass("hide_it");
-    jQuery("#freeitemsrequir_ar").find(".cross_ar").addClass("hide_it");
-
-    jQuery("#shippingitemsrequir_ar").find(".cross_ar").removeClass("hide_it");
-    jQuery("#shippingitemsrequir_ar").find(".tick_ar").addClass("hide_it");
-
-    jQuery("#premiumitemsrequir_ar").find(".cross_ar").removeClass("hide_it");
-    jQuery("#premiumitemsrequir_ar").find(".tick_ar").addClass("hide_it");
-
-    jQuery("#freeitemsrequir_ar").attr("valueprice", "0$");
-    jQuery("#shippingitemsrequir_ar").attr("valueprice", `50$`);
-    if (jQuery("#premium_artwork_ar").is(":checked") && quantity < 36) {
-      jQuery("#premiumitemsrequir_ar").attr(
-        "valueprice",
-        `${premiumartsetupe}$`
-      );
-    } else {
-      jQuery("#premiumitemsrequir_ar").attr("valueprice", `0$`);
-    }
+    setVisibility($freeItems, true);
+    setVisibility($shippingItems, false);
+    setVisibility($premiumItems, false);
+    handlePremiumArtwork();
   } else if (quantity >= 24 && quantity < 36) {
-    console.log("in 35");
-    jQuery("#freesetup_charges_ar").text("0");
-
-    jQuery("#freeitemsrequir_ar").find(".tick_ar").removeClass("hide_it");
-    jQuery("#freeitemsrequir_ar").find(".cross_ar").addClass("hide_it");
-
-    jQuery("#shippingitemsrequir_ar").find(".tick_ar").removeClass("hide_it");
-    jQuery("#shippingitemsrequir_ar").find(".cross_ar").addClass("hide_it");
-
-    jQuery("#premiumitemsrequir_ar").find(".cross_ar").removeClass("hide_it");
-    jQuery("#premiumitemsrequir_ar").find(".tick_ar").addClass("hide_it");
-
-    jQuery("#freeitemsrequir_ar").attr("valueprice", "0$");
-    jQuery("#shippingitemsrequir_ar").attr("valueprice", "50$");
-    if (jQuery("#premium_artwork_ar").is(":checked") && quantity < 36) {
-      jQuery("#premiumitemsrequir_ar").attr(
-        "valueprice",
-        `${premiumartsetupe}$`
-      );
-    } else {
-      jQuery("#premiumitemsrequir_ar").attr("valueprice", "0$");
-    }
+    setVisibility($freeItems, true);
+    setVisibility($shippingItems, true);
+    setVisibility($premiumItems, false);
+    handlePremiumArtwork();
   } else if (quantity >= 36) {
-    console.log("in 36");
-    jQuery("#freesetup_charges_ar").text("0");
-
-    jQuery("#freeitemsrequir_ar").find(".tick_ar").removeClass("hide_it");
-    jQuery("#freeitemsrequir_ar").find(".cross_ar").addClass("hide_it");
-
-    jQuery("#shippingitemsrequir_ar").find(".tick_ar").removeClass("hide_it");
-    jQuery("#shippingitemsrequir_ar").find(".cross_ar").addClass("hide_it");
-
-    jQuery("#premiumitemsrequir_ar").find(".tick_ar").removeClass("hide_it");
-    jQuery("#premiumitemsrequir_ar").find(".cross_ar").addClass("hide_it");
-
-    jQuery("#freeitemsrequir_ar").attr("valueprice", "0$");
-    jQuery("#shippingitemsrequir_ar").attr("valueprice", "0$");
-    if (jQuery("#premium_artwork_ar").is(":checked") && quantity < 36) {
-      jQuery("#premiumitemsrequir_ar").attr(
-        "valueprice",
-        `${premiumartsetupe}$`
-      );
-    } else {
-      jQuery("#premiumitemsrequir_ar").attr("valueprice", "0$");
-    }
+    setVisibility($freeItems, true);
+    setVisibility($shippingItems, true);
+    setVisibility($premiumItems, true);
+    setValuePrice($shippingItems, "0$");
   } else {
-    console.log("in else");
-
+    // For quantities less than 12
     jQuery("#freesetup_charges_ar").text(`${artsetupfreeze}`);
+    setVisibility($freeItems, false);
+    setVisibility($shippingItems, false);
+    setVisibility($premiumItems, false);
 
-    jQuery("#freeitemsrequir_ar").find(".cross_ar").removeClass("hide_it");
-    jQuery("#freeitemsrequir_ar").find(".tick_ar").addClass("hide_it");
-
-    jQuery("#shippingitemsrequir_ar").find(".cross_ar").removeClass("hide_it");
-    jQuery("#shippingitemsrequir_ar").find(".tick_ar").addClass("hide_it");
-
-    jQuery("#premiumitemsrequir_ar").find(".cross_ar").removeClass("hide_it");
-    jQuery("#premiumitemsrequir_ar").find(".tick_ar").addClass("hide_it");
-
-    jQuery("#freeitemsrequir_ar").attr("valueprice", `${artsetupfreeze}`);
-    jQuery("#shippingitemsrequir_ar").attr("valueprice", `0$`);
-
-    if (jQuery("#premium_artwork_ar").is(":checked") && quantity < 36) {
-      jQuery("#premiumitemsrequir_ar").attr(
-        "valueprice",
-        `${premiumartsetupe}$`
-      );
-    } else {
-      jQuery("#premiumitemsrequir_ar").attr("valueprice", "0$");
-    }
+    setValuePrice($freeItems, `${artsetupfreeze}`);
+    setValuePrice($shippingItems, "0$");
 
     if (jQuery("#orderedthislogo_ar").is(":checked")) {
-      jQuery("#freeitemsrequir_ar").attr("valueprice", `0$`);
-    } else {
-      jQuery("#freeitemsrequir_ar").attr("valueprice", `${artsetupfreeze}`);
+      setValuePrice($freeItems, "0$");
     }
   }
 }
@@ -934,185 +503,120 @@ jQuery("#add_instrution_ar").on("click", function () {
 });
 /****************************** function to do all the calculations ******************************/
 
-function gettotalprice() {
+function gettotalprice(nocart = true) {
   puffEmbroid("#d_3d_ar");
-  getpricelist(totaldata);
-  var totalquant = parseInt(localStorage.getItem("totalquantity"));
+  if (nocart) {
+    getpricelist(nocart);
+  }
+  const totalquant = parseInt(localStorage.getItem("totalquantity"));
   updatecolorsoffeatures(totalquant);
 
-  var totalprice = 0;
-  var quantity = 0;
-  var priceperproduct = 0;
-  var sizesvar = []; // Initialize sizesvar as an empty array
-  // var shiipingcost = jQuery("#shippingitemsrequir_ar").attr("valueprice");
-  var artsetupfree = jQuery("#freeitemsrequir_ar").attr("valueprice");
-  var premiumartsetup = jQuery("#premiumitemsrequir_ar").attr("valueprice");
+  let totalprice = 0;
+  let quantity = 0;
+  const sizesvar = []; // Array to store sizes and quantities
+  const artsetupfree = parseFloat(
+    jQuery("#freeitemsrequir_ar").attr("valueprice").replace(/\$/g, "") || 0
+  );
+  const premiumartsetup = parseFloat(
+    jQuery("#premiumitemsrequir_ar").attr("valueprice").replace(/\$/g, "") || 0
+  );
+  const totalsetup = artsetupfree + premiumartsetup;
 
-  // shiipingcost = shiipingcost.replace(/\$/g, "");
-  artsetupfree = artsetupfree.replace(/\$/g, "");
-  premiumartsetup = premiumartsetup.replace(/\$/g, "");
-
-  var totalsetup = parseInt(artsetupfree) + parseInt(premiumartsetup);
-  if (isNaN(totalsetup)) {
-    totalsetup = 0;
-  }
+  // Collect size quantities
   jQuery(".sizes_ar")
     .find("input[type='number']")
     .each(function () {
-      if (jQuery(this).val() != "" && jQuery(this).val() > 0) {
-        var value = jQuery(this).val();
-        var size = jQuery(this)
+      const value = parseInt(jQuery(this).val());
+      if (value > 0) {
+        const size = jQuery(this)
           .closest(".size_column_ar")
           .find(".size_name > h6")
           .text();
-        var sizevalue = { size: size, quantity: value };
-        sizesvar.push(sizevalue); // Now this works because sizesvar is initialized
+        sizesvar.push({ size, quantity: value });
+        quantity += value;
       }
-      quantity = quantity + parseInt(jQuery(this).val());
     });
+
   pa_additional_cost_ar(quantity);
-  // You can log sizesvar to see the collected data
   update_progressbar();
-  if (jQuery(".price_column_ar.bg-red").length > 0) {
-    var pricepp = jQuery(".price_column_ar.bg-red")
-      .find(".range_price_ar")
-      .text();
-    pricepp = pricepp.replace(/\$/g, "").trim();
-    priceperproduct = parseFloat(pricepp);
-  } else {
-    var priceppa = parseFloat(
+
+  // Get price per product
+  const pricepp = jQuery(".price_column_ar.bg-red .range_price_ar")
+    .text()
+    .replace(/\$/g, "")
+    .trim();
+  const priceperproduct =
+    parseFloat(pricepp) ||
+    parseFloat(
       jQuery("bdi.bg-red").text().replace(/\$/g, "").replace(/\,/g, "")
     );
-    priceperproduct = priceppa;
+
+  // Additional charges
+  const additional_fee = addextrachargesopt();
+  const additional_charges = parseFloat(additional_fee.outputpricefee) || 0;
+
+  // Calculate total price
+  if (priceperproduct > 0 && quantity > 0) {
+    totalprice = priceperproduct + additional_charges;
   }
 
-  var additional_fee = addextrachargesopt();
-  var additional_charges = parseFloat(additional_fee.outputpricefee);
+  const d3_puff = parseFloat(localStorage.getItem("d_puff_embroidery")) || 0;
+  totalprice += d3_puff * quantity;
 
-  var extraareafee = 0;
-  if (
-    jQuery("#extra_area_fee_ar").find(".price_column_ar.bg-red .range_price_ar")
-      .length > 0
-  ) {
-    extraareafee = jQuery("#extra_area_fee_ar")
-      .find(".price_column_ar.bg-red .range_price_ar")
-      .text();
-    extraareafee = parseFloat(extraareafee.replace(/\$/g, ""));
-  }
+  // Output sizes and quantities
+  jQuery("#quanitiy_ar_ar")
+    .find("h2")
+    .html(sizesvar.map((s) => `${s.size} : ${s.quantity}`).join(", "));
 
-  priceperproduct = getpricelist();
-  if (
-    priceperproduct !== 0 &&
-    priceperproduct !== "" &&
-    !isNaN(priceperproduct) &&
-    quantity > 0
-  ) {
-    totalprice = parseFloat(priceperproduct) + additional_charges;
-  }
-  if (
-    priceperproduct !== 0 &&
-    priceperproduct !== "" &&
-    priceperproduct !== null &&
-    priceperproduct !== undefined &&
-    isNaN(priceperproduct) !== true
-  ) {
-    jQuery("#productprice_per_ar").find("h2").text(`${priceperproduct}`);
-  }
-
-  var d3_puff = localStorage.getItem("d_puff_embroidery");
-  totalprice = totalprice + parseFloat(d3_puff) * quantity;
-  totalprice = parseFloat(totalprice).toFixed(2);
-  // if (!isNaN(totalprice)) {
-  //   if (quantity > 12) {
-  //     jQuery("#totalprice_ar_product")
-  //       .find("#span_ar_product")
-  //       .text(totalprice);
-  //   } else {
-  //     if (totalprice > 30) {
-  //       jQuery("#totalprice_ar_product")
-  //         .find("#span_ar_product")
-  //         .text((totalprice - artsetupfree).toFixed(2));
-  //     } else {
-  //       jQuery("#totalprice_ar_product")
-  //         .find("#span_ar_product")
-  //         .text(totalprice);
-  //     }
-  //   }
-  // }
-
-  var output = "";
-  for (var i = 0; i < sizesvar.length; i++) {
-    output += sizesvar[i].size + " : " + sizesvar[i].quantity + ", ";
-  }
-  jQuery("#quanitiy_ar_ar").find("h2").html(output);
-  var allareasdata = gettheprintareaarray();
-
-  var add_instructions = jQuery("#add_instrution_ar_text").val();
-  var premiumartsetupfee = false;
-  if (jQuery("#premium_artwork_ar").is(":checked")) {
-    premiumartsetupfee = true;
-  } else {
-    premiumartsetupfee = false;
-  }
-  var orderedthislogo_ar = false;
-  if (jQuery("#orderedthislogo_ar").is(":checked")) {
-    orderedthislogo_ar = true;
-  } else {
-    orderedthislogo_ar = false;
-  }
-
-  var totaldata = {
-    quantity: quantity,
-    priceperproduct: priceperproduct,
-    totalprice: totalprice,
-    sizees: sizesvar,
-    allareasdata: allareasdata,
+  // Collect additional information
+  const add_instructions = jQuery("#add_instrution_ar_text").val();
+  const totaldata = {
+    quantity,
+    priceperproduct,
+    totalprice: totalprice.toFixed(2),
+    sizes: sizesvar,
+    allareasdata: gettheprintareaarray(),
     d3_puff_embroidery: d3_puff,
-    add_instructions: add_instructions,
-    premiumartsetupfee: premiumartsetupfee,
-    orderedthislogo_ar: orderedthislogo_ar,
-    extraareafee: extraareafee,
+    add_instructions,
+    premiumartsetupfee: jQuery("#premium_artwork_ar").is(":checked"),
+    orderedthislogo_ar: jQuery("#orderedthislogo_ar").is(":checked"),
+    extraareafee:
+      parseFloat(
+        jQuery("#extra_area_fee_ar")
+          .find(".price_column_ar.bg-red .range_price_ar")
+          .text()
+          .replace(/\$/g, "")
+      ) || 0,
     extracolorsfee: additional_fee.colorsricefee,
     additional_charges: additional_fee.totalsetupfee,
   };
-  if (
+
+  // Disable buttons if conditions are not met
+  const isDisabled =
     quantity <= 0 ||
     jQuery(".active_swatch_ar").length <= 0 ||
-    allareasdata.length <= 0 ||
-    allareasdata[0].printtype == ""
-  ) {
-    jQuery("#single_add_to_cart_ar").addClass("disabled_ar_product");
-    jQuery("#sticky_add_to_cart_ar_ar").addClass("disabled_ar_product");
-  } else {
-    // jQuery("#single_add_to_cart_ar").removeClass("disabled_ar_product");
-    // jQuery("#sticky_add_to_cart_ar_ar").removeClass("disabled_ar_product");
-  }
-  showerrormessaes(quantity, jQuery(".active_swatch_ar").length, allareasdata);
+    totaldata.allareasdata.length <= 0 ||
+    !totaldata.allareasdata[0].printtype;
+  jQuery("#single_add_to_cart_ar, #sticky_add_to_cart_ar_ar").toggleClass(
+    "disabled_ar_product",
+    isDisabled
+  );
 
-  jQuery("#heading_for_sub_total_ar")
-    .find("h2")
-    .find(".vairation_added_ar")
-    .text(sizesvar.length);
-  jQuery("#sticky_vairations_sector_ar_ar")
-    .find("h2")
-    .find(".vairation_added_ar")
-    .text(sizesvar.length);
-  jQuery("#sticky_vairations_sector_ar_ar_mb")
-    .find("h2")
-    .find(".vairation_added_ar")
-    .text(sizesvar.length);
-  jQuery("#heading_for_sub_total_ar")
-    .find("h2")
-    .find(".quantity_added_ar")
-    .text(quantity);
-  jQuery("#sticky_vairations_sector_ar_ar")
-    .find("h2")
-    .find(".quantity_added_ar")
-    .text(quantity);
-  jQuery("#sticky_vairations_sector_ar_ar_mb")
-    .find("h2")
-    .find(".quantity_added_ar")
-    .text(quantity);
+  showerrormessaes(
+    quantity,
+    jQuery(".active_swatch_ar").length,
+    totaldata.allareasdata
+  );
+
+  // Update UI for quantity and size variations
+  const variationCount = sizesvar.length;
+  jQuery(
+    "#heading_for_sub_total_ar .vairation_added_ar, #sticky_vairations_sector_ar_ar .vairation_added_ar, #sticky_vairations_sector_ar_ar_mb .vairation_added_ar"
+  ).text(variationCount);
+  jQuery(
+    "#heading_for_sub_total_ar .quantity_added_ar, #sticky_vairations_sector_ar_ar .quantity_added_ar, #sticky_vairations_sector_ar_ar_mb .quantity_added_ar"
+  ).text(quantity);
+
   return totaldata;
 }
 
@@ -1131,8 +635,6 @@ jQuery(".allprintareas").on("change", ".printcolors", function () {
     .val();
   var currentval = jQuery(this).val();
 
-  // console.log(printtype, printarea);
-
   if (printtype == "" || printarea == "") {
     if (jQuery(".warning_ar").length <= 0) {
       jQuery(".sizes_ar").append(
@@ -1144,7 +646,6 @@ jQuery(".allprintareas").on("change", ".printcolors", function () {
         "<h6 class='warning_ar'>Kindly Select the Print Type and Print Area</h6>"
       );
     }
-    // jQuery(this).val(1);
   } else {
     if (parseInt(currentval) > 3) {
       extrafeeUpdate("#extra_color_fee_ar");
@@ -1166,7 +667,7 @@ jQuery("#single_add_to_cart_ar").on("click", function (e) {
   if (jQuery("#price_calculator_ar_ar").length > 0) {
     enableddiscounts = true;
   }
-  var alldata = gettotalprice();
+  var alldata = gettotalprice(false);
   var totalprice = alldata.totalprice;
   var quantity = alldata.quantity;
   jQuery.ajax({
@@ -1178,7 +679,7 @@ jQuery("#single_add_to_cart_ar").on("click", function (e) {
       quantity: quantity,
       product_id: productid,
       colors: pcolor,
-      sizear: alldata.sizees, // Pass the sizees
+      sizear: alldata.sizes, // Pass the sizees
       allareasdata: alldata.allareasdata,
       add_instructions: alldata.add_instructions,
       orderedthislogo_ar: alldata.orderedthislogo_ar,
@@ -1191,7 +692,7 @@ jQuery("#single_add_to_cart_ar").on("click", function (e) {
     },
     success: function (response) {
       if (response.success) {
-        // Redirect to cart page on success 
+        // Redirect to cart page on success
         window.location.href = response.data.redirect_url;
       } else {
         alert(response.data.message);
@@ -1208,164 +709,151 @@ jQuery("#single_add_to_cart_ar").on("click", function (e) {
 
 /****************************** function to show extra charges based on print area selections ******************************/
 function addextrachargesopt() {
-  var artsetupfree = jQuery("#freeitemsrequir_ar").attr("valueprice");
-  var premiumartsetup = jQuery("#premiumitemsrequir_ar").attr("valueprice");
+  const artsetupfree = parseFloat(
+    jQuery("#freeitemsrequir_ar").attr("valueprice").replace(/\$/g, "") || 0
+  );
+  const premiumartsetup = parseFloat(
+    jQuery("#premiumitemsrequir_ar").attr("valueprice").replace(/\$/g, "") || 0
+  );
+  const totalsetup = premiumartsetup;
+  const quantity = parseInt(localStorage.getItem("totalquantity")) || 0;
 
-  // shiipingcost = shiipingcost.replace(/\$/g, "");
-  artsetupfree = artsetupfree.replace(/\$/g, "");
-  premiumartsetup = premiumartsetup.replace(/\$/g, "");
+  let outputprice = 0;
+  let colorsrice = 0.0;
+  const ppcolorextras = parseFloat(
+    jQuery("#extra_color_fee_ar .price_column_ar.bg-red .range_price_ar")
+      .text()
+      .replace(/\$/g, "") || 0
+  );
 
-  var totalsetup = parseInt(artsetupfree) + parseInt(premiumartsetup);
-  if (isNaN(totalsetup)) {
-    totalsetup = 0;
-  }
-  var quantity = parseInt(localStorage.getItem("totalquantity"));
-
-  var totalextra = 0;
-  var outputprice = 0;
-  var colorsrice = 0.0;
-  ppcolorextras = jQuery("#extra_color_fee_ar")
-    .find(".price_column_ar.bg-red")
-    .find(".range_price_ar")
-    .text();
-  ppcolorextras = ppcolorextras.replace(/\$/g, "");
   jQuery(".addlogo_colum").each(function (index) {
-    var pptypes = jQuery(this).find("select.printtype").val();
-    var ppareas = jQuery(this).find("select.printarea").val();
-    var ppcolors = jQuery(this).find("select.printcolors").val();
+    const ppcolors =
+      parseInt(jQuery(this).find("select.printcolors").val()) || 0;
+    const pptypes = jQuery(this).find("select.printtype").val();
 
-    if (
-      ppcolors !== "" &&
-      (ppcolors !== undefined) & !isNaN(ppcolors) &&
-      pptypes != "leather-patch"
-    ) {
-      ppcolors = ppcolors;
-    } else {
-      ppcolors = 0;
-    }
-    var ppcolorextrases = parseInt(ppcolors) - 3;
-    var pppricess = parseFloat(
-      parseFloat(ppcolorextras) * parseFloat(ppcolorextrases)
-    ).toFixed(2);
+    if (ppcolors > 3 && pptypes !== "leather-patch") {
+      const ppcolorextrases = ppcolors - 3;
+      const pppricess = ppcolorextras * ppcolorextrases;
 
-    if (parseFloat(pppricess) > 0) {
-      colorsrice = parseFloat(colorsrice + parseFloat(pppricess));
-    }
-    pppricess = parseFloat(pppricess) * parseFloat(quantity);
-    console.log(ppcolors, colorsrice, ppcolorextrases, pptypes);
-    var extras = jQuery(this).find("select.printarea").attr("extrafee");
-    var extra = jQuery("#extra_area_fee_ar")
-      .find(".price_column_ar.bg-red .range_price_ar")
-      .text();
-    extra = extra.replace(/\$/g, "");
-    extra = parseFloat(extra) * parseInt(quantity);
-    if (index == 0) {
-      if (ppcolors > 3) {
-        outputprice = outputprice + parseFloat(pppricess);
-      }
-    } else {
-      if (ppcolors > 3) {
-        outputprice = outputprice + parseFloat(extra) + parseFloat(pppricess);
-      } else {
-        outputprice = outputprice + parseFloat(extra);
+      colorsrice += Math.max(0, pppricess);
+      outputprice += pppricess * quantity;
+
+      // Only add area fee if it's not the first index
+      if (index > 0) {
+        const extra =
+          parseFloat(
+            jQuery("#extra_area_fee_ar .price_column_ar.bg-red .range_price_ar")
+              .text()
+              .replace(/\$/g, "") || 0
+          ) * quantity;
+        outputprice += extra;
       }
     }
   });
-  outputprice = outputprice + totalsetup;
+
+  outputprice += totalsetup;
+
+  // Remove red background if colorsrice is less than or equal to 0
   if (colorsrice <= 0) {
-    jQuery("#extra_color_fee_ar").find(".title_ar_table").removeClass("bg-red");
-    jQuery("#extra_color_fee_ar")
-      .find(".price_column_ar")
-      .removeClass("bg-red");
+    jQuery(
+      "#extra_color_fee_ar .title_ar_table, #extra_color_fee_ar .price_column_ar"
+    ).removeClass("bg-red");
   }
-  var extrafeearray = {
+
+  return {
     totalsetupfee: totalsetup,
     outputpricefee: outputprice,
-    colorsricefee: colorsrice > 0 ? colorsrice : 0,
+    colorsricefee: Math.max(0, colorsrice),
   };
-  // console.log(extrafeearray);
-  return extrafeearray;
 }
+
 /****************************** function to show extra charges based on print area selections end ******************************/
 
 function pa_additional_cost_ar(quantity) {
-  if (
-    jQuery(".allprintareas .addlogo_colum:not(:first-child)").find(".printarea")
-      .length > 0
-  ) {
-    jQuery("#pa_additional_cost_ar")
-      .find(".price_column_ar")
-      .each(function () {
-        var currentElement = parseInt(jQuery(this).attr("quantity-id"));
-        var nextElement = jQuery(this)
-          .next(".price_column_ar")
-          .attr("quantity-id");
-        if (quantity > currentElement && quantity < nextElement) {
-          jQuery(".price_column_ar").removeClass("pa_ar_bg_red");
-          jQuery(this).next(".price_column_ar").addClass("pa_ar_bg_red");
-          return;
-        } else if (nextElement == "" || quantity == currentElement) {
-          jQuery(".price_column_ar").removeClass("pa_ar_bg_red");
-          jQuery(this).addClass("pa_ar_bg_red");
-          return;
-        }
-      });
+  const $priceColumns = jQuery("#pa_additional_cost_ar .price_column_ar");
+  const $printAreas = jQuery(
+    ".allprintareas .addlogo_colum:not(:first-child) .printarea"
+  );
 
-    jQuery(".allprintareas .addlogo_colum:not(:first-child)")
-      .find(".printarea")
-      .each(function () {
-        var value = jQuery(this).val();
-        if (value !== "") {
-          var extraresponse = jQuery(".pa_ar_bg_red")
-            .text()
-            .replace(/\$/g, "")
-            .trim();
-          jQuery(this).find("option").attr("extra", "");
-          jQuery(this)
-            .find(`option[value='${value}']`)
-            .attr("extra", extraresponse);
-        }
-      });
+  if ($printAreas.length > 0) {
+    let highlightedColumn = null;
+
+    $priceColumns.each(function () {
+      const currentElement = parseInt(jQuery(this).attr("quantity-id"));
+      const nextElement = parseInt(
+        jQuery(this).next(".price_column_ar").attr("quantity-id") || Infinity
+      );
+
+      if (
+        quantity === currentElement ||
+        (quantity > currentElement && quantity < nextElement)
+      ) {
+        highlightedColumn = jQuery(this).next(".price_column_ar");
+      }
+    });
+
+    // Remove previous highlights and add the new one
+    $priceColumns.removeClass("pa_ar_bg_red");
+    if (highlightedColumn) {
+      highlightedColumn.addClass("pa_ar_bg_red");
+    }
+
+    $printAreas.each(function () {
+      const value = jQuery(this).val();
+      if (value) {
+        const extraResponse = jQuery(".pa_ar_bg_red")
+          .text()
+          .replace(/\$/g, "")
+          .trim();
+        jQuery(this).find("option").attr("extra", "");
+        jQuery(this)
+          .find(`option[value='${value}']`)
+          .attr("extra", extraResponse);
+      }
+    });
   }
 }
 
 function gettheprintareaarray() {
-  var printareasall = [];
-  jQuery(".allprintareas")
-    .find(".addlogo_colum")
-    .each(function () {
-      var areavalue = jQuery(this).find("select.printarea").val();
-      areavalue = jQuery(this)
-        .find("select.printarea")
-        .find("option[value='" + areavalue + "']")
-        .text();
-      var printtype = jQuery(this).find("select.printtype").val();
-      printtype = jQuery(this)
-        .find("select.printtype")
-        .find("option[value='" + printtype + "']")
-        .text();
+  const printareasall = [];
 
-      var printcolors = jQuery(this).find("select.printcolors").val();
-      if (jQuery(this).find("select.printtype").val() == "leather-patch") {
-        printcolors = jQuery(this).find("input[name='patchshape']").val();
-      }
-      var artworkurl = jQuery(this).find(".size_name_upload > img").attr("src");
-      if (artworkurl.includes("Frame-1000005041.svg")) {
-        artworkurl = "";
-      }
-      if (printtype.toLowerCase() !== "choose") {
-        var newarea = {
-          areavalue: areavalue,
-          printtype: printtype,
-          printcolors: printcolors,
-          artworkurl: artworkurl,
-        };
-        printareasall.push(newarea);
-      }
-    });
+  jQuery(".allprintareas .addlogo_colum").each(function () {
+    const $this = jQuery(this);
+
+    const areavalue = $this.find("select.printarea").val();
+    const areaText = $this
+      .find(`select.printarea option[value='${areavalue}']`)
+      .text();
+
+    const printtype = $this.find("select.printtype").val();
+    const printTypeText = $this
+      .find(`select.printtype option[value='${printtype}']`)
+      .text();
+
+    let printcolors = $this.find("select.printcolors").val();
+    if (printtype === "leather-patch") {
+      printcolors = $this.find("input[name='patchshape']").val();
+    }
+
+    let artworkurl = $this.find(".size_name_upload > img").attr("src");
+    if (artworkurl.includes("Frame-1000005041.svg")) {
+      artworkurl = "";
+    }
+
+    if (printTypeText.toLowerCase() !== "choose") {
+      printareasall.push({
+        areavalue: areaText,
+        printtype: printTypeText,
+        printcolors: printcolors,
+        artworkurl: artworkurl,
+      });
+    }
+  });
+
   if (printareasall.length > 1) {
     extrafeeUpdate("#extra_area_fee_ar");
   }
+
   return printareasall;
 }
 
@@ -1382,107 +870,103 @@ jQuery(".allprintareas").on("click", ".removerlist_ar_area", function () {
 /****************************** function to update the visualize the current price in the price table ******************************/
 
 function uodatetable(selector) {
-  var quantity = parseInt(localStorage.getItem("totalquantity"));
-  // console.log(selector);
-  jQuery(".grid_tem_ar8:not('#d_3d_ar , #extra_area_fee_ar')")
+  const quantity = parseInt(localStorage.getItem("totalquantity"));
+
+  // Reset previous highlights
+  jQuery(".grid_tem_ar8")
+    .not("#d_3d_ar, #extra_area_fee_ar")
     .find(".title_ar_table")
     .removeClass("bg-red");
-  jQuery(`${selector}`).find(".title_ar_table").addClass("bg-red");
 
-  jQuery(`${selector}`)
-    .find(".price_column_ar")
-    .each(function () {
-      var currentElement = parseInt(jQuery(this).attr("quantity-id"));
-      var nextElement = jQuery(this)
-        .next(".price_column_ar")
-        .attr("quantity-id");
-      if (quantity >= currentElement && quantity < nextElement) {
-        jQuery(
-          ".grid_tem_ar8:not('#d_3d_ar , #extra_area_fee_ar,#extra_color_fee_ar')"
-        )
-          .find(".price_column_ar")
-          .removeClass("bg-red");
-        // jQuery(".price_column_ar").removeClass("bg-red");
-        jQuery(this).find(".price_column_ar").addClass("bg-red");
-        jQuery(`${selector}`)
-          .find(`.price_column_ar[quantity-id='${currentElement}']`)
-          .addClass("bg-red");
-        return;
-      } else if (
-        nextElement == "" ||
-        quantity == currentElement ||
-        (nextElement == undefined && quantity >= currentElement)
-      ) {
-        // jQuery(".price_column_ar").removeClass("bg-red");
-        jQuery(
-          ".grid_tem_ar8:not('#d_3d_ar , #extra_area_fee_ar,#extra_color_fee_ar')"
-        )
-          .find(".price_column_ar")
-          .removeClass("bg-red");
+  // Highlight the selected title
+  jQuery(selector).find(".title_ar_table").addClass("bg-red");
 
-        jQuery(this).addClass("bg-red");
-        return;
-      } else if (quantity == 0) {
-        jQuery(".price_column_ar").removeClass("pa_ar_bg_red");
-        jQuery(".price_column_ar").removeClass("bg-red");
-        jQuery(".title_ar_table").removeClass("bg-red");
-      }
-    });
+  // Iterate through each price column
+  jQuery(`${selector} .price_column_ar`).each(function () {
+    const $this = jQuery(this);
+    const currentElement = parseInt($this.attr("quantity-id"));
+    const nextElement = $this.next(".price_column_ar").attr("quantity-id");
+
+    if (
+      quantity >= currentElement &&
+      (nextElement === undefined || quantity < nextElement)
+    ) {
+      // Reset and highlight current price
+      jQuery(".grid_tem_ar8")
+        .not("#d_3d_ar, #extra_area_fee_ar, #extra_color_fee_ar")
+        .find(".price_column_ar")
+        .removeClass("bg-red");
+
+      $this.addClass("bg-red");
+      jQuery(
+        `${selector} .price_column_ar[quantity-id='${currentElement}']`
+      ).addClass("bg-red");
+      return;
+    } else if (nextElement === "" || quantity === currentElement) {
+      // Reset and highlight the current element
+      jQuery(".grid_tem_ar8")
+        .not("#d_3d_ar, #extra_area_fee_ar, #extra_color_fee_ar")
+        .find(".price_column_ar")
+        .removeClass("bg-red");
+
+      $this.addClass("bg-red");
+      return;
+    } else if (quantity === 0) {
+      // Clear highlights if quantity is 0
+      jQuery(".price_column_ar, .title_ar_table").removeClass("bg-red");
+    }
+  });
 }
-function getpricelist() {
+
+function getpricelist(nocarts = true) {
   jQuery("#single_add_to_cart_ar").addClass("disabled_ar_product");
 
-  var sizesvar = [];
-  var allareasdata = gettheprintareaarray();
+  const sizesvar = [];
+  const allareasdata = gettheprintareaarray();
 
-  jQuery(".sizes_ar")
-    .find("input[type='number']")
-    .each(function () {
-      if (jQuery(this).val() != "" && jQuery(this).val() > 0) {
-        var value = jQuery(this).val();
-        var size = jQuery(this)
-          .closest(".size_column_ar")
-          .find(".size_name > h6")
-          .text();
-        var sizevalue = { size: size, quantity: value };
-        sizesvar.push(sizevalue); // Now this works because sizesvar is initialized
-      }
-    });
+  // Gather size and quantity data
+  jQuery(".sizes_ar input[type='number']").each(function () {
+    const value = jQuery(this).val();
+    if (value && value > 0) {
+      const size = jQuery(this)
+        .closest(".size_column_ar")
+        .find(".size_name > h6")
+        .text();
+      sizesvar.push({ size, quantity: value });
+    }
+  });
+
+  // Check if the necessary conditions are met
   if (
     sizesvar.length > 0 &&
     jQuery(".active_swatch_ar").length > 0 &&
     allareasdata.length > 0 &&
     allareasdata[0].printtype !== ""
   ) {
-    var pcolor = jQuery(".active_swatch_ar").attr("attr-name");
-    var productid = jQuery(".sizes_main_div_ar_ar > .size_column_ar")
-      .find("input[type='number']")
-      .attr("product-id");
-    var enableddiscounts = false;
-    if (jQuery("#price_calculator_ar_ar").length > 0) {
-      enableddiscounts = true;
-    }
-    var additional_fee = addextrachargesopt();
-    var additional_charges = parseFloat(additional_fee.totalsetupfee);
-    var quantity = parseInt(localStorage.getItem("totalquantity"));
-    var extraareafee = 0;
-    if (
-      jQuery("#extra_area_fee_ar").find(
-        ".price_column_ar.bg-red .range_price_ar"
-      ).length > 0
-    ) {
-      extraareafee = jQuery("#extra_area_fee_ar")
-        .find(".price_column_ar.bg-red .range_price_ar")
-        .text();
-      extraareafee = parseFloat(extraareafee.replace(/\$/g, ""));
-    }
-    // if (extraareafee > 0) {
-    //   additional_charges = parseInt(
-    //     additional_charges - parseFloat(extraareafee) * quantity
-    //   );
-    // }
+    const pcolor = jQuery(".active_swatch_ar").attr("attr-name");
+    const productid = jQuery(
+      ".sizes_main_div_ar_ar > .size_column_ar input[type='number']"
+    ).attr("product-id");
+    const enableddiscounts = jQuery("#price_calculator_ar_ar").length > 0;
+
+    const additional_fee = addextrachargesopt();
+    const additional_charges = parseFloat(additional_fee.totalsetupfee);
+    const quantity = parseInt(localStorage.getItem("totalquantity"));
+
+    // Get extra area fee if available
+    const extraareafee =
+      jQuery("#extra_area_fee_ar .price_column_ar.bg-red .range_price_ar")
+        .length > 0
+        ? parseFloat(
+            jQuery("#extra_area_fee_ar .price_column_ar.bg-red .range_price_ar")
+              .text()
+              .replace(/\$/g, "")
+          )
+        : 0;
+
     jQuery("#totalprice_ar_product").hide();
-    var pricewhole = 0;
+    let pricewhole = 0;
+
     jQuery.ajax({
       type: "POST",
       url: "/wp-admin/admin-ajax.php",
@@ -1491,8 +975,8 @@ function getpricelist() {
         product_id: productid,
         allareasdata: allareasdata,
         colors: pcolor,
-        sizear: sizesvar, // Pass the sizees
-        notcart: true,
+        sizear: sizesvar,
+        notcart: nocarts,
         enableddiscounts: enableddiscounts,
         extracolorsfee: additional_fee.colorsricefee,
         extraareafee: extraareafee,
@@ -1500,13 +984,14 @@ function getpricelist() {
       },
       success: function (response) {
         if (response.success) {
-          if (enableddiscounts == true) {
-            var id = "#" + response.data.list_id;
+          const id = enableddiscounts
+            ? `#${response.data.list_id}`
+            : "#span_ar_product";
+          if (enableddiscounts) {
             jQuery(id).html(response.data.price_list);
-            // uodatetable(id);
             pricewhole = update_multi_price_table(id);
           } else {
-            jQuery("#span_ar_product").text(response.data.current_price);
+            jQuery(id).text(response.data.current_price);
           }
           jQuery("#single_add_to_cart_ar").removeClass("disabled_ar_product");
         } else {
@@ -1515,13 +1000,14 @@ function getpricelist() {
         jQuery("#totalprice_ar_product").show();
       },
       error: function (xhr, status, error) {
-        // Handle error
         console.error("Error generating PDF");
       },
     });
   }
+
   return pricewhole;
 }
+
 function check_premiumupdate(quantity) {
   var checked = localStorage.getItem("checked_premium");
   if (checked == "true") {
@@ -1544,44 +1030,35 @@ function check_premiumupdate(quantity) {
 }
 
 function puffEmbroid(selector) {
-  var quantity = parseInt(localStorage.getItem("totalquantity"));
-  jQuery(`${selector}`).find(".title_ar_table").removeClass("bg-red");
-  jQuery(`${selector}`).find(".price_column_ar").removeClass("bg-red");
-  var dispstatus = jQuery("#d_puff_embroidery_wrapper").css("display");
-  if (jQuery("#d_puff_embroidery").is(":checked") && dispstatus !== "none") {
-    jQuery(`${selector}`).find(".title_ar_table").addClass("bg-red");
+  const quantity = parseInt(localStorage.getItem("totalquantity"));
+  const $selector = jQuery(selector);
 
-    jQuery(`${selector}`)
-      .find(".price_column_ar")
-      .each(function () {
-        var currentElement = parseInt(jQuery(this).attr("quantity-id"));
+  // Reset background colors
+  $selector.find(".title_ar_table, .price_column_ar").removeClass("bg-red");
 
-        var nextElement = jQuery(this)
-          .next(".price_column_ar")
-          .attr("quantity-id");
-        if (quantity >= currentElement && quantity < nextElement) {
-          jQuery(`${selector}`).find(".price_column_ar").removeClass("bg-red");
-          jQuery(this).find(".price_column_ar").addClass("bg-red");
-          jQuery(`${selector}`)
-            .find(`.price_column_ar[quantity-id='${currentElement}']`)
-            .addClass("bg-red");
-          return;
-        } else if (nextElement == "" || quantity == currentElement) {
-          jQuery(`${selector}`).find(".price_column_ar").removeClass("bg-red");
-          jQuery(this).addClass("bg-red");
-          return;
-        } else if (quantity == 0) {
-          jQuery(`${selector}`).find(".title_ar_table").removeClass("bg-red");
-          jQuery(`${selector}`).find(".price_column_ar").removeClass("bg-red");
-        }
-      });
+  const dispStatus = jQuery("#d_puff_embroidery_wrapper").css("display");
+  const isChecked = jQuery("#d_puff_embroidery").is(":checked");
 
-    var puffprices = jQuery(`${selector}`)
-      .find(".price_column_ar.bg-red")
-      .text()
-      .replace(/\$/g, "")
-      .trim();
-    localStorage.setItem("d_puff_embroidery", puffprices);
+  if (isChecked && dispStatus !== "none") {
+    $selector.find(".title_ar_table").addClass("bg-red");
+
+    let puffPrices = 0; // Default to 0
+    $selector.find(".price_column_ar").each(function () {
+      const currentElement = parseInt(jQuery(this).attr("quantity-id"));
+      const nextElement =
+        parseInt(jQuery(this).next(".price_column_ar").attr("quantity-id")) ||
+        Infinity; // Handle case where nextElement is undefined
+
+      if (quantity >= currentElement && quantity < nextElement) {
+        puffPrices = jQuery(this).text().replace(/\$/g, "").trim(); // Get the price for the selected quantity
+        jQuery(this).addClass("bg-red");
+      } else if (quantity === currentElement) {
+        puffPrices = jQuery(this).text().replace(/\$/g, "").trim();
+        jQuery(this).addClass("bg-red");
+      }
+    });
+
+    localStorage.setItem("d_puff_embroidery", puffPrices || 0); // Store the price or 0 if none
   } else {
     localStorage.setItem("d_puff_embroidery", 0);
   }
@@ -1589,66 +1066,56 @@ function puffEmbroid(selector) {
 
 /***************************   Extra fee based on print areas price table update start */
 function extrafeeUpdate(selector) {
-  var quantity = parseInt(localStorage.getItem("totalquantity"));
-  jQuery(`${selector}`).find(".title_ar_table").addClass("bg-red");
+  const quantity = parseInt(localStorage.getItem("totalquantity"));
+  const $selector = jQuery(selector);
 
-  jQuery(`${selector}`)
-    .find(".price_column_ar")
-    .each(function () {
-      var currentElement = parseInt(jQuery(this).attr("quantity-id"));
+  // Reset background color for price columns
+  $selector.find(".title_ar_table").addClass("bg-red");
+  const $priceColumns = $selector.find(".price_column_ar");
 
-      var nextElement = jQuery(this)
-        .next(".price_column_ar")
-        .attr("quantity-id");
-      if (quantity >= currentElement && quantity < nextElement) {
-        jQuery(`${selector}`).find(".price_column_ar").removeClass("bg-red");
-        jQuery(this).find(".price_column_ar").addClass("bg-red");
-        jQuery(`${selector}`)
-          .find(`.price_column_ar[quantity-id='${currentElement}']`)
-          .addClass("bg-red");
-        return;
-      } else if (nextElement == "" || quantity >= currentElement) {
-        jQuery(`${selector}`).find(".price_column_ar").removeClass("bg-red");
-        jQuery(this).addClass("bg-red");
-        return;
-      } else if (quantity == 0) {
-        jQuery(`${selector}`).find(".title_ar_table").removeClass("bg-red");
-        jQuery(`${selector}`).find(".price_column_ar").removeClass("bg-red");
-      }
-    });
+  // Remove previous red backgrounds
+  $priceColumns.removeClass("bg-red");
+
+  $priceColumns.each(function () {
+    const $currentElement = jQuery(this);
+    const currentElementId = parseInt($currentElement.attr("quantity-id"));
+    const nextElementId =
+      parseInt($currentElement.next(".price_column_ar").attr("quantity-id")) ||
+      Infinity; // Handle undefined nextElement
+
+    if (quantity >= currentElementId && quantity < nextElementId) {
+      $currentElement.addClass("bg-red");
+    } else if (quantity >= currentElementId || nextElementId === "") {
+      $currentElement.addClass("bg-red");
+    }
+  });
+
+  // Reset title color if quantity is 0
+  if (quantity === 0) {
+    $selector.find(".title_ar_table").removeClass("bg-red");
+  }
 }
+
 function show_patch_fields(patches, thisis) {
-  if (patches == "leather-patch") {
-    thisis
-      .closest(".addlogo_colum")
-      .find(".patches_column_ar")
-      .removeClass("hidethis_ar");
-    thisis
-      .closest(".addlogo_colum")
-      .find(".size_column_ar:has(.patchshape)")
-      .removeClass("hidethis_ar");
-    // console.log(
-    //   thisis.closest(".addlogo_colum").find(".size_column_ar:has(.patchshape)")
-    // );
-    thisis
-      .closest(".addlogo_colum")
-      .find(".size_column_ar:has(.printcolors)")
-      .addClass("hidethis_ar");
-    thisis.closest(".addlogo_colum").addClass("restruct_the_columns_ar");
+  const $addLogoColumn = thisis.closest(".addlogo_colum");
+  const $patchesColumn = $addLogoColumn.find(".patches_column_ar");
+  const $sizeWithPatchShape = $addLogoColumn.find(
+    ".size_column_ar:has(.patchshape)"
+  );
+  const $sizeWithPrintColors = $addLogoColumn.find(
+    ".size_column_ar:has(.printcolors)"
+  );
+
+  if (patches === "leather-patch") {
+    $patchesColumn.removeClass("hidethis_ar");
+    $sizeWithPatchShape.removeClass("hidethis_ar");
+    $sizeWithPrintColors.addClass("hidethis_ar");
+    $addLogoColumn.addClass("restruct_the_columns_ar");
   } else {
-    thisis
-      .closest(".addlogo_colum")
-      .find(".patches_column_ar")
-      .addClass("hidethis_ar");
-    thisis
-      .closest(".addlogo_colum")
-      .find(".size_column_ar:has(.patchshape)")
-      .addClass("hidethis_ar");
-    thisis
-      .closest(".addlogo_colum")
-      .find(".size_column_ar:has(.printcolors)")
-      .removeClass("hidethis_ar");
-    thisis.closest(".addlogo_colum").removeClass("restruct_the_columns_ar");
+    $patchesColumn.addClass("hidethis_ar");
+    $sizeWithPatchShape.addClass("hidethis_ar");
+    $sizeWithPrintColors.removeClass("hidethis_ar");
+    $addLogoColumn.removeClass("restruct_the_columns_ar");
   }
 }
 
@@ -1919,12 +1386,9 @@ function update_multi_price_table(selector) {
   )
     .find(".title_ar_table")
     .removeClass("bg-red");
-
   // Add class 'bg-red' to the selected element
   jQuery(`${selector}`).find(".title_ar_table").addClass("bg-red");
-
   // Iterate over the associative array using jQuery.each
-
   jQuery(`${selector}`)
     .find(".price_column_ar")
     .each(function () {
@@ -1953,11 +1417,6 @@ function update_multi_price_table(selector) {
             totalquantity == currentElement ||
             (nextElement == undefined && totalquantity >= currentElement)
           ) {
-            // jQuery(".price_column_ar").removeClass("bg-red");
-            // jQuery(".grid_tem_ar8:not('#d_3d_ar , #extra_area_fee_ar')")
-            //   .find(".price_column_ar")
-            //   .removeClass("bg-red");
-
             currenttag.addClass("bg-red");
             return;
           }
@@ -1971,7 +1430,6 @@ function update_multi_price_table(selector) {
 function getpricewithoutcharges() {
   // Collect sizes and quantities
   var artsetupfree = jQuery("#freeitemsrequir_ar").attr("valueprice");
-
   // shiipingcost = shiipingcost.replace(/\$/g, "");
   artsetupfree = artsetupfree.replace(/\$/g, "");
   var totalpricewithourcharges = 0.0;
@@ -2011,9 +1469,7 @@ function getpricewithoutcharges() {
             .find(".range_price_ar")
             .text();
         }
-
         currentprice = parseFloat(currentprice.replace(/\$/g, ""));
-
         currentprice =
           currentprice +
           parseFloat(puff_3d) +

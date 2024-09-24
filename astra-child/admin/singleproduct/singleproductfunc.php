@@ -285,7 +285,7 @@ function get_price_table_ar_all($product_id)
                 }
                 ?>
             </div>
-             <!-- extra color fee pricetable -->
+            <!-- extra color fee pricetable -->
             <?php
             $discounted_array = null;
             if (trim($discount_type) == 'percentage') {
@@ -1128,7 +1128,7 @@ function addtocartar()
                     WC()->session->set('custom_d3_embroidery_' . $variation_id, $d3_puff_embroidery);
 
                     $puffclass = $d3_puff_embroidery ? "(3D Puff)" : "";
- 
+
 
                     if (!empty($prod_allareasdata) && is_array($prod_allareasdata)) {
                         $output = "<div class='printareas_cart_ar'> <div class='size_attr_ar_cart'><h6>Print Areas : </h6>";
@@ -1142,15 +1142,13 @@ function addtocartar()
                         }
                         $output .= "</div></div>";
                     }
-                    if(!empty($premiumartsetupfee)) {
-                        $enableornot=$premiumartsetupfee == "true" ? "Enabled" : "Not Enabled";
+                    if (!empty($premiumartsetupfee)) {
+                        $enableornot = $premiumartsetupfee == "true" ? "Enabled" : "Not Enabled";
                         $output .= "<div class='instructionshere'><h6>Primum Art Setup : </h6><p>" . $enableornot . "</p></div>";
-  
                     }
-                    if(!empty($orderedthislogo_ar)) {
-                        $enableornot=$orderedthislogo_ar == "true" ? "Yes" : "No";
+                    if (!empty($orderedthislogo_ar)) {
+                        $enableornot = $orderedthislogo_ar == "true" ? "Yes" : "No";
                         $output .= "<div class='instructionshere'><h6>Have Ordered This Logo Before : </h6><p>" . $enableornot . "</p></div>";
-  
                     }
                     if (!empty($add_instructions)) {
                         $output .= "<div class='instructionshere'><h6>Additional Instructions: : </h6><p>" . $add_instructions . "</p></div>";
