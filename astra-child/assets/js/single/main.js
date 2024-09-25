@@ -27,50 +27,6 @@ jQuery(document).ready(function ($) {
   jQuery("#product_main_image_ae").zoom();
   // deffault values for print type
 
-  if (jQuery(".first_print_types_ar").length > 0) {
-    var defaultprtint = jQuery(".first_print_types_wrapper_ar").attr(
-      "defaultval"
-    );
-    if (
-      defaultprtint == "" ||
-      defaultprtint == null ||
-      defaultprtint == undefined
-    ) {
-      jQuery(".first_print_types_ar").find("h6:first-child").trigger("click");
-      var firsttype = jQuery(".first_print_types_ar")
-        .find("h6:first-child")
-        .attr("values");
-      localStorage.setItem("pptype", firsttype);
-    } else {
-      jQuery(".first_print_types_ar")
-        .find(`h6[values='${defaultprtint}']`)
-        .trigger("click");
-      localStorage.setItem("pptype", defaultprtint);
-    }
-  }
-
-  // default values for the print area
-  if (jQuery(".first_print_areas_wrapper_ar").length > 0) {
-    var defaultarea = jQuery(".first_print_areas_wrapper_ar")
-      .find("select")
-      .attr("current-cat");
-    if (defaultarea == "" || defaultarea == null || defaultarea == undefined) {
-      jQuery(".first_print_areas_wrapper_ar")
-        .find(".custom_options_ar")
-        .find("h6:first-child")
-        .trigger("click");
-    } else {
-      if (
-        jQuery(".first_print_areas_wrapper_ar").find(`h6[values='front']`)
-          .length > 0
-      ) {
-        jQuery(".first_print_areas_wrapper_ar")
-          .find(`h6[values='front']`)
-          .trigger("click");
-      }
-    }
-  }
-
   /****************************** drage and drop zone sections ******************************/
 
   /****************************** drage and drop zone sections end ******************************/
@@ -708,6 +664,11 @@ jQuery("#single_add_to_cart_ar").on("click", function (e) {
 /****************************** listen to click on add to cart button end ******************************/
 
 /****************************** function to show extra charges based on print area selections ******************************/
+
+/**
+ * description : This function is used to calculate the extra charges based on the quantity and print areas
+ * @returns : array with the values of setup fee, total extra charges and the extra color fee.
+ */
 function addextrachargesopt() {
   const artsetupfree = parseFloat(
     jQuery("#freeitemsrequir_ar").attr("valueprice").replace(/\$/g, "") || 0
@@ -768,7 +729,11 @@ function addextrachargesopt() {
 }
 
 /****************************** function to show extra charges based on print area selections end ******************************/
-
+/**
+ * description : This function is used to highlight the price column based on the quantity
+ * @param quantity: The quantity of the product
+ * @returns
+ */
 function pa_additional_cost_ar(quantity) {
   const $priceColumns = jQuery("#pa_additional_cost_ar .price_column_ar");
   const $printAreas = jQuery(
@@ -813,7 +778,11 @@ function pa_additional_cost_ar(quantity) {
     });
   }
 }
-
+/**
+ * description : This function is used to get  array of all the print areas selected for the product
+ * 
+ * @returns array of all the print areas
+ */
 function gettheprintareaarray() {
   const printareasall = [];
 
@@ -868,7 +837,11 @@ jQuery(".allprintareas").on("click", ".removerlist_ar_area", function () {
 /****************************** singple product page color swatches selections end ******************************/
 
 /****************************** function to update the visualize the current price in the price table ******************************/
-
+/**
+ * description : This function is used to highlight the price column based on the quantity and the selector passed in it
+ * @param selector : id of the row which need to be highlighted
+ * @returns none
+ */
 function uodatetable(selector) {
   const quantity = parseInt(localStorage.getItem("totalquantity"));
 
@@ -918,6 +891,13 @@ function uodatetable(selector) {
   });
 }
 
+
+/**
+ * description : This function is used to get the price list for each variation user selects for the product
+ * @param nocarts : boolean to check if the user wants to get the price list without adding to cart
+ * @returns returns the price list
+ */
+
 function getpricelist(nocarts = true) {
   jQuery("#single_add_to_cart_ar").addClass("disabled_ar_product");
 
@@ -965,7 +945,7 @@ function getpricelist(nocarts = true) {
         : 0;
 
     jQuery("#totalprice_ar_product").hide();
-    let pricewhole = 0;
+    var pricewhole = 0;
 
     jQuery.ajax({
       type: "POST",
@@ -1008,6 +988,11 @@ function getpricelist(nocarts = true) {
   return pricewhole;
 }
 
+/**
+ * description : This function is used to check if the user has selected premium artwork or not
+ * @param  quantity : The quantity of the product
+ * @returns none
+ */
 function check_premiumupdate(quantity) {
   var checked = localStorage.getItem("checked_premium");
   if (checked == "true") {
@@ -1028,7 +1013,11 @@ function check_premiumupdate(quantity) {
     }
   }
 }
-
+/**
+ * description : This function is used to check if the user has selected d_puff_embroidery or not, if selected then update the price list accordingly
+ * @param  selector : id of the puff_embroidery row in the price list
+ * @returns none
+ */
 function puffEmbroid(selector) {
   const quantity = parseInt(localStorage.getItem("totalquantity"));
   const $selector = jQuery(selector);
@@ -1065,6 +1054,11 @@ function puffEmbroid(selector) {
 }
 
 /***************************   Extra fee based on print areas price table update start */
+/**
+ * description : This function is used to hightlight the price column based on the quantity of the row passed as params
+ * @param  selector : id of the extra fees row in the price list
+ * @returns none
+ */
 function extrafeeUpdate(selector) {
   const quantity = parseInt(localStorage.getItem("totalquantity"));
   const $selector = jQuery(selector);
@@ -1096,6 +1090,13 @@ function extrafeeUpdate(selector) {
   }
 }
 
+/**
+ * description : This function is used to show extra fields based on the print area selection
+ * @param  patches : value of the print type selected
+ * @param  thisis : current row of the print area list
+ * @returns none
+ */
+
 function show_patch_fields(patches, thisis) {
   const $addLogoColumn = thisis.closest(".addlogo_colum");
   const $patchesColumn = $addLogoColumn.find(".patches_column_ar");
@@ -1120,6 +1121,10 @@ function show_patch_fields(patches, thisis) {
 }
 
 /******************************** function to update free premium setup progress bar actions*/
+/**
+ * description : This function is used to update the setup fees progress bar based on quantity
+ * @returns none
+ */
 
 function update_progressbar() {
   var quantity = parseInt(localStorage.getItem("totalquantity"));
@@ -1349,6 +1354,13 @@ jQuery(".floating_icons_viewer").on("click", function (e) {
   }
 });
 
+/**
+ * description : This function is used to display the error message 
+ * @param  quantity : quantity of the product
+ * @param  color : color variation of the product
+ * @param  printtypes : print types variation for the product 
+ * @returns none
+ */
 function showerrormessaes(quantity, color, printtypes) {
   if (quantity == 0) {
     jQuery("#error_placer_ar")
@@ -1367,6 +1379,12 @@ function showerrormessaes(quantity, color, printtypes) {
     jQuery("#error_placer_ar").hide();
   }
 }
+
+/**
+ * description : This function is used to highlight and update the price table based on multiple selctions of the variations 
+ * @param  selector : id of the row to be highlighted
+ * @returns none
+ */
 
 function update_multi_price_table(selector) {
   var sizes_quantity = {}; // Using an associative array (plain object)
@@ -1427,6 +1445,11 @@ function update_multi_price_table(selector) {
   return pricewithout;
 }
 
+
+/**
+ * description : This function is used to calculate the total price of the product based on whole product options selection and quantity 
+ * @returns total price of the product 
+ */
 function getpricewithoutcharges() {
   // Collect sizes and quantities
   var artsetupfree = jQuery("#freeitemsrequir_ar").attr("valueprice");

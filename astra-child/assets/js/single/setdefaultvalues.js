@@ -61,4 +61,47 @@ jQuery(document).ready(function ($) {
   if (jQuery("#price_calculator_ar_ar").length <= 0) {
     jQuery("#freeartworksetup_ar_ar").find("h2").text("0$");
   }
+  if (jQuery(".first_print_types_ar").length > 0) {
+    var defaultprtint = jQuery(".first_print_types_wrapper_ar").attr(
+      "defaultval"
+    );
+    if (
+      defaultprtint == "" ||
+      defaultprtint == null ||
+      defaultprtint == undefined
+    ) {
+      jQuery(".first_print_types_ar").find("h6:first-child").trigger("click");
+      var firsttype = jQuery(".first_print_types_ar")
+        .find("h6:first-child")
+        .attr("values");
+      localStorage.setItem("pptype", firsttype);
+    } else {
+      jQuery(".first_print_types_ar")
+        .find(`h6[values='${defaultprtint}']`)
+        .trigger("click");
+      localStorage.setItem("pptype", defaultprtint);
+    }
+  }
+
+  // default values for the print area
+  if (jQuery(".first_print_areas_wrapper_ar").length > 0) {
+    var defaultarea = jQuery(".first_print_areas_wrapper_ar")
+      .find("select")
+      .attr("current-cat");
+    if (defaultarea == "" || defaultarea == null || defaultarea == undefined) {
+      jQuery(".first_print_areas_wrapper_ar")
+        .find(".custom_options_ar")
+        .find("h6:first-child")
+        .trigger("click");
+    } else {
+      if (
+        jQuery(".first_print_areas_wrapper_ar").find(`h6[values='front']`)
+          .length > 0
+      ) {
+        jQuery(".first_print_areas_wrapper_ar")
+          .find(`h6[values='front']`)
+          .trigger("click");
+      }
+    }
+  }
 });
