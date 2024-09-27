@@ -146,7 +146,7 @@ $terms = get_the_terms($product->get_id(), 'product_cat');
                         <div class="addtocart_btn_wraper_ar" id="addtocarwrappere_ar">
                             <div class="subtotal_calc_ar">
                                 <div class="wraper_ar" id="heading_for_sub_total_ar">
-                                    <h2 class="font_20_600 text_dark_ar">Item subtotal <span class='smallerheadings_ar font_16_400 text_dark_op60_ar'> (<span class='vairation_added_ar'>0 </span> variations <span class='quantity_added_ar'>0</span> items) ($ <span id="freesetup_charges_ar">30</span> Artwork Setup)</span></h2>
+                                    <h2 class="font_20_600 text_dark_ar">Item subtotal <span class='smallerheadings_ar font_16_400 text_dark_op60_ar'> (<span class='vairation_added_ar'>0 </span> variations <span class='quantity_added_ar'>0</span> items) ($ <span id="freesetup_charges_ar" artsetup="<?php echo get_field('art_setup_fee', 'options'); ?>"><?php echo get_field('art_setup_fee', 'options'); ?></span> Artwork Setup)</span></h2>
                                 </div>
 
                                 <div class="wraper_ar" id="totalprice_ar_product">

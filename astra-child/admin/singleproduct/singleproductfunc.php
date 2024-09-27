@@ -163,21 +163,24 @@ function get_price_table_ar_all($product_id)
     $extra_color_fee = get_field('extra_color_fee', 'options');
     $extra_area_fee = get_field('extra_area_fee', 'options');
     $pricearray = array();
+
     if ($discount_location == 'yes') {
         $pricearray = get_pricing_listing();
     } else {
         $commonItems = array_intersect($category_ids, $select_your_product);
         if (count($commonItems) > 0) {
-
             $pricearray = get_pricing_listing();
         }
     }
 
-    if (count($pricearray) > 0) {
+    // Get product variations
+    $product = wc_get_product($product_id);
+    $variations = $product->get_children();
+
+    if (count($pricearray) > 0 || !empty($variations)) {
     ?>
         <h2 id="price_calculator_ar_ar">Price calculator</h2>
         <div class="normal_price_table_ar_all" id="normal_price_table_ar">
-
             <div class="grid_tem_ar8">
                 <div class="title_ar_table">
                     <h6>Print Type</h6>
@@ -200,121 +203,125 @@ function get_price_table_ar_all($product_id)
                 <div class="price_column_ar">
                     <div class="range_ar"> 288 Item</div>
                 </div>
-                <!-- <div class="price_column_ar">
-                    <div class="range_ar"> 432 Item</div>
-                </div> -->
             </div>
+
             <?php
-            foreach ($pricearray as $arrayskey => $value) {
-                $title = $value['name'];
-                $price = number_format($value['price']);
-                $id = $value['slug'];
-                $discounted_array = null;
-                if (trim($discount_type) == 'percentage') {
-                    $discounted_array = get_percentage_discount($price, $percentage_discount);
+            // Loop through product variations
+            $printsarray = array();
+            foreach ($variations as $variation_id) {
+                $variation = wc_get_product($variation_id);
+                $addhidmeclass = false;
+                $variation_name = $variation->get_name();
+                // Get variation attributes (size and color)
+                $attributes = $variation->get_variation_attributes();
+                $size_slug = isset($attributes['attribute_pa_sizes']) ? $attributes['attribute_pa_sizes'] : '';
+                $color_slug = isset($attributes['attribute_pa_color']) ? $attributes['attribute_pa_color'] : '';
+                $print_type = isset($attributes['attribute_pa_print-types']) ? $attributes['attribute_pa_print-types'] : '';
+                $print_type_name = ($variation->get_attribute('pa_print-types')) ? $variation->get_attribute('pa_print-types') : '';
+                $size_slug_name = ($variation->get_attribute('pa_sizes')) ? $variation->get_attribute('pa_sizes') : '';
+
+
+                if (in_array($print_type, $printsarray)) {
+                    $addhidmeclass = true;
                 } else {
-                    $discounted_array = get_fixed_discount($price, $fixed_amount_discount);
+                    $printsarray[] = $print_type;
                 }
+                // Concatenate the size with parentheses and add color as an attribute
+                $variation_title = $print_type_name . (!empty($size_slug_name) ? '<span>(' . $size_slug_name . ')</span> ' : '');
+                $variation_price = number_format($variation->get_price(), 2);
+                $discounted_array = null;
+
+                if (trim($discount_type) == 'percentage') {
+                    $discounted_array = get_percentage_discount($variation_price, $percentage_discount);
+                } else {
+                    $discounted_array = get_fixed_discount($variation_price, $fixed_amount_discount);
+                }
+
             ?>
-                <div class="grid_tem_ar8" id="<?php echo $id; ?>">
+                <div class="grid_tem_ar8 print_types_tables_ar <?php echo $print_type; ?> <?php echo $addhidmeclass ? 'hideme_in_table_ar' : "showme_in_table_ar"; ?>" id="<?php echo 'variation_' . $variation_id; ?>" varsize="<?php echo esc_attr($size_slug); ?>" varcolor="<?php echo esc_attr($color_slug); ?>">
                     <div class="title_ar_table">
-                        <h6><?php echo $title; ?></h6>
+                        <h6><?php echo $variation_title; ?></h6>
                     </div>
                     <?php
                     foreach ($discounted_array as $key => $value) {
                         $numberindex = explode("_", $key)[1];
-
                     ?>
                         <div class="price_column_ar" quantity-id="<?php echo $numberindex; ?>">
                             <div class="range_price_ar"><?php echo (!empty($value) ? "$ " . $value : ""); ?></div>
                         </div>
                     <?php
-
                     }
                     ?>
                 </div>
-
             <?php
             }
-            $discounted_array = null;
-            if (trim($discount_type) == 'percentage') {
-                $discounted_array = get_percentage_discount($d3_puff_embroidery, $percentage_discount);
-            } else {
-                $discounted_array = get_fixed_discount($d3_puff_embroidery, $fixed_amount_discount);
-            }
+            ?>
+
+            <?php
+            // 3D Puff Fee row
+            $discounted_array = (trim($discount_type) == 'percentage') ? get_percentage_discount($d3_puff_embroidery, $percentage_discount) : get_fixed_discount($d3_puff_embroidery, $fixed_amount_discount);
             ?>
             <div class="grid_tem_ar8" id="d_3d_ar">
                 <div class="title_ar_table">
-                    <h6>3d Puff Fee</h6>
+                    <h6>3D Puff Fee</h6>
                 </div>
                 <?php
                 foreach ($discounted_array as $key => $value) {
                     $numberindex = explode("_", $key)[1];
-
                 ?>
                     <div class="price_column_ar" quantity-id="<?php echo $numberindex; ?>">
                         <div class="range_price_ar"><?php echo (!empty($value) ? "$ " . $value : ""); ?></div>
                     </div>
                 <?php
-
                 }
                 ?>
             </div>
+
             <?php
-            $discounted_array = null;
-            if (trim($discount_type) == 'percentage') {
-                $discounted_array = get_percentage_discount($extra_area_fee, $percentage_discount);
-            } else {
-                $discounted_array = get_fixed_discount($extra_area_fee, $fixed_amount_discount);
-            }
+            // Extra Area Fee row
+            $discounted_array = (trim($discount_type) == 'percentage') ? get_percentage_discount($extra_area_fee, $percentage_discount) : get_fixed_discount($extra_area_fee, $fixed_amount_discount);
             ?>
             <div class="grid_tem_ar8" id="extra_area_fee_ar">
                 <div class="title_ar_table">
-                    <h6>Extra Area Fee </h6>
+                    <h6>Extra Area Fee</h6>
                 </div>
                 <?php
                 foreach ($discounted_array as $key => $value) {
                     $numberindex = explode("_", $key)[1];
-
                 ?>
                     <div class="price_column_ar" quantity-id="<?php echo $numberindex; ?>">
                         <div class="range_price_ar"><?php echo (!empty($value) ? "$ " . $value : ""); ?></div>
                     </div>
                 <?php
-
                 }
                 ?>
             </div>
-            <!-- extra color fee pricetable -->
+
             <?php
-            $discounted_array = null;
-            if (trim($discount_type) == 'percentage') {
-                $discounted_array = get_percentage_discount($extra_color_fee, $percentage_discount);
-            } else {
-                $discounted_array = get_fixed_discount($extra_color_fee, $fixed_amount_discount);
-            }
+            // Extra Color Fee row
+            $discounted_array = (trim($discount_type) == 'percentage') ? get_percentage_discount($extra_color_fee, $percentage_discount) : get_fixed_discount($extra_color_fee, $fixed_amount_discount);
             ?>
             <div class="grid_tem_ar8" id="extra_color_fee_ar">
                 <div class="title_ar_table">
-                    <h6>Extra Color Fee </h6>
+                    <h6>Extra Color Fee</h6>
                 </div>
                 <?php
                 foreach ($discounted_array as $key => $value) {
                     $numberindex = explode("_", $key)[1];
-
                 ?>
                     <div class="price_column_ar" quantity-id="<?php echo $numberindex; ?>">
                         <div class="range_price_ar"><?php echo (!empty($value) ? "$ " . $value : ""); ?></div>
                     </div>
                 <?php
-
                 }
                 ?>
             </div>
+
         </div>
     <?php
     }
 }
+
 
 function get_percentage_discount($price, $percentages)
 {
@@ -491,7 +498,7 @@ function get_sizes_with_quantity()
                 $variation = has_a_variation($size_slug, 'attribute_pa_sizes');
 
                 if ($variation) {
-                    $output .= "<div class='size_column_ar'> <div class='size_name'> <h6>" . $size . "</h6></div> <div class='sizes_quantity'><input type='number' step='1' placeholder='0' min='0' value='0' cursize='" . $size . "' name='input_sizes' product-id='" . $product->get_id() . "'></div></div>";
+                    $output .= "<div class='size_column_ar'> <div class='size_name'> <h6>" . $size . "</h6></div> <div class='sizes_quantity'><input type='number' step='1' placeholder='0' min='0' value='0' cursize='" . $size_slug . "' name='input_sizes' product-id='" . $product->get_id() . "'></div></div>";
                 }
             }
         } else {
@@ -499,7 +506,7 @@ function get_sizes_with_quantity()
             $size_slug = sanitize_title($size);
             $variation = has_a_variation($size_slug, 'attribute_pa_sizes');
             if ($variation) {
-                $output .= "<div class='size_column_ar'> <div class='size_name'> <h6>" . $size . "</h6></div> <div class='sizes_quantity'><input type='number' placeholder='0' step='1' min='0' value='0' cursize='" . $size . "' name='input_sizes' product-id='" . $product->get_id() . "'></div></div>";
+                $output .= "<div class='size_column_ar'> <div class='size_name'> <h6>" . $size . "</h6></div> <div class='sizes_quantity'><input type='number' placeholder='0' step='1' min='0' value='0' cursize='" . $size_slug . "' name='input_sizes' product-id='" . $product->get_id() . "'></div></div>";
             }
         }
 
@@ -1194,6 +1201,149 @@ function addtocartar()
             }
         }
     }
+
+    if ($added_to_cart) {
+        wp_send_json_success(array(
+            'message' => 'Product(s) added to cart.',
+            'redirect_url' =>  wc_get_cart_url(),
+        ));
+    } else {
+        wp_send_json_error(array('message' => "Sorry something went wrong. Please Try Again Later"));
+    }
+
+
+    die();
+}
+
+add_action("wp_ajax_addtocartar", "addtocartar");
+add_action("wp_ajax_nopriv_addtocartar", "addtocartar");
+
+function cw_add_to_cart()
+{
+    // Check if WooCommerce is active
+    if (!class_exists('WooCommerce')) {
+        wp_send_json_error(array('message' => 'WooCommerce is not active.'));
+    }
+
+    $productData = isset($_POST['productData']) ? ($_POST['productData']) : '';
+    if (empty($productData)) {
+        wp_send_json_error(array('message' => 'Something went wrong.'));
+    }
+    // Retrieve data from the AJAX request
+    $product_id = (!empty($productData['productid'])) ? intval($productData['productid']) : 0;
+    $totalquantity = isset($_POST['quantity']) ? intval($_POST['quantity']) : 1;
+    $custompriceperproduct = (!empty($productData['pricePerProduct'])) ? floatval($productData['pricePerProduct']) : 0;
+    $prod_color = (!empty($productData['color'])) ? ($productData['color']) : '';
+    $prod_var = (!empty($productData['sizewithQuantity'])) ? ($productData['sizewithQuantity']) : '';
+    $prod_allareasdata = (!empty($productData['extraArea'])) ? ($productData['extraArea']) : '';;
+    $orderedthislogo_ar = (!empty($productData['alreadyOrdered'])) ? ($productData['alreadyOrdered']) : '';
+    $premiumartsetupfee = (!empty($productData['premium_artwork_price'])) ? ($productData['premium_artwork_price']) : '';
+    $add_instructions = (!empty($productData['additionalInstructions'])) ? ($productData['additionalInstructions']) : '';
+    $d3_puff_embroidery = (!empty($productData['embroideryEnabled'])) ? ($productData['embroideryEnabled']) : '';
+
+    // Validate product ID
+    if (!$product_id) {
+        wp_send_json_error(array('message' => 'Invalid product ID.'));
+    }
+
+    $product = wc_get_product($product_id);
+    if (!$product || !$product->is_type('variable')) {
+        wp_send_json_error(array('message' => 'Product is not a variable product.'));
+    }
+
+    $variations = $product->get_available_variations();
+    $added_to_cart = array();
+    $output = '';
+    $totalprice = 0;
+    foreach ($variations as $variation_data) {
+        foreach ($prod_var as $prod) {
+            $prod_size = sanitize_title(trim($prod['size']));
+            $variation_id = $variation_data['variation_id'];
+            $variation = new WC_Product_Variation($variation_id);
+            $attributes = $variation->get_attributes();
+
+            $print_type = sanitize_title(trim($prod_allareasdata[0]['printtype']));
+            // $added_to_cart[] = $print_type;
+            $quantity = $prod['quantity'];
+            // Check if this variation matches the specified color and size
+            if ($attributes['pa_color'] === $prod_color && $attributes['pa_sizes'] === $prod_size && $attributes['pa_print-types'] === $print_type) {
+
+                // Calculate the custom price per product
+                $currentprice = $custompriceperproduct;
+
+
+                // Store custom details in the session
+                WC()->session->set('custom_price_' . $variation_id, $currentprice);
+                WC()->session->set('custom_color_' . $variation_id, $prod_color);
+                WC()->session->set('custom_variates_' . $variation_id, $prod_var);
+                WC()->session->set('custom_areas_' . $variation_id, $prod_allareasdata);
+                WC()->session->set('custom_instructions_' . $variation_id, $add_instructions);
+                WC()->session->set('custom_d3_embroidery_' . $variation_id, $d3_puff_embroidery);
+
+                $puffclass = $d3_puff_embroidery ? "(3D Puff)" : "";
+
+
+                if (!empty($prod_allareasdata) && is_array($prod_allareasdata)) {
+                    $output = "<div class='printareas_cart_ar'> <div class='size_attr_ar_cart'><h6>Print Areas : </h6>";
+                    foreach ($prod_allareasdata as $area) {
+                        $printtype = !empty($area['printtype']) ? "<span>" . $area['printtype'] . "$puffclass</span> + " : "";
+                        $printarea = !empty($area['areavalue']) ? "<span>" . $area['areavalue'] . "</span> + " : "";
+                        $printcolor = !empty($area['printcolors']) ? "<span>" . $area['printcolors'] . " colors </span>  " : "";
+                        $artwork = !empty($area['artworkurl']) ? " + <a href='" . esc_url($area['artworkurl']) . "' target='_blank'>View Artwork</a></h6>" : "";
+
+                        $output .= "<h6>" . $printtype . $printarea . $printcolor . $artwork . "</h6>";
+                    }
+                    $output .= "</div></div>";
+                }
+                if (!empty($premiumartsetupfee)) {
+                    $enableornot = $premiumartsetupfee == "true" ? "Enabled" : "Not Enabled";
+                    $output .= "<div class='instructionshere'><h6>Primum Art Setup : </h6><p>" . $enableornot . "</p></div>";
+                }
+                if (!empty($orderedthislogo_ar)) {
+                    $enableornot = $orderedthislogo_ar == "true" ? "Yes" : "No";
+                    $output .= "<div class='instructionshere'><h6>Have Ordered This Logo Before : </h6><p>" . $enableornot . "</p></div>";
+                }
+                if (!empty($add_instructions)) {
+                    $output .= "<div class='instructionshere'><h6>Additional Instructions: : </h6><p>" . $add_instructions . "</p></div>";
+                }
+
+                update_field("product_extra_details", $output, $product_id);
+
+                // remove the product if already in cart
+                // Loop through the cart to find the product or variation
+                foreach (WC()->cart->get_cart() as $cart_item_key => $cart_item) {
+                    if (
+                        $cart_item['product_id'] == $product_id &&
+                        $cart_item['variation_id'] == $variation_id &&
+                        $cart_item['variation']['attribute_pa_color'] == $prod_color &&
+                        $cart_item['variation']['attribute_pa_sizes'] == $prod_size &&
+                        $cart_item['variation']['attribute_pa_print-types'] == $print_type
+                    ) {
+
+                        // Remove the product or variation from the cart
+                        WC()->cart->remove_cart_item($cart_item_key);
+                        break; // Exit loop after removing the item
+                    }
+                }
+
+                // Add the variation to the cart
+                $result = WC()->cart->add_to_cart($product_id, $quantity, $variation_id, array(
+                    'attribute_pa_color' => $prod_color,
+                    'attribute_pa_sizes' => $prod_size,
+                    'attribute_pa_print-types' => $print_type,
+                ),);
+                $cart_item_count = WC()->cart->get_cart_contents_count();
+
+                if ($result) {
+                    $added_to_cart[] = array(
+                        'product_id' => $product_id,
+                        'quantity' => $quantity,
+                        'custom_price_per_product' => $currentprice,
+                    );
+                }
+            }
+        }
+    }
     if (!$notcart) {
 
         if ($added_to_cart) {
@@ -1211,9 +1361,8 @@ function addtocartar()
 
     die();
 }
-
-add_action("wp_ajax_addtocartar", "addtocartar");
-add_action("wp_ajax_nopriv_addtocartar", "addtocartar");
+add_action("wp_ajax_cw_add_to_cart", "cw_add_to_cart");
+add_action("wp_ajax_nopriv_cw_add_to_cart", "cw_add_to_cart");
 
 
 

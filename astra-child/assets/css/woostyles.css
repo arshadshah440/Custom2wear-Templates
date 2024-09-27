@@ -890,3 +890,19 @@ ul.payment_methods li[class*="payment_method"] input[name="payment_method"] {
 .margin_bottom_0px{
   margin: 0px !important;
 }
+
+/** new logic styles **/
+
+/* .grid_tem_ar8.digital-print:not(:nth-child(2)),.grid_tem_ar8.embroidery:not(:nth-of-type(2)){
+  display: none;
+} */
+
+#normal_price_table_ar .hideme_in_table_ar,#normal_price_table_ar .showme_in_table_ar .title_ar_table h6 span{
+  display: none;
+}
+#normal_price_table_ar .hideme_in_table_ar:has(.bg-red){
+  display: grid !important;
+}
+#normal_price_table_ar .showme_in_table_ar:has(.bg-red) .title_ar_table h6 span{
+  display: unset !important;
+}

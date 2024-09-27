@@ -1,6 +1,32 @@
 jQuery(document).ready(function ($) {
   // setting patches shapes and colors
+  jQuery(".allprintareas").on("click", ".custom_dropdown_ar_ar", function (e) {
+    e.preventDefault();
+    jQuery(".custom_options_ar").hide();
+    jQuery(this).siblings(".custom_options_ar").toggle();
+    jQuery(".custom_dropdown_wrapper_ar_ar").removeClass(
+      "z_index_tooltip_cc_ar"
+    );
+    jQuery(this)
+      .closest(".custom_dropdown_wrapper_ar_ar")
+      .addClass("z_index_tooltip_cc_ar");
+  });
 
+  jQuery(".allprintareas").on("click", ".custom_options_ar h6", function (e) {
+    e.preventDefault();
+    var values = jQuery(this).attr("values");
+    var text = jQuery(this).text();
+    jQuery(this)
+      .closest(".custom_dropdown_wrapper_ar_ar")
+      .find(".custom_dropdown_ar_ar h6")
+      .text(text);
+    jQuery(this)
+      .closest(".custom_dropdown_wrapper_ar_ar")
+      .find("select")
+      .val(values)
+      .change();
+    jQuery(this).closest(".custom_options_ar").hide();
+  });
   jQuery(".active_swatch_ar").trigger("click");
 
   var imgsrc = jQuery(".patch-shape-colors-main")
@@ -54,9 +80,9 @@ jQuery(document).ready(function ($) {
       .attr("disabled", true);
   }
 
-  localStorage.setItem("totalquantity", 0);
-  localStorage.setItem("checked_premium", false);
-  localStorage.setItem("d_puff_embroidery", 0);
+  sessionStorage.setItem("totalquantity", 0);
+  sessionStorage.setItem("premium_artwork", "");
+  sessionStorage.setItem("d_puff_embroidery", 0);
   jQuery(".sizes_ar").find("input[type='number']").val(0);
   if (jQuery("#price_calculator_ar_ar").length <= 0) {
     jQuery("#freeartworksetup_ar_ar").find("h2").text("0$");
