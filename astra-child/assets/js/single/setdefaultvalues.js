@@ -40,31 +40,35 @@ jQuery(document).ready(function ($) {
   var bgsrc = jQuery(".patch-shape-colors-main")
     .find(".patch_colors_selection_list_ar")
     .find(".swatch_ar:first-child")
-    .attr("attr-name");
-  var selectname = jQuery(".patch-shape-colors-main")
-    .find(".patch_colors_selection_list_ar")
-    .find(".swatch_ar:first-child")
-    .attr("attr-name");
-  jQuery(".patch_colors_selection_ar")
-    .find(".selcted_shape_ar_ar")
-    .text(shapname);
-  jQuery(".patch_colors_selection_ar")
-    .find(".selected_shaped_color_rect")
-    .css("mask-image", imgsrc);
-  jQuery(".patch_colors_selection_ar")
-    .find(".selected_shaped_color_rect")
-    .css("background-color", bgsrc);
-  jQuery(".patch_colors_selection_ar")
-    .find(".selcted_color_ar_ar")
-    .text(selectname);
-  jQuery(".patch-shape-colors-main")
-    .find(".patch_colors_selection_list_ar")
-    .find(".swatch_ar:first-child")
-    .addClass("active_shapes_wraper");
-  jQuery(".patch-shape-colors-main")
-    .find(".patch-shape-img-text:first-child")
-    .find("img")
-    .addClass("active_shapes_wraper");
+    .trigger("click");
+  // console.log(bgsrc);
+  // var selectname = jQuery(".patch-shape-colors-main")
+  //   .find(".patch_colors_selection_list_ar")
+  //   .find(".swatch_ar:first-child")
+  //   .attr("attr-name");
+  // jQuery(".patch_colors_selection_ar")
+  //   .find(".selcted_shape_ar_ar")
+  //   .text(shapname);
+  // jQuery(".patch_colors_selection_ar")
+  //   .find(".selected_shaped_color_rect")
+  //   .css("mask-image", imgsrc);
+  // jQuery(".patch_colors_selection_ar")
+  //   .find(".selected_shaped_color_rect")
+  //   .css("background-image", imgsrc);
+  // jQuery(".patch_colors_selection_ar")
+  //   .find(".selected_shaped_color_rect")
+  //   .css("background-color", "unset");
+  // jQuery(".patch_colors_selection_ar")
+  //   .find(".selcted_color_ar_ar")
+  //   .text(selectname);
+  // jQuery(".patch-shape-colors-main")
+  //   .find(".patch_colors_selection_list_ar")
+  //   .find(".swatch_ar:first-child")
+  //   .addClass("active_shapes_wraper");
+  // jQuery(".patch-shape-colors-main")
+  //   .find(".patch-shape-img-text:first-child")
+  //   .find("img")
+  //   .addClass("active_shapes_wraper");
 
   if (
     jQuery(".allprintareas > .addlogo_colum")

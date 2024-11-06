@@ -34,7 +34,7 @@ do_action('woocommerce_before_cart'); ?>
             <thead>
                 <tr>
                     <th class="product-remove"><span class="screen-reader-text"><?php esc_html_e('Remove item', 'woocommerce'); ?></span></th>
-                    <!-- <th class="product-thumbnail"><span class="screen-reader-text"><? php // esc_html_e('Thumbnail image', 'woocommerce'); 
+                    <!-- <th class="product-thumbnail"><span class="screen-reader-text"><?php // esc_html_e('Thumbnail image', 'woocommerce'); 
                                                                                         ?></span></th> -->
                     <th class="product-name"><?php esc_html_e('Products', 'woocommerce'); ?></th>
                     <th class="product-quantity"><?php esc_html_e('Quantity', 'woocommerce'); ?></th>
@@ -141,7 +141,7 @@ do_action('woocommerce_before_cart'); ?>
                                             <?php // } 
                                             ?> -->
                                         </div>
-                                    </div> 
+                                    </div>
                                 </div>
                                 <?php
                                 // Backorder notification.
@@ -175,11 +175,19 @@ do_action('woocommerce_before_cart'); ?>
                             </td>
 
 
-                            <td class="product-price" data-title="<?php esc_attr_e('Price', 'woocommerce'); ?>">
-                                <?php
-                                echo apply_filters('woocommerce_cart_item_price', WC()->cart->get_product_price($_product), $cart_item, $cart_item_key); // PHPCS: XSS ok.
+                            <td class="product-price custom_cart_price_ar" data-title="<?php esc_attr_e('Price', 'woocommerce'); ?>">
+                              
+                                <?php 
+                                if (!empty($cart_item['extraColorfee']) || !empty($cart_item['extraAreafee']) || !empty($cart_item['embroideryfee'])) {
                                 ?>
-                                <?php echo $cart_item['extracharges'] ? "<p>including setup fee($" . number_format($cart_item['extracharges'], 2) . ")</p>" : ""; ?>
+                                <?php echo (!empty($cart_item['priceWithoutextra']) || $cart_item['priceWithoutextra'] != 0) ? "<p>Price without extra fees  <span>($" . number_format($cart_item['priceWithoutextra'], 2) . ")</span></p>" : "";
+                                } ?>
+                                <?php echo (!empty($cart_item['extraAreafee']) || floatval($cart_item['extraAreafee']) != 0) ? "<p>Extra Area fee <span>($" . number_format($cart_item['extraAreafee'], 2) . ")</span></p>" : ""; ?>
+                                <?php echo (!empty($cart_item['extraColorfee']) || floatval($cart_item['extraColorfee']) != 0) ? "<p>Extra Color fee <span>($" . number_format($cart_item['extraColorfee'], 2) . ")</span></p>" : ""; ?>
+                                <?php echo (!empty($cart_item['embroideryfee']) || floatval($cart_item['embroideryfee']) != 0) ? "<p>3D Puff Embroidery fee <span>($" . number_format($cart_item['embroideryfee'], 2) . ")</span></p>" : ""; ?>
+                                <?php
+                                echo apply_filters('woocommerce_cart_item_price', WC()->cart->get_product_price($_product), $cart_item, $cart_item_key) . " <span>per product </span>"; // PHPCS: XSS ok.
+                                ?>
                             </td>
                             <td class="product-subtotal" data-title="<?php esc_attr_e('line_subtotal', 'woocommerce'); ?>">
                                 <?php

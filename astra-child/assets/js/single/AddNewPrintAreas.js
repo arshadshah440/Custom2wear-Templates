@@ -1,3 +1,7 @@
+var defaultartworkimgurl = jQuery(".addlogo_colum")
+  .first()
+  .find(".size_name_upload img")
+  .attr("src");
 /**
  * Main function that handles the click event for adding another print area.
  * @param {Object} e - The event object from the click handler.
@@ -64,10 +68,8 @@ function addNewPrintArea(arrayval, firstValue, firstValueCat) {
   $newColum.find(".printcolors").prop("disabled", false);
   $newColum
     .find(".size_name_upload > img")
-    .attr(
-      "src",
-      "https://custom2wear.mi6.global/wp-content/uploads/2024/05/Frame-1000005041.svg"
-    );
+    .attr("src", "" + defaultartworkimgurl + "");
+  $newColum.find(".size_name_upload label").show();
 }
 
 /**

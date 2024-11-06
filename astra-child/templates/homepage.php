@@ -13,7 +13,7 @@ $homehero = get_field('hero_section');
         <div class="section_data_wrapper leftside_container_ar">
             <div class="sect_content_ar max_width_ar_440">
                 <h2 class="font_40_700 ma_ar_0"><?php echo $homehero['section_title']; ?></h2>
-                <p class="font_16_400 text_align_left_ar" id="section_tagline_ar"><?php echo $homehero['section_tagline']; ?></p>
+                <div class="font_16_400 text_align_left_ar" id="section_tagline_ar"><?php echo $homehero['section_tagline']; ?></div>
                 <a href="<?php echo $homehero['section_cta_link']; ?>" class="colored_btn_ar"><?php echo $homehero['section_cta_text']; ?></a>
             </div>
             <div class="sect_image_ar">
@@ -27,6 +27,7 @@ $homehero = get_field('hero_section');
 
 // Best Sellers section
 $productsectheadings = get_field('home_products_sections');
+$numberofproducts = isset($productsectheadings['number_of_products_to_display_in_sliders']) ? $productsectheadings['number_of_products_to_display_in_sliders'] : 10;
 
 ?>
 <section class="product_seller_ar padd_84_80" id="product_seller_ar">
@@ -47,12 +48,24 @@ $productsectheadings = get_field('home_products_sections');
         <div class="best_seller_slider_ar">
             <?php
             // Arguments to fetch the latest products
+            $allowedcategories = isset($productsectheadings['best_seller_categories']) ? $productsectheadings['best_seller_categories'] : '';
             $args = array(
                 'post_type' => 'product',
-                'posts_per_page' => 10, // Number of products to display
+                'posts_per_page' => $numberofproducts, // Number of products to display
                 'orderby' => 'date',
                 'order' => 'ASC',
             );
+            // Add tax_query only if $allowedcategories is not empty
+            if (!empty($allowedcategories)) {
+                $args['tax_query'] = array(
+                    array(
+                        'taxonomy' => 'product_cat',
+                        'field' => 'term_id',
+                        'terms' => $allowedcategories,
+                        'operator' => 'IN',
+                    ),
+                );
+            }
             // The Query
             $loop = new WP_Query($args);
 
@@ -90,7 +103,6 @@ $categories = $productsectheadings['category_to_display_'];
         <div class="d_flex_wrap_ar mar_top_ar_40">
             <?php
             if (is_array($categories)) {
-
 
                 foreach ($categories as $index => $category) {
                     $name = get_the_category_by_ID($category);
@@ -138,7 +150,7 @@ $categories = $productsectheadings['category_to_display_'];
             // Arguments to fetch the latest products
             $args = array(
                 'post_type'      => 'product',
-                'posts_per_page' => 10, // Number of products to display
+                'posts_per_page' => $numberofproducts, // Number of products to display
                 'orderby'        => 'date',
                 'order'          => 'ASC',
                 'tax_query' => array(

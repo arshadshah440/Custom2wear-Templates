@@ -31,11 +31,17 @@
 .padding_104_40 {
   padding: 104px 0px 40px 0px;
 }
+.padding_80 {
+  padding: 80px 0px 20px 0px;
+}
 .mb_ar_0 {
   margin-bottom: 0px !important;
 }
 .mb_ar_21 {
   margin-bottom: 21px !important;
+}
+.mb_t_20_ar{
+  margin-top: 20px;
 }
 .mb_ar_50,
 #mb_ar_50 {
@@ -333,6 +339,15 @@ ul.slick-dots {
   }
 }
 @media (max-width: 1025px) {
+  .pd_desc_ar{
+    text-align: center;
+  }
+  .divider_tp_ar{
+    margin: 5px auto;
+  }
+  .padding_80{
+    padding: 40px 0px 0px 0px;
+  }
   .max_width_ar_550x{
     max-width: 90%;
   }

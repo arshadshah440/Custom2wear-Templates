@@ -60,6 +60,10 @@ jQuery(".allprintareas").on(
       .text(colorname);
     jQuery(".patch-shape-img-text").removeClass("active_shapes_wraper");
     jQuery(this).addClass("active_shapes_wraper");
+    jQuery(this)
+      .closest(".sizes_quantity")
+      .find("input[type='text']")
+      .val(`${colorname} | ${shapename}`);
   }
 );
 
@@ -104,6 +108,10 @@ jQuery(".allprintareas").on(
       .find(".swatch_ar")
       .removeClass("active_shapes_wraper");
     jQuery(this).addClass("active_shapes_wraper");
+    jQuery(this)
+      .closest(".sizes_quantity")
+      .find("input[type='text']")
+      .val(`${coloname} | ${shapename}`);
   }
 );
 

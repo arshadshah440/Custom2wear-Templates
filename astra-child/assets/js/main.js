@@ -1,10 +1,18 @@
 jQuery(document).ready(function () {
+  jQuery("#mobile_nav_ar").on("click",'li a',function(event){
+  var currentelement=jQuery(this);
+  if(event.target.tagName === 'I' || event.target.tagName == 'i') {
+      event.preventDefault(); // Prevent redirection
+
+    currentelement.closest("li").find("ul").toggleClass('active_mobile_class_ar');
+    }	  
+  })
   jQuery("#accordian_wrapper_ar").on(
     "click",
     ".accordian_ar_mi_head",
     function () {
       jQuery(this).siblings(".accordian_ar_mi_desc").slideToggle();
-      jQuery(this).find(".accord_icons_ar i").toggle();
+      jQuery(this).find(".accord_icons_ar i").toggleClass("active_mobile_class_ar");
     }
   );
   jQuery(".footer_wrapper_ar").on("click", ".footer_acc_head_ar", function () {

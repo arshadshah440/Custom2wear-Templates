@@ -228,7 +228,8 @@ function get_price_table_ar_all($product_id)
                 }
                 // Concatenate the size with parentheses and add color as an attribute
                 $variation_title = $print_type_name . (!empty($size_slug_name) ? '<span>(' . $size_slug_name . ')</span> ' : '');
-                $variation_price = number_format($variation->get_price(), 2);
+                $varprice = ($variation->get_price() != 0) ? $variation->get_price() : 0;
+                $variation_price = number_format(floatval($varprice), 2);
                 $discounted_array = null;
 
                 if (trim($discount_type) == 'percentage') {
@@ -247,7 +248,7 @@ function get_price_table_ar_all($product_id)
                         $numberindex = explode("_", $key)[1];
                     ?>
                         <div class="price_column_ar" quantity-id="<?php echo $numberindex; ?>">
-                            <div class="range_price_ar"><?php echo (!empty($value) ? "$ " . $value : ""); ?></div>
+                            <div class="range_price_ar"><?php echo (!empty($value) ? "$ " . $value : "$ 0.00"); ?></div>
                         </div>
                     <?php
                     }
@@ -310,7 +311,7 @@ function get_price_table_ar_all($product_id)
                     $numberindex = explode("_", $key)[1];
                 ?>
                     <div class="price_column_ar" quantity-id="<?php echo $numberindex; ?>">
-                        <div class="range_price_ar"><?php echo (!empty($value) ? "$ " . $value : ""); ?></div>
+                        <div class="range_price_ar" price_color="<?php echo (!empty($value) ? "$ " . $value : "0"); ?>"><?php echo (!empty($value) ? "$ " . $value : ""); ?></div>
                     </div>
                 <?php
                 }
@@ -420,18 +421,28 @@ function get_swatches_ar($color)
                         $activeswatch = '';
                     }
                 }
-                $image = wp_get_attachment_image_url(get_term_meta($term->term_id)['attribute_image']);
+                $image = wp_get_attachment_image_url(get_term_meta($term->term_id)['cfvsw_image']);
                 $backdound = "";
                 $swatehcs = get_term_meta($term->term_id)['cfvsw_color'][0];
                 if (!empty($image)) {
                     $backdound = "background-image:url('$image')";
                 } else {
-                    $backdound = "background-color:$swatehcs";
+                    $dualcolorenabled = get_term_meta($term->term_id)['enable_dual_color'][0];
+                    $secondcolor = get_term_meta($term->term_id)['pick_the_second_color'][0];
+                    if ($dualcolorenabled == 'yes' && !empty($secondcolor)) {
+                        $backdound = 'background:linear-gradient(140deg, ' . $swatehcs . ' 50%, ' . $secondcolor . ' 50%); background-color: unset;border-color: ' . $swatehcs . ';';
+                    } else {
+                        $backdound = "background-color:$swatehcs";
+                    }
                 }
                 $name = $type == "color" ? '' : "<span>$term->name</span>";
+                $newbackground = gettheproductcolorswatch($currentid, $term->term_id);
 
+                if (!empty($newbackground)) {
+                    $backdound = $newbackground;
+                }
                 if ($term) {
-                    $output .= "<div class='swatchwothlabel_ar'><div class='swatch_ar $activeswatch' pid='" . $currentid . "' attr-name='" . $term->slug . "' style='" . $backdound . "'> $name</div> <span>$term->name</span></div>";
+                    $output .= "<div class='swatchwothlabel_ar'><div class='swatch_ar $activeswatch' pid='" . $currentid . "' attr-name='" . $term->slug . "' style='" . esc_attr($backdound) . "'> $name</div> <span>$term->name</span></div>";
                 }
             }
         }
@@ -440,7 +451,28 @@ function get_swatches_ar($color)
         echo $output;
     }
 }
-
+function gettheproductcolorswatch($postid, $attribute_id)
+{
+    $product_id = $postid;
+    $meta_data = get_post_meta($product_id, 'cfvsw_product_attr_pa_color', true);
+    $styles = '';
+    if (is_array($meta_data)) {
+        $attribute_type = $meta_data['type'];
+        if ($attribute_type == 'color') {
+            $swatehcs = $meta_data[$attribute_id]['color'];
+            if (!empty($swatehcs)) {
+                $styles = "background-color:$swatehcs";
+            }
+        } else if ($attribute_type == 'image') {
+            $image = $meta_data[$attribute_id]['image'];
+            if (!empty($image)) {
+                $image_url = wp_get_attachment_image_url($image);
+                $styles = "background-image:url('$image_url'); background-color:transparent;";
+            }
+        }
+    }
+    return $styles;
+}
 function get_acf_swatches_ar()
 {
     global $product;
@@ -722,8 +754,9 @@ function getlogo_print()
                     </div>
                     <div class='size_column_ar dottedstylear'>
                         <div class='size_name_upload'>
-                            <img src="https://custom2wear.mi6.global/wp-content/uploads/2024/05/Frame-1000005041.svg" alt="">
-                            <input type="text" name="file_art" class="inputfile_ar">
+                            <img src="<?php echo get_stylesheet_directory_uri() . '/assets/img/Group (13).svg'; ?>" alt="">
+                            <label for="file_art">Upload Artwork</label>
+                            <input type="text" name="file_art" class="inputfile_ar" id="file_art">
                         </div>
                     </div>
                     <!-- <div class='patches_column_ar hidethis_ar'>
@@ -954,7 +987,7 @@ function fetchpatchshapes()
             $patch_shapes = get_sub_field('shape_sample');
             $patch_names = get_sub_field('shape_name');
         ?>
-            <div class="patch-shape-img-text <?php echo ($patch_names == 'Circle') ? 'active_shapes_wraper' : ''; ?>">
+            <div class="patch-shape-img-text <?php echo ($patch_names == 'Square') ? 'active_shapes_wraper' : ''; ?>">
                 <div class="patch_shape_masking_wrapper_ar_ar">
                     <div class='patch_shape_masking_ar_ar' style="mask-image: url(<?php echo $patch_shapes; ?>);"></div>
                 </div>
@@ -992,231 +1025,6 @@ function fetchpatchshapes()
 // add_action("wp_ajax_changetheareas", "changetheareas");
 // add_action("wp_ajax_nopriv_changetheareas", "changetheareas");
 
-function addtocartar()
-{
-    // Check if WooCommerce is active
-    if (!class_exists('WooCommerce')) {
-        wp_send_json_error(array('message' => 'WooCommerce is not active.'));
-    }
-
-    // Retrieve data from the AJAX request
-    $product_id = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
-    $totalquantity = isset($_POST['quantity']) ? intval($_POST['quantity']) : 1;
-    $extracharges = isset($_POST['additional_charges']) ? intval($_POST['additional_charges']) : 0;
-    $custom_price = isset($_POST['price']) ? floatval($_POST['price']) : 0;
-    $extraareafee = isset($_POST['extraareafee']) ? floatval($_POST['extraareafee']) : 0;
-    $prod_color = isset($_POST['colors']) ? ($_POST['colors']) : '';
-    $prod_var = isset($_POST['sizear']) ? ($_POST['sizear']) : '';
-    $prod_allareasdata = isset($_POST['allareasdata']) ? ($_POST['allareasdata']) : '';
-    $orderedthislogo_ar = isset($_POST['orderedthislogo_ar']) ? ($_POST['orderedthislogo_ar']) : '';
-    $premiumartsetupfee = isset($_POST['premiumartsetupfee']) ? ($_POST['premiumartsetupfee']) : '';
-    $add_instructions = isset($_POST['add_instructions']) ? ($_POST['add_instructions']) : '';
-    $d3_puff_embroidery = isset($_POST['d3_puff_embroidery']) ? ($_POST['d3_puff_embroidery']) : '';
-    $notcart = isset($_POST['notcart']) ? ($_POST['notcart']) : false;
-    $enableddiscounts = isset($_POST['enableddiscounts']) ? ($_POST['enableddiscounts']) : false;
-    $extracolorsfee = isset($_POST['extracolorsfee']) ? floatval($_POST['extracolorsfee']) : 0;
-
-    if (count($prod_allareasdata) > 1) {
-        $extraareafee = $extraareafee * (count($prod_allareasdata) - 1);
-    }
-    // Validate product ID
-    if (!$product_id) {
-        wp_send_json_error(array('message' => 'Invalid product ID.'));
-    }
-
-    $product = wc_get_product($product_id);
-    if (!$product || !$product->is_type('variable')) {
-        wp_send_json_error(array('message' => 'Product is not a variable product.'));
-    }
-
-    $variations = $product->get_available_variations();
-    $added_to_cart = array();
-    $output = '';
-    $totalprice = 0;
-    foreach ($variations as $variation_data) {
-        foreach ($prod_var as $prod) {
-            $prod_size = sanitize_title(trim($prod['size']));
-            $variation_id = $variation_data['variation_id'];
-            $variation = new WC_Product_Variation($variation_id);
-            $attributes = $variation->get_attributes();
-
-            $print_type = sanitize_title(trim($prod_allareasdata[0]['printtype']));
-            // $added_to_cart[] = $print_type;
-            $quantity = $prod['quantity'];
-            // Check if this variation matches the specified color and size
-            if ($attributes['pa_color'] === $prod_color && $attributes['pa_sizes'] === $prod_size && $attributes['pa_print-types'] === $print_type) {
-
-                // get discounted prices array
-                $discounted_array = null;
-                $price = $variation->get_price();
-                $quantityprce = ($price * $quantity) + $extracharges;
-                $totalprice = ($totalprice + $quantityprce);
-                $discount_type = get_field('select_the_discount_type', 'options');
-                $percentage_discount = get_field('percentage_discount', 'options');
-                $fixed_amount_discount = get_field('fixed_amount_discount', 'options');
-                $discount_location = get_field('apply_this_discount_to_all_products', 'options');
-                $select_your_product = get_field('select_your_product', 'options');
-                $category_ids = wc_get_product_term_ids($product_id, 'product_cat');
-
-                if ($discount_location == 'yes') {
-                    if (trim($discount_type) == 'percentage') {
-                        $discounted_array = get_percentage_discount($price, $percentage_discount);
-                    } else {
-                        $discounted_array = get_fixed_discount($price, $fixed_amount_discount);
-                    }
-                } else {
-                    $commonItems = array_intersect($category_ids, $select_your_product);
-                    if (count($commonItems) > 0) {
-                        if (trim($discount_type) == 'percentage') {
-                            $discounted_array = get_percentage_discount($price, $percentage_discount);
-                        } else {
-                            $discounted_array = get_fixed_discount($price, $fixed_amount_discount);
-                        }
-                    }
-                }
-
-
-                if ($notcart && $discounted_array !== null) {
-                    // Display the custom price per product
-                    $title = str_replace("-", " ", $print_type);
-                    if (count($prod_var) > 1) {
-                        $output .= "<div class='title_ar_table'><h6>" . $title . "(" . $prod['size'] . ")</h6> </div>";
-                    } else {
-                        $output .= "<div class='title_ar_table'><h6>" . $title . "</h6> </div>";
-                    }
-                    foreach ($discounted_array as $key => $value) {
-                        $numberindex = explode("_", $key)[1];
-                        $output .= "<div class='price_column_ar' cursize='" . $prod['size'] . "' quantity-id='" . $numberindex . "'> <div class='range_price_ar'> $ " . $value . "</div></div>";
-                    }
-                } else {
-                    // Calculate the custom price per product
-                    $custompriceperproduct = $custom_price / $quantity;
-
-                    $currentprice = 0;
-                    $currentindex = '';
-                    $indexofarray = [];
-                    $commonItems = array_intersect($category_ids, $select_your_product);
-
-                    if (count($commonItems) > 0) {
-
-                        // Extract the indices from the array keys
-                        foreach ($discounted_array as $key => $value) {
-                            $numberindex = (int) explode("_", $key)[1];
-                            $indexofarray[] = $numberindex;
-                        }
-
-                        $size = count($indexofarray);
-
-                        foreach ($indexofarray as $index => $value) {
-                            // Check if quantity is between current and next index value
-                            if ($totalquantity >= $value && ($index + 1 == $size || $totalquantity < $indexofarray[$index + 1])) {
-                                $currentprice = $discounted_array["item_{$indexofarray[$index]}"];
-                                $currentindex = "item_{$indexofarray[$index]}";
-                                break; // Exit loop once the correct range is found
-                            }
-                        }
-
-                        // If the quantity is less than the first index value, select the first index
-                        // if ($quantity <= $indexofarray[0]) {
-                        //     $currentprice = $discounted_array["item_{$indexofarray[0]}"];
-                        //     $currentindex = "item_{$indexofarray[0]}";
-                        // }
-                        $currentprice = $currentprice + $extracharges + $d3_puff_embroidery + $extraareafee + $extracolorsfee;
-                    } else {
-                        $currentprice = $price + $extracharges + $d3_puff_embroidery + $extraareafee + $extracolorsfee;
-                    }
-
-                    // Store custom details in the session
-                    WC()->session->set('custom_price_' . $variation_id, $currentprice);
-                    WC()->session->set('custom_color_' . $variation_id, $prod_color);
-                    WC()->session->set('custom_variates_' . $variation_id, $prod_var);
-                    WC()->session->set('custom_areas_' . $variation_id, $prod_allareasdata);
-                    WC()->session->set('custom_instructions_' . $variation_id, $add_instructions);
-                    WC()->session->set('custom_d3_embroidery_' . $variation_id, $d3_puff_embroidery);
-
-                    $puffclass = $d3_puff_embroidery ? "(3D Puff)" : "";
-
-
-                    if (!empty($prod_allareasdata) && is_array($prod_allareasdata)) {
-                        $output = "<div class='printareas_cart_ar'> <div class='size_attr_ar_cart'><h6>Print Areas : </h6>";
-                        foreach ($prod_allareasdata as $area) {
-                            $printtype = !empty($area['printtype']) ? "<span>" . $area['printtype'] . "$puffclass</span> + " : "";
-                            $printarea = !empty($area['areavalue']) ? "<span>" . $area['areavalue'] . "</span> + " : "";
-                            $printcolor = !empty($area['printcolors']) ? "<span>" . $area['printcolors'] . " colors </span>  " : "";
-                            $artwork = !empty($area['artworkurl']) ? " + <a href='" . esc_url($area['artworkurl']) . "' target='_blank'>View Artwork</a></h6>" : "";
-
-                            $output .= "<h6>" . $printtype . $printarea . $printcolor . $artwork . "</h6>";
-                        }
-                        $output .= "</div></div>";
-                    }
-                    if (!empty($premiumartsetupfee)) {
-                        $enableornot = $premiumartsetupfee == "true" ? "Enabled" : "Not Enabled";
-                        $output .= "<div class='instructionshere'><h6>Primum Art Setup : </h6><p>" . $enableornot . "</p></div>";
-                    }
-                    if (!empty($orderedthislogo_ar)) {
-                        $enableornot = $orderedthislogo_ar == "true" ? "Yes" : "No";
-                        $output .= "<div class='instructionshere'><h6>Have Ordered This Logo Before : </h6><p>" . $enableornot . "</p></div>";
-                    }
-                    if (!empty($add_instructions)) {
-                        $output .= "<div class='instructionshere'><h6>Additional Instructions: : </h6><p>" . $add_instructions . "</p></div>";
-                    }
-
-                    update_field("product_extra_details", $output, $product_id);
-
-                    // remove the product if already in cart
-                    // Loop through the cart to find the product or variation
-                    foreach (WC()->cart->get_cart() as $cart_item_key => $cart_item) {
-                        if (
-                            $cart_item['product_id'] == $product_id &&
-                            $cart_item['variation_id'] == $variation_id &&
-                            $cart_item['variation']['attribute_pa_color'] == $prod_color &&
-                            $cart_item['variation']['attribute_pa_sizes'] == $prod_size &&
-                            $cart_item['variation']['attribute_pa_print-types'] == $print_type
-                        ) {
-
-                            // Remove the product or variation from the cart
-                            WC()->cart->remove_cart_item($cart_item_key);
-                            break; // Exit loop after removing the item
-                        }
-                    }
-
-                    // Add the variation to the cart
-                    $result = WC()->cart->add_to_cart($product_id, $quantity, $variation_id, array(
-                        'attribute_pa_color' => $prod_color,
-                        'attribute_pa_sizes' => $prod_size,
-                        'attribute_pa_print-types' => $print_type,
-                    ), array("extracharges" => $extracharges));
-                    $cart_item_count = WC()->cart->get_cart_contents_count();
-
-                    if ($result) {
-                        $added_to_cart[] = array(
-                            'product_id' => $product_id,
-                            'quantity' => $quantity,
-                            'variation_id' => $currentindex,
-                            'custom_price_per_product' => $currentprice,
-                            'price_list' => $discounted_array
-                        );
-                    }
-                }
-            }
-        }
-    }
-
-    if ($added_to_cart) {
-        wp_send_json_success(array(
-            'message' => 'Product(s) added to cart.',
-            'redirect_url' =>  wc_get_cart_url(),
-        ));
-    } else {
-        wp_send_json_error(array('message' => "Sorry something went wrong. Please Try Again Later"));
-    }
-
-
-    die();
-}
-
-add_action("wp_ajax_addtocartar", "addtocartar");
-add_action("wp_ajax_nopriv_addtocartar", "addtocartar");
 
 function cw_add_to_cart()
 {
@@ -1235,6 +1043,7 @@ function cw_add_to_cart()
     $custompriceperproduct = (!empty($productData['pricePerProduct'])) ? floatval($productData['pricePerProduct']) : 0;
     $prod_color = (!empty($productData['color'])) ? ($productData['color']) : '';
     $prod_var = (!empty($productData['sizewithQuantity'])) ? ($productData['sizewithQuantity']) : '';
+    $priceList = (!empty($productData['priceList'])) ? ($productData['priceList']) : '';
     $prod_allareasdata = (!empty($productData['extraArea'])) ? ($productData['extraArea']) : '';;
     $orderedthislogo_ar = (!empty($productData['alreadyOrdered'])) ? ($productData['alreadyOrdered']) : '';
     $premiumartsetupfee = (!empty($productData['premium_artwork_price'])) ? ($productData['premium_artwork_price']) : '';
@@ -1280,8 +1089,7 @@ function cw_add_to_cart()
                 WC()->session->set('custom_instructions_' . $variation_id, $add_instructions);
                 WC()->session->set('custom_d3_embroidery_' . $variation_id, $d3_puff_embroidery);
 
-                $puffclass = $d3_puff_embroidery ? "(3D Puff)" : "";
-
+                $puffclass = ($d3_puff_embroidery == 'true') ? "(3D Puff)" : "";
 
                 if (!empty($prod_allareasdata) && is_array($prod_allareasdata)) {
                     $output = "<div class='printareas_cart_ar'> <div class='size_attr_ar_cart'><h6>Print Areas : </h6>";
@@ -1325,13 +1133,13 @@ function cw_add_to_cart()
                         break; // Exit loop after removing the item
                     }
                 }
-
+                $priceWithoutextra = $currentprice - floatval($priceList['extraareafee']) - floatval($priceList['extracolorfee']) - floatval($priceList['embroideryfee']);
                 // Add the variation to the cart
                 $result = WC()->cart->add_to_cart($product_id, $quantity, $variation_id, array(
                     'attribute_pa_color' => $prod_color,
                     'attribute_pa_sizes' => $prod_size,
                     'attribute_pa_print-types' => $print_type,
-                ),);
+                ), array('priceWithoutextra' => $priceWithoutextra, 'extraAreafee' => $priceList['extraareafee'], 'extraColorfee' => $priceList['extracolorfee'], 'embroideryfee' => $priceList['embroideryfee'], 'premium_artwork_price' => $premiumartsetupfee));
                 $cart_item_count = WC()->cart->get_cart_contents_count();
 
                 if ($result) {
@@ -1344,19 +1152,15 @@ function cw_add_to_cart()
             }
         }
     }
-    if (!$notcart) {
 
-        if ($added_to_cart) {
-            wp_send_json_success(array(
-                'message' => 'Product(s) added to cart.',
-                'redirect_url' =>  wc_get_cart_url(),
-                'p_details' => $added_to_cart
-            ));
-        } else {
-            wp_send_json_error(array('message' => $prod_var));
-        }
+    if ($added_to_cart) {
+        wp_send_json_success(array(
+            'message' => 'Product(s) added to cart.',
+            'redirect_url' =>  wc_get_cart_url(),
+            'p_details' => $added_to_cart
+        ));
     } else {
-        wp_send_json_success(array('current_price' => $totalprice, 'nocaert' => $notcart, 'price_list' => $output, 'list_id' => sanitize_title(trim($prod_allareasdata[0]['printtype']))));
+        wp_send_json_error(array('message' => $prod_var));
     }
 
     die();
@@ -1734,4 +1538,77 @@ function display_custom_field_data_in_order_items($product, $item, $item_id)
     } else {
         echo '<td class="custom-field-data">—</td>'; // Display a dash if no custom data is present
     }
+}
+
+remove_all_filters('manage_pa_color_custom_column');
+
+add_filter('manage_pa_color_custom_column', 'customised_add_preview_markup', 15, 3);
+
+function customised_add_preview_markup($columns, $column, $term_id)
+{
+    global $taxnow;
+
+    if ('preview' !== $column) {
+        return $columns;
+    }
+
+    // Start buffering for your output
+    ob_start();
+    $taxonomy = 'pa_color';
+    $attr_type = get_attr_type_by_name_ar($taxonomy);
+    if (!in_array($attr_type, ['color', 'image'], true)) {
+        return $columns;
+    }
+
+    switch ($attr_type) {
+        case 'color':
+            $color = get_term_meta($term_id, 'cfvsw_color', true);
+            $dualcolorenabled = get_term_meta($term_id, 'enable_dual_color', true);
+            $secondcolor = get_term_meta($term_id, 'pick_the_second_color', true);
+
+            // Check if dual color is enabled and second color is set
+            if ($dualcolorenabled === 'yes' && !empty($secondcolor)) {
+                printf(
+                    '<div class="cfvsw-preview c2wear" style="background: linear-gradient(140deg, %s 50%%, %s 50%%); border-color: %s; width: 30px; height: 30px;"></div>',
+                    esc_attr($color),
+                    esc_attr($secondcolor),
+                    esc_attr($color)
+                );
+            } else {
+                printf(
+                    '<div class="cfvsw-preview c2wear" style="background-color: %s; width: 30px; height: 30px;"></div>',
+                    esc_attr($color)
+                );
+            }
+            break;
+
+        case 'image':
+            $image = get_term_meta($term_id, 'cfvsw_image', true);
+            $image_url = !empty($image) ? $image : wc_placeholder_img_src();
+            $image_url = str_replace(' ', '%20', $image_url);
+            printf('<img class="cfvsw-preview c2wear" src="%s" width="44px" height="44px">', esc_url($image_url));
+            break;
+    }
+
+    // Capture and display only your output
+    $custom_output = ob_get_clean();
+    echo $custom_output;
+
+    // Return columns after outputting your markup
+    return $columns;
+}
+
+
+
+function get_attr_type_by_name_ar($name = '')
+{
+    if (empty($name) || ! taxonomy_exists($name)) {
+        return '';
+    }
+
+    global $wpdb;
+    $name = substr($name, 3);
+    // Required custom result from database, was not possible with regular WordPress call.
+    $type = $wpdb->get_var($wpdb->prepare('SELECT attribute_type FROM ' . $wpdb->prefix . 'woocommerce_attribute_taxonomies WHERE attribute_name = %s', $name)); //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    return is_null($type) ? '' : $type;
 }

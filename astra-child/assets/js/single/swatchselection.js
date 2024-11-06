@@ -18,6 +18,7 @@ jQuery(document).ready(function ($) {
         .find('div[color_attr="' + value + '"]:first')
         .trigger("click");
     }
+    setCalcultor();
   });
   jQuery("#pr_image_vslider").on("click", ".slick-slide", function (e) {
     var ccurl = jQuery(this).find("img").attr("src");

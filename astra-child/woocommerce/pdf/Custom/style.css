@@ -309,3 +309,15 @@ table.totals tr.payment_method {
   margin-top: 5px;
   font-weight: 400 !important;
 }
+.instructionshere{
+  margin-top: 5px;
+}
+.instructionshere h6 {
+  width: 50%;
+  display: inline;
+
+}
+.instructionshere p {
+  width: 50%;
+  display: inline;
+}

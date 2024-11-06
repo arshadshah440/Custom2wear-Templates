@@ -25,13 +25,44 @@
                     <?php
                     $terms = get_terms('product_cat', array(
                         'hide_empty' => false,
+                        'orderby'    => 'parent',
+                        'order'      => 'ASC',
                     ));
-                    if (!empty($terms)) {
-                        foreach ($terms as $term) {
+
+                    // Group terms by parent ID
+                    $categories = array();
+                    foreach ($terms as $term) {
+                        $categories[$term->parent][] = $term;
+                    }
+
+                    // Display categories
+                    if (!empty($categories[0])) { // 0 indicates top-level parents
+                        foreach ($categories[0] as $parent) {
+
                     ?>
-                            <div class="filter_acc_body_item_ar">
-                                <input type="checkbox" name="filter_cat" id="filter_cat<?php echo $term->term_id; ?>" class="filter_cat" value="<?php echo $term->term_id; ?>" <?php echo $term->term_id == $term_id ? 'checked' : ''; ?>>
-                                <label for="filter_cat<?php echo $term->term_id; ?>" class="font_14_400 text_dark_ar"><?php echo $term->name; ?></label>
+                            <div class="parent_category_wrapper">
+                                <!-- Parent category with its own checkbox and specific class -->
+                                <div class="parents_wraaper_ar filter_acc_body_item_ar">
+                                    <input type="checkbox" name="filter_cat" id="filter_cat<?php echo $parent->term_id; ?>" class="filter_cat_parent" value="<?php echo $parent->term_id; ?>" <?php echo ($parent->term_id == $term_id  || check_the_category_filter($categories[$parent->term_id], $term_id)) ? 'checked' : ''; ?>>
+                                    <label for="filter_cat<?php echo $parent->term_id; ?>" class="font_14_400 text_dark_ar"><?php echo $parent->name; ?></label>
+                                </div>
+
+
+                                <?php if (!empty($categories[$parent->term_id])) { ?>
+                                    <!-- Parent has children, display child inputs -->
+                                    <div class="child_categories_wrapper">
+                                        <?php
+                                        foreach ($categories[$parent->term_id] as $child) {
+                                        ?>
+                                            <div class="filter_acc_body_item_ar">
+                                                <input type="checkbox" name="filter_cat" id="filter_cat<?php echo $child->term_id; ?>" class="filter_cat" value="<?php echo $child->term_id; ?>" <?php echo $child->term_id == $term_id ? 'checked' : ''; ?>>
+                                                <label for="filter_cat<?php echo $child->term_id; ?>" class="font_14_400 text_dark_ar"><?php echo $child->name; ?></label>
+                                            </div>
+                                        <?php
+                                        }
+                                        ?>
+                                    </div>
+                                <?php } ?>
                             </div>
                     <?php
                         }
@@ -63,7 +94,14 @@
                             $backdound = "";
                             if ($type == "color") {
                                 $swatehcs = get_term_meta($term->term_id)['cfvsw_color'][0];
-                                $backdound = "background-color:$swatehcs";
+                                $dualcolorenabled = get_term_meta($term->term_id)['enable_dual_color'][0];
+                                $secondcolor = get_term_meta($term->term_id)['pick_the_second_color'][0];
+                                if ($dualcolorenabled == 'yes' && !empty($secondcolor)) {
+                                    $backdound = 'background:linear-gradient(140deg, ' . $swatehcs . ' 50%, ' . $secondcolor . ' 50%); background-color: unset;border-color: ' . $swatehcs . ';';
+                                } else {
+                                    $backdound = "background-color:$swatehcs";
+                                }
+                                // $backdound = "background-color:$swatehcs";
                             } else if ($type == "image") {
                                 $image = wp_get_attachment_image_url(get_term_meta($term->term_id)['attribute_image']);
                                 $backdound = "background-image:url('$image')";
@@ -71,7 +109,8 @@
                     ?>
                             <div class="filter_acc_body_item_ar <?php echo $type == "color" ? 'swatch_color_ar' : ''; ?>">
                                 <input type="checkbox" name="filter_cat" id="filter_cat<?php echo $term->term_id; ?>" class="filter_cat" value="<?php echo $term->term_id; ?> ">
-                                <label for="filter_cat<?php echo $term->term_id; ?>" class="font_14_400 text_dark_ar" style=<?php echo $backdound; ?>><?php echo $type == "color" ? '' : $term->name; ?></label>
+                                <label for="filter_cat<?php echo $term->term_id; ?>" class="font_14_400 text_dark_ar" style="<?php echo $backdound; ?>"><?php echo $type == "color" ? '' : $term->name; ?></label>
+                                <span><?php echo $term->name; ?></span>
                             </div>
                     <?php
                         }

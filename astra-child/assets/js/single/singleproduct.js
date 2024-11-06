@@ -196,7 +196,7 @@ function embroideryUpdates() {
  *
  * @return {void} - This function does not return any value.
  */
-function extrafeeUpdate(selector) {
+function extrafeeUpdate(selector, totalcolor = 0) {
   const quantity = parseInt(sessionStorage.getItem("totalquantity"));
   const $selector = jQuery(selector);
 
@@ -208,7 +208,16 @@ function extrafeeUpdate(selector) {
 
   $priceColumns.each(function () {
     const $currentElement = jQuery(this);
-    const currentElementId = parseInt($currentElement.attr("quantity-id"));
+
+    if (totalcolor > 0) {
+      var $currentPrice = $currentElement
+        .find(".range_price_ar")
+        .attr("price_color");
+      $currentPrice = parseFloat(removeDollarSign($currentPrice));
+      $currentPrice = parseFloat($currentPrice * totalcolor).toFixed(2);
+      $currentElement.find(".range_price_ar").text(`$ ${$currentPrice}`);
+    }
+    var currentElementId = parseInt($currentElement.attr("quantity-id"));
     const nextElementId =
       parseInt($currentElement.next(".price_column_ar").attr("quantity-id")) ||
       Infinity; // Handle undefined nextElement
@@ -319,7 +328,7 @@ function gettheprintareaarray() {
     }
 
     let artworkurl = $this.find(".size_name_upload > img").attr("src");
-    if (artworkurl.includes("Frame-1000005041.svg")) {
+    if (artworkurl.includes("Group (13).svg")) {
       artworkurl = "";
     }
 
@@ -358,9 +367,10 @@ function getExtraColorPrice() {
     }
   });
   if (totalextracolors > 0) {
-    extrafeeUpdate("#extra_color_fee_ar");
+    console.log(totalextracolors);
+    extrafeeUpdate("#extra_color_fee_ar", totalextracolors);
   } else {
-    resetExtraFeeRows("#extra_color_fee_ar");
+    resetExtraFeeRows("#extra_color_fee_ar", totalextracolors);
   }
   return totalextracolors;
 }
@@ -416,6 +426,7 @@ function check_premiumupdate() {
  * @returns return the price without the dollar sign
  */
 function removeDollarSign(price) {
+  console.log(price);
   if (price.includes("$")) {
     return parseFloat(price.replace(/\$/g, ""));
   } else {
@@ -529,11 +540,7 @@ function calculatePrice(cart = false) {
       ? removeDollarSign(extraColorfeeUpdate.find(".range_price_ar").text())
       : 0;
   if (parseInt(totalprintcolors) > 0) {
-    console.log(extraColorPrice, totalprintcolors);
-    extraColorPrice = parseFloat(
-      parseFloat(extraColorPrice) * parseInt(totalprintcolors)
-    ).toFixed(2);
-    console.log(extraColorPrice);
+    extraColorPrice = parseFloat(parseFloat(extraColorPrice)).toFixed(2);
   } else {
     extraColorPrice = 0;
   }
@@ -565,26 +572,29 @@ function calculatePrice(cart = false) {
       currentPrice +
         parseFloat(extraColorPrice) +
         parseFloat(extraAreaPrice) +
-        parseFloat(embroideryPrice) +
-        parseFloat(premium_artwork_price)
+        parseFloat(embroideryPrice)
     );
     totalPrice = parseFloat(totalQuantity * pricePerProduct).toFixed(2);
+    totalPrice = parseFloat(totalPrice) + parseFloat(premium_artwork_price);
     jQuery("#single_add_to_cart_ar").removeClass("disabled_ar_product");
   } else {
     jQuery("#single_add_to_cart_ar").addClass("disabled_ar_product");
   }
   updatePriceRowBeforeCart(totalPrice, totalQuantity, NonZeroVariations);
   if (cart) {
+    var priceList= {extracolorfee:extraColorPrice,extraareafee:extraAreaPrice,embroideryfee:embroideryPrice};
     var productid = jQuery(".sizes_main_div_ar_ar > .size_column_ar")
       .find("input[type='number']")
       .attr("product-id");
     var productData = {};
     productData["productid"] = productid;
     productData["pricePerProduct"] = pricePerProduct;
+    productData["priceList"] = priceList;
     productData["totalPrice"] = totalPrice;
     productData["sizewithQuantity"] = sizeWithQuantity;
     productData["extraArea"] = totalprintarea;
-    productData["embroideryEnabled"] = jQuery("#embroidery_ar").is(":checked");
+    productData["embroideryEnabled"] =
+      jQuery("#d_puff_embroidery").is(":checked");
     productData["premium_artwork_price"] = jQuery("#premium_artwork_ar").is(
       ":checked"
     );

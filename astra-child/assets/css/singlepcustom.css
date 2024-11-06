@@ -328,11 +328,23 @@ div#pr_image_vslider {
 }
 .size_name_upload {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 5px;
   height: 100%;
   cursor: pointer;
   position: relative;
+  padding: 15px;
+}
+.size_name_upload label {
+  font-family: "Plus Jakarta Sans";
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 20px;
+  text-align: center;
+  color: #231f2099;
+  cursor: pointer;
 }
 .size_name_upload img {
   z-index: 999;
@@ -679,7 +691,13 @@ span {
   color: #aa1f22;
 }
 #cart_totals a.shipping-calculator-button {
-  display: none;
+  text-decoration: underline;
+}
+#cart_total
+  .shipping-calculator-form
+  .select2-selection--single
+  .select2-selection__rendered {
+  text-align: left;
 }
 .color_attr_ar_cart,
 .printareas_cart_ar {
@@ -1031,12 +1049,13 @@ span {
 .patch_shape_masking_ar_ar {
   width: 20px;
   height: 20px;
-  background-color: #000000;
+  background-color: #b2b2b2;
   mask-position: center;
   mask-size: contain;
   mask-repeat: no-repeat;
   margin: auto;
   background-position: center;
+  background-size: 200%;
 }
 .patch_shape_masking_wrapper_ar_ar {
   border: 1px solid transparent;
@@ -1074,6 +1093,7 @@ span {
   height: 15px;
   position: relative;
   background-position: center;
+  background-size: 200%;
 }
 .selected_shaped_color_wrapper {
   padding: 2px;
@@ -1247,4 +1267,14 @@ span {
 }
 .error_placer_ar {
   display: none;
+}
+.variations_form.cart table{
+  border-collapse: collapse;
+}
+.variations_form.cart table tr {
+  border: 1px solid var(--ast-border-color);
+}
+.variations_form.cart table td ,.variations_form.cart table tr th,.variations_form.cart table tr td.value{
+  border-bottom: none !important;
+  padding: 10px 10px !important;
 }

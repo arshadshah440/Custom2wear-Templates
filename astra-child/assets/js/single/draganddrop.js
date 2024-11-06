@@ -72,6 +72,7 @@ jQuery(document).ready(function ($) {
         if (response.uploaded.length > 0) {
           $.each(response.uploaded, function (index, url) {
             jQuery(iid).find("img").attr("src", url);
+            jQuery(iid).find("label").hide();
           });
           jQuery(".drag_drop_zone_wrapper").css("display", "none");
           jQuery("#loader_mi_ar").css("display", "none");
@@ -87,7 +88,6 @@ jQuery(document).ready(function ($) {
   }
 
   jQuery(".allprintareas").on("click", ".size_name_upload", function () {
-    console.log("artwork", artwork);
     jQuery(".drag_drop_zone_wrapper").attr("classtoadd", `input_ar_${artwork}`);
     jQuery(".drag_drop_zone_wrapper").find("input[type='file']").val("");
     jQuery(this).attr("id", `input_ar_${artwork}`);

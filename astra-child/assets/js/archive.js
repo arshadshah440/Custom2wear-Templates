@@ -3,7 +3,23 @@ jQuery(document).ready(function ($) {
     "click",
     'input[type="checkbox"]',
     function () {
-      filter_products(false);
+      if (
+        $(this).is(":checked") &&
+        $(this).closest(".parents_wraaper_ar").length > 0
+      ) {
+        $(this)
+          .closest(".parents_wraaper_ar")
+          .siblings(".child_categories_wrapper")
+          .show();
+      } else {
+        if ($(this).closest(".parents_wraaper_ar").length > 0) {
+          $(this)
+            .closest(".parents_wraaper_ar")
+            .siblings(".child_categories_wrapper")
+            .hide();
+        }
+        filter_products(false);
+      }
     }
   );
   jQuery("#filters_wrapper_ar").on(
@@ -72,14 +88,14 @@ function filter_products($loadmore) {
   var minprice = jQuery("#min-price").val();
   var maxprice = jQuery("#max-price").val();
   var sorting = jQuery("#sort_by_terms_ar").val();
-  
-  var selectedfilterlengh=selectedcat.length+color.length+size.length;
-  if(selectedfilterlengh>0){
+
+  var selectedfilterlengh = selectedcat.length + color.length + size.length;
+  if (selectedfilterlengh > 0) {
     jQuery("#selected_filter_numbers_ar").find("h6").text(selectedfilterlengh);
-  }else{
+  } else {
     jQuery("#selected_filter_numbers_ar").find("h6").text("0");
   }
-  
+
   var currentpage = $loadmore ? jQuery("#load_more_ar").attr("currentpage") : 1;
 
   var currentarch = jQuery("#products_wrapper_ar").attr("currentarc");
@@ -126,29 +142,41 @@ function filter_products($loadmore) {
 
         if (response.data.total_pages > parseInt(currentpage)) {
           jQuery("#load_more_ar").show();
-          if($loadmore){
+          if ($loadmore) {
             jQuery("#load_more_ar").attr(
-                "currentpage",
-                parseInt(currentpage) + 1
-              );
+              "currentpage",
+              parseInt(currentpage) + 1
+            );
           }
         } else {
           jQuery("#load_more_ar").hide();
 
           jQuery("#load_more_ar").attr("currentpage", 1);
         }
-        jQuery("#show_counter_ar").text("" + pagination + " of " + response.data.total_posts);
+        if (parseInt(pagination) > parseInt(response.data.total_posts)) {
+          jQuery("#show_counter_ar").text(
+            "" + response.data.total_posts + " of " + response.data.total_posts
+          );
+        } else {
+          var totalcards = jQuery("#products_wrapper_ar").find(
+            ".product_loop_ar"
+          );
+          jQuery("#show_counter_ar").text(
+            "" + totalcards.length + " of " + response.data.total_posts
+          );
+        }
       } else {
         jQuery("#products_wrapper_ar")
           .find(".inner_pro_wraper_ar")
           .html(
             "<p class='text_dark_ar font_14_400'>" + response.data + "</p>"
           );
-          jQuery("#products_wrapper_ar")
+        jQuery("#products_wrapper_ar")
           .find(".inner_pro_wraper_ar")
           .css("display", "block");
         jQuery("#loader_ar").hide();
         jQuery("#load_more_ar").hide();
+        jQuery("#show_counter_ar").text(" 0 of 0");
       }
     },
     error: function (data) {

@@ -95,14 +95,14 @@ if ($footer_content) {
                     </p>
                 </div>
                 <div class="footer_logo_ar">
-                    <img src="<?php echo $footer_content['footer_logo']; ?>" alt="">
+                    <a href="<?php echo home_url(); ?>"><img src="<?php echo $footer_content['footer_logo']; ?>" alt=""></a>
                 </div>
                 <div class="social_ar">
                     <div class="facebook">
                         <a href="<?php echo $social['facebook_link']; ?>" target="_blank"><i class="fa-brands fa-facebook"></i></a>
                     </div>
                     <div class="facebook_link">
-                        <a href="<?php echo $social['facebook_link']; ?>" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="<?php echo $social['instagram_link']; ?>" target="_blank"><i class="fa-brands fa-instagram"></i></a>
                     </div>
                     <div class="youtube_link">
                         <a href="<?php echo $social['youtube_link']; ?>" target="_blank"><i class="fa-brands fa-youtube"></i></a>

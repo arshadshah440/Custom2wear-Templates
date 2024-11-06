@@ -12,7 +12,10 @@ Template: astra
 @import url("//fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
 @import url("//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css");
 .cfvsw-label-none table.variations tr th.label {
-  display: block !important;
+  display: table-cell !important;
+}
+#primary{
+  min-height: calc(100vh - 750px);
 }
 .cfvsw-swatches-option.cfvsw-label-option.cfvsw-selected-swatch {
   background-image: linear-gradient(#fc0800, #770400) !important;
@@ -31,9 +34,10 @@ Template: astra
   border: 0 !important;
   color: #fff;
 }
-a.reset_variations {
+table a.reset_variations {
   color: #ab0600 !important;
   font-weight: 700;
+  display: none !important;
 }
 .banner_contact {
   background-position: center;
@@ -260,10 +264,10 @@ button.woocommerce-button[type="submit"],
 a.checkout-button.button.alt.wc-forward,
 button.button {
   width: 100%;
-  background-image: linear-gradient(#fc0800, #770400) !important;
-  padding: 13px 28px !important;
-  box-shadow: 1px 1px 4px 1px #0000004d !important;
-  border-radius: 10px !important;
+  background: var(--mi-primary-color);
+  padding: 13px 28px;
+  box-shadow: unset !important;
+  border-radius: 100px;
   font-weight: 600;
 }
 button.woocommerce-button[type="submit"]:hover,
@@ -482,10 +486,10 @@ a.button.product_type_variable.add_to_cart_button.cfvsw_ajax_add_to_cart,
 a.button.product_type_simple.add_to_cart_button.ajax_add_to_cart,
 a.spbtn,
 input.wpcf7-form-control.wpcf7-submit.has-spinner {
-  background-image: linear-gradient(#fc0800, #770400);
+  background: var(--mi-primary-color);
   padding: 13px 28px;
-  box-shadow: 1px 1px 4px 1px #0000004d;
-  border-radius: 10px;
+  box-shadow: unset;
+  border-radius: 100px;
   font-weight: 600;
 }
 h2.head_selling {
@@ -748,12 +752,12 @@ ul.sub-menu li:hover {
 button.single_add_to_cart_button.button.alt,
 a.woocommerce-Button.button,
 a.button.wc-forward,
-a.button {
-  background-image: linear-gradient(#fc0800, #770400) !important;
-  padding: 13px 28px !important;
-  box-shadow: 1px 1px 4px 1px #0000004d !important;
-  border-radius: 10px !important;
-  font-weight: 600 !important;
+a.button ,.woocommerce-js a.button,.woocommerce button.button{
+  background: var(--mi-primary-color);
+  padding: 13px 28px;
+  box-shadow: unset !important;
+  border-radius: 100px;
+  font-weight: 600;
 }
 button.single_add_to_cart_button.button.alt:hover {
   transform: scale(0.9);
@@ -1841,12 +1845,12 @@ div#cart_totals::before {
   align-items: center;
   gap: 5px;
 }
-#customer_details label input{
+#customer_details label input {
   height: 12px !important;
 }
-#customer_details label span{
+/* #customer_details label span {
   height: 12px;
-}
+} */
 #customer_details .form-row {
   padding: 0px;
   margin-bottom: 20px;
@@ -1870,7 +1874,7 @@ div#cart_totals::before {
 ul.wc_payment_methods.payment_methods.methods li {
   padding: 15px;
   background-color: white;
-  margin-bottom: 20px !important;
+  margin-bottom: 20px;
   border-radius: 20px;
   border: 1px solid rgba(35, 31, 32, 0.05);
 }

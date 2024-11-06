@@ -17,6 +17,7 @@ define('WC_MAX_LINKED_VARIATIONS', 1500);
 
 include get_stylesheet_directory() . '/admin/singleproduct/singleproductfunc.php';
 include get_stylesheet_directory() . '/admin/automation/automationdata.php';
+include get_stylesheet_directory() . '/admin/themeoptions/rendermenu.php';
 
 /**
  * Enqueue styles
@@ -63,12 +64,12 @@ function my_theme_enqueue_styles()
 		array('handle' => 'sliderjs', 'src' => '/assets/js/sliders.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
 		// array('handle' => 'singlemainjs', 'src' => '/assets/js/single/main.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
 		array('handle' => 'draganddropjs', 'src' => '/assets/js/single/draganddrop.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
-		array('handle' => 'swatchselectionjs', 'src' => '/assets/js/single/swatchselection.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
 		array('handle' => 'wooscriptsjs', 'src' => '/assets/js/single/wooscripts.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
 		array('handle' => 'slickcarouseljs', 'src' => '/assets/js/single/slickcarousel.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
 		array('handle' => 'setdefaultvaluesjs', 'src' => '/assets/js/single/setdefaultvalues.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
 		array('handle' => 'singleproductjs', 'src' => '/assets/js/single/singleproduct.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
 		array('handle' => 'AddNewPrintAreasjs', 'src' => '/assets/js/single/AddNewPrintAreas.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
+		array('handle' => 'swatchselectionjs', 'src' => '/assets/js/single/swatchselection.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
 		array('handle' => 'CalculatorEventListenersjs', 'src' => '/assets/js/single/CalculatorEventListeners.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
 		array('handle' => 'Singleslickminjs', 'src' => '/assets/js/single/slick.min.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
 		array('handle' => 'archivejs', 'src' => '/assets/js/archive.js', 'type' => 'script', 'dep' => array('jquery'), 'loc' => 'internal'),
@@ -187,18 +188,11 @@ function filter_products()
 		];
 	}
 
-	if (!empty($categories)) {
+	if (!empty($categories) && count($categories) > 0) {
 		$args['tax_query'][] = [
 			'taxonomy' => 'product_cat',
 			'field'    => 'id',
 			'terms'    => $categories,
-			'operator' => 'IN',
-		];
-	} else {
-		$args['tax_query'][] = [
-			'taxonomy' => 'product_cat',
-			'field'    => 'id',
-			'terms'    => $currentarch,
 			'operator' => 'IN',
 		];
 	}
@@ -391,18 +385,74 @@ function get_first_variation_image_by_color($product_id)
 	return $color_variation_images;
 }
 
-// Add an extra fee if the cart quantity is less than 12
 add_action('woocommerce_cart_calculate_fees', 'add_extra_fee_for_minimum_quantity');
 function add_extra_fee_for_minimum_quantity()
 {
 	$minimum_quantity = 12;
 	$extra_fee_amount = intval(get_field('art_setup_fee', 'options')); // Set your extra fee amount here
+	$premium_setup_fee = intval(get_field('premium_artwork_setup_fee', 'options')); // Set your extra fee amount here
+	$premiumisenabled = false;
+
+	foreach (WC()->cart->get_cart() as $cart_item_key => $cart_item) {
+		// Check if premium artwork price is enabled
+		if (!empty($cart_item['premium_artwork_price']) && $cart_item['premium_artwork_price'] === 'true') {
+			$premiumisenabled = true;
+			break; // Break the loop once we find a premium item
+		}
+	}
 
 	// Get the total quantity of items in the cart
 	$cart_quantity = WC()->cart->get_cart_contents_count();
 
-	// Apply the fee if the quantity is less than the minimum
+	// Apply the standard setup fee if the cart quantity is less than the minimum
 	if ($cart_quantity < $minimum_quantity) {
 		WC()->cart->add_fee('Setup Fee', $extra_fee_amount, true);
 	}
+
+	// Apply the premium setup fee based on premium item being present in the cart
+	if ($premiumisenabled && $cart_quantity < 24) {
+		WC()->cart->add_fee('Premium Setup Fee', $premium_setup_fee, true);
+	}
+}
+
+
+//  contact form validation 
+function custom_text_and_textarea_validation_filter($result, $tag)
+{
+	$tag_name = $tag['name'];
+
+	// Define a regex pattern that allows only text, digits, single and double quotes
+	$allowed_pattern = '/^[a-zA-Z0-9\'"\s]+$/';
+
+	// Check text and textarea fields by name
+	if ($tag_name == 'your-name' || $tag_name == 'your-subject' || $tag_name == 'your-message') {
+		$value = isset($_POST[$tag_name]) ? trim($_POST[$tag_name]) : '';
+
+		// If the value doesn't match the allowed pattern, invalidate the field
+		if (!preg_match($allowed_pattern, $value)) {
+			$result->invalidate($tag, "Only letters, digits, and quotes (' and \") are allowed.");
+		}
+	}
+
+	return $result;
+}
+
+// Apply the validation filter to text and textarea fields
+add_filter('wpcf7_validate_text', 'custom_text_and_textarea_validation_filter', 10, 2);
+add_filter('wpcf7_validate_text*', 'custom_text_and_textarea_validation_filter', 10, 2); // For required text fields
+add_filter('wpcf7_validate_textarea', 'custom_text_and_textarea_validation_filter', 10, 2);
+add_filter('wpcf7_validate_textarea*', 'custom_text_and_textarea_validation_filter', 10, 2); // For required textarea fields
+
+
+function check_the_category_filter($categories, $archive)
+{
+	$is_in_child = false;
+	if (is_array($categories)) {
+		foreach ($categories as $child) {
+			if ($child->term_id == $archive) {
+				$is_in_child = true;
+			}
+		}
+	}
+	return $is_in_child;
 }

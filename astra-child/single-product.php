@@ -20,7 +20,21 @@ $shortdesc = $product->get_short_description();
 $average = $product->get_average_rating();
 $rating_count = $product->get_rating_count();
 $terms = get_the_terms($product->get_id(), 'product_cat');
+$has_size_variation = false;
 
+// Check if the product is variable
+if ( $product->is_type( 'variable' ) ) {
+    // Get available variations
+    $available_variations = $product->get_available_variations();
+    
+    // Check if 'size' is one of the attributes    
+    foreach ( $available_variations as $variation ) {
+       if ( isset( $variation['attributes']['attribute_pa_print-types'] ) && !empty( $variation['attributes']['attribute_pa_print-types'] ) &&  isset( $variation['attributes']['attribute_pa_color'] ) && !empty( $variation['attributes']['attribute_pa_color'] ) &&  isset( $variation['attributes']['attribute_pa_sizes'] ) && !empty( $variation['attributes']['attribute_pa_sizes'] ) ) {
+            $has_size_variation = true;
+            break;
+        }
+    }
+} 
 ?>
 <div class="breadcrumbs_ar">
     <div class="container_mi_ar">
@@ -63,7 +77,7 @@ $terms = get_the_terms($product->get_id(), 'product_cat');
                     </div>
                     <p class="font_14_400 text_dark_op60_ar mb_ar_0"><?php echo $rating_count; ?> reviews</p>
                 </div>
-                
+
                 <h2 class="font_28_700 text_dark_ar"><?php echo $title; ?></h2>
                 <div class="price_ar">
                     <p class="font_20_700 text_dark_ar"><?php echo $price; ?> <span class="font_16_400 text_dark_op60_ar">each item</span></p>
@@ -71,7 +85,7 @@ $terms = get_the_terms($product->get_id(), 'product_cat');
                 <p class="font_14_400 text_dark_op60_ar restricted_text_ar"><?php echo $shortdesc; ?></p>
                 <?php
                 $iscustomise = get_field("enable_customization");
-                if ($product->get_type() === 'variable' && $iscustomise == true) {
+                if ($product->get_type() === 'variable' && $iscustomise == true && $has_size_variation == true) {
 
 
                 ?>
@@ -141,7 +155,7 @@ $terms = get_the_terms($product->get_id(), 'product_cat');
                                     </div>
                                 </div>
 
-                            </div> 
+                            </div>
                         </div>
                         <div class="addtocart_btn_wraper_ar" id="addtocarwrappere_ar">
                             <div class="subtotal_calc_ar">
@@ -170,6 +184,27 @@ $terms = get_the_terms($product->get_id(), 'product_cat');
                 ?>
             </div>
         </div>
+</section>
+
+<section>
+    <?php
+    $prod_desc = $product->get_description();
+    if (!empty($prod_desc)) {
+    ?>
+        <div class="container_mi_ar ">
+            <div class="inner_wraaper_ar padding_80">
+                <h2 class="font_28_700 text_dark_ar pd_desc_ar">Product Description</h2>
+                <div class="divider_tp_ar"></div>
+                <div class="product_desc_ar mb_t_20_ar">
+                    <p><?php echo $prod_desc; ?></p>
+
+                </div>
+            </div>
+        </div>
+    <?php
+    }
+
+    ?>
 </section>
 
 <div class="customise_guide_ar" id="quixk_guides_ar">
